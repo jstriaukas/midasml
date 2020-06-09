@@ -376,25 +376,26 @@ arma::vec midasar_pr(const arma::vec & Y, const arma::mat & YLAG, const arma::ma
   fit.fill(datum::nan);
   arma::mat ones(n, 1, fill::ones);
   arma::mat Xw1;
+  arma::mat Xw_ar;
   arma::mat tmp;
   for (int i=0; i<num_evals; i++){
     w = pow(1-u,param(i)-1);
     w = w/sum(w);
     Xw = X*w;
-    Xw = join_rows(YLAG, Xw);
+    Xw_ar = join_rows(YLAG, Xw);
     if (which_loss==1){
-      b = fastols(Y, Xw, intercept);
+      b = fastols(Y, Xw_ar, intercept);
     }
     if (which_loss==2){
-      b = fastals(Y, Xw, intercept, tau, 100, 1e-3);
+      b = fastals(Y, Xw_ar, intercept, tau, 100, 1e-3);
     }
     if (which_loss==3){
-      b = fastrq(Y, Xw, intercept, tau);
+      b = fastrq(Y, Xw_ar, intercept, tau);
     }
     if (intercept==1){
-      Xw1 = join_rows(ones, Xw);
+      Xw1 = join_rows(ones, Xw_ar);
     } else {
-      Xw1 = Xw;
+      Xw1 = Xw_ar;
     }
     res = Y-Xw1*b;
     if (which_loss==1){
@@ -421,14 +422,15 @@ arma::vec midasar_pr(const arma::vec & Y, const arma::mat & YLAG, const arma::ma
   w = pow(1-u,par(0)-1);
   w = w/sum(w);
   Xw = X*w;
+  Xw_ar = join_rows(YLAG, Xw);
   if (which_loss==1){
-    b = fastols(Y, Xw, intercept);
+    b = fastols(Y, Xw_ar, intercept);
   }
   if (which_loss==2){
-    b = fastals(Y, Xw, intercept, tau, 1000, 1e-7);
+    b = fastals(Y, Xw_ar, intercept, tau, 1000, 1e-7);
   }
   if (which_loss==3){
-    b = fastrq(Y, Xw, intercept, tau);
+    b = fastrq(Y, Xw_ar, intercept, tau);
   }
   arma::vec beta = join_cols(b,par);
   

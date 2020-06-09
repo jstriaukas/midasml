@@ -414,7 +414,7 @@ mixed_freq_data_single <- function(data.refdate,data.x,data.xdate,x.lag,horizon,
 #' @param est.end estimation end date, taken as the last ... . Remainig data after this date is dropped to out-of-sample evaluation data. 
 #' @param horizon forecast horizon relative to \code{data.ydate} date in high-frequency time units.
 #' @param disp.flag display flag to indicate whether or not to display obtained MIDAS data structure in console.
-#' @param ... an optional parameter \code{aggregation} specifying the aggregation method of high-frequency data to get low-frequency target (non-overlapping). "sum" - sum of high-frequency lags, sum&abs - sum of absolute value of high-frequency lags, mean - average of high-frequency lags, first_val - the most recent lag value of high-frequency lags.
+#' @param ... an optional parameter \code{aggregation} specifying the aggregation method of high-frequency data to get low-frequency target (non-overlapping). "sum" - sum of high-frequency lags, sum&abs - sum of high-frequency lags which after aggregation are taken in absolute value, sum&sq - sum of high-frequency lags which after aggregation are taken in squares, mean - average of high-frequency lags, first_val - the most recent lag value of high-frequency lags.
 #' @return a list of midas data structure. 
 #' @export mixed_freq_data
 mixed_freq_data_mhorizon <- function(data.x,data.xdate,x.lag,est.start,est.end,horizon,disp.flag = TRUE,...) {
@@ -449,7 +449,9 @@ mixed_freq_data_mhorizon <- function(data.x,data.xdate,x.lag,est.start,est.end,h
   if (aggregation=="sum") 
     y <- rowSums(y_tmp)
   if (aggregation=="sum&abs")
-    y <- rowSums(abs(y_tmp))
+    y <- rowSums(y_tmp)
+  if (aggregation=="sum&sq")
+    y <- rowSums(y_tmp)
   if (aggregation=="mean")
     y <- rowSums(y_tmp)/horizon
   if (aggregation=="first_val")
@@ -506,6 +508,10 @@ mixed_freq_data_mhorizon <- function(data.x,data.xdate,x.lag,est.start,est.end,h
   if (aggregation=="sum&abs"){
     est.x <- abs(est.x)
     out.x <- abs(out.x)
+  }
+  if (aggregation=="sum&sq"){
+    est.x <- (est.x)^2
+    out.x <- (out.x)^2
   }
   return(list(est.y = est.y, est.x = est.x, est.ydate = est.ydate, est.xdate = est.xdate, est.xother = est.xother,
               out.y = out.y, out.x = out.x, out.ydate = out.ydate, out.xdate = out.xdate, out.xother = out.xother))

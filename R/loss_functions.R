@@ -63,7 +63,7 @@ als_loss <- function(param, y, x, z, weight, tau, ...){
     yhat <- iota*param[1]+param_midas[1]*x%*%weight(param_midas[-1],d)
   }
   r <- y-yhat
-  obj <- 1/n*sum(r^2*( tau - as.numeric((r < 0)) ))
+  obj <- 1/n*sum(r^2*abs( tau - as.numeric((r < 0)) ))
   obj
 }
 
