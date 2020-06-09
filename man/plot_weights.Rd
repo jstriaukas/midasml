@@ -2,7 +2,7 @@
 % Please edit documentation in R/midas_functions.R
 \name{plot_weights}
 \alias{plot_weights}
-\title{MIDAS weight plot function}
+\title{MIDAS weights plot function}
 \usage{
 plot_weights(obj)
 }
