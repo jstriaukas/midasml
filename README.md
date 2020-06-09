@@ -5,9 +5,9 @@ midasML - estimation and prediction for high-dimensional mixed frequency time se
 ## About
 The midasML package implements estimation and prediction methods for of high dimensional time series regression models under mixed data sampling data structures using structured-sparsity penalties and orthogonal polynomials. For more information on the midasML approach see [1]. Note that single-variate MIDAS regressions are also implemented in ```midasr``` package. Functions for single-variate MIDAS regressions implmented in this package allows to directly compare low-dimensional and high-dimensional MIDAS regression models.
 
-The core of the method is the sparse-group LASSO (sg-LASSO) estimator proposed by [2], and studied for high-dimensional time series data by [1]. The main algorithm for solving sg-LASSO estimator is taken from [2]. 
+The core of the method is the sparse-group LASSO (sg-LASSO) estimator proposed by [2], and studied for high-dimensional time series data by [1,3]. The main algorithm for solving sg-LASSO estimator is taken from [2]. 
 
-Functions that compute MIDAS data structures were inspired by MIDAS Matlab toolbox (v2.3) written by Eric Ghysels, see [3].
+Functions that compute MIDAS data structures were inspired by MIDAS Matlab toolbox (v2.3) written by Eric Ghysels, see [4].
 
 ## Main functions
 
@@ -29,4 +29,6 @@ Functions that compute MIDAS data structures were inspired by MIDAS Matlab toolb
 
 [2] Simon, N., Friedman, J., Hastie, T., & Tibshirani, R. (2013). A sparse-group lasso. Journal of computational and graphical statistics, 22(2), 231-245. Related CRAN R package. https://CRAN.R-project.org/package=SGL 
 
-[3] Ghysels, E. et. al. Mathworks Matlab toolbox. https://www.mathworks.com/matlabcentral/fileexchange/45150-midas-matlab-toolbox
+[3] Babii, A., Ghysels, E., & Striaukas, J. (2020). Inference for high-dimensional regressions with heteroskedasticity and autocorrelation. <https://arxiv.org/abs/1912.06307>.
+
+[4] Ghysels, E. et. al. Mathworks Matlab toolbox. https://www.mathworks.com/matlabcentral/fileexchange/45150-midas-matlab-toolbox
