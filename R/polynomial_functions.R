@@ -24,12 +24,12 @@ lb <- function(degree,a=0,b=1,jmax=NULL,X=NULL){
   P <- matrix(1,nrow=n,ncol=degree+2)
   Psi <- matrix(1,nrow=n,ncol=degree+1)/ sqrt(b-a)
   P[, 2] <-  2*X/(b-a) - ((b+a)/(b-a))
-  
-  for (i in 1:degree){
-    P[, i+2]   <- ((2*i+1)/(i+1)) * P[, 2]*P[, i+1] - i/(i+1) * P[, i]
-    Psi[, i+1] <- sqrt((2*i + 1) / (b-a)) %*% P[, i+1]
+  if(degree>0){
+    for (i in 1:degree){
+      P[, i+2]   <- ((2*i+1)/(i+1)) * P[, 2]*P[, i+1] - i/(i+1) * P[, i]
+      Psi[, i+1] <- sqrt((2*i + 1) / (b-a)) %*% P[, i+1]
+    }
   }
-  
   return(Psi)
 }
 
@@ -56,12 +56,13 @@ gb <- function(degree,alpha,a=0,b=1,jmax=NULL,X=NULL){
   P <- matrix(1,nrow=n,ncol=degree+2)
   Psi <- matrix(1,nrow=n,ncol=degree+1)/ sqrt(b-a)
   P[, 2] <-  2*X/(b-a) - ((b+a)/(b-a))
-  
-  for (i in 1:degree){
-    a <- (2*i + 2*alpha + 1)*(2*i + 2*alpha + 2)/(2*(i+1)*(i + 2*alpha + 1))
-    c <- (alpha + i)^2*(2*i + 2*alpha + 2)/( (i+1)*(i + 2*alpha + 1)*(2*i + 2*alpha)) 
-    P[, i+2]   <- a * P[, 2]*P[, i+1] - c * P[, i]
-    Psi[, i+1] <- sqrt((2*i + 1) / (b-a)) %*% P[, i+1]
+  if(degree>0){
+    for (i in 1:degree){
+      a <- (2*i + 2*alpha + 1)*(2*i + 2*alpha + 2)/(2*(i+1)*(i + 2*alpha + 1))
+      c <- (alpha + i)^2*(2*i + 2*alpha + 2)/( (i+1)*(i + 2*alpha + 1)*(2*i + 2*alpha)) 
+      P[, i+2]   <- a * P[, 2]*P[, i+1] - c * P[, i]
+      Psi[, i+1] <- sqrt((2*i + 1) / (b-a)) %*% P[, i+1]
+    }
   }
   return(Psi)
 }
