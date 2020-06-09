@@ -11,16 +11,17 @@ Functions that compute MIDAS data structures were inspired by MIDAS Matlab toolb
 
 ## Main functions
 
-
-
-
-
-
-
-
-
-
-
+### Estimation and prediction functions
+  - ```midasml_forecast``` - midasML estimation and prediction function.
+  - ```midas_ardl``` - ARDL-MIDAS single-variate estimation and prediction function (accomodates different weight functions and loss function, e.g. quantile regression loss).
+  - ```midas_dl``` - DL-MIDAS single-variate estimation and prediction function (accomodates different weight functions and loss function, e.g. quantile regression loss).
+### Estimation only functions
+  - ```reg_sgl``` - sg-LASSO regression estimation.
+  - ```panel_sgl``` - panel sg-LASSO regression estimation.
+### Data handling functions
+  - ```qtarget.sort_midasml``` - transforms data into format suitable for midasML technique, creating in-sample and out-of-sample observations. Output could be directly inputed into ```midasml_forecast``` (note: currently does not handle real-time data vintages. in case it real-time experiment is needed, this function could help to setup up data for each quarter prediction separately. future updates will contain functions capable of handling real-time data vintages.)
+  - ```mixed_freq_data``` transforms data into MIDAS regression format creating in-sample and out-of-sample observations. Output is subsequenlty used in ```midas_ardl``` & ```midas_dl```
+  
 
 ## References
 
