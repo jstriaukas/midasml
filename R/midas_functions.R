@@ -85,7 +85,12 @@ midas_dl <- function(data.x, data.xdate, data.y, data.ydate, x.lag, est.start, e
     legendre_degree <- options$legendre_degree
     info$legendre_degree <- legendre_degree   
   }
-  
+  if(loss=="als"){
+    if(is.null(options$tau))
+      stop("set quantile level tau in options")
+    tau <- options$tau
+    info$tau <- tau
+  }
   if(loss=="rq"){
     if(is.null(options$tau))
       stop("set quantile level tau in options")
@@ -129,6 +134,7 @@ midas_dl <- function(data.x, data.xdate, data.y, data.ydate, x.lag, est.start, e
   info$est.x <- est.x
   info$x.lag <- x.lag
   info$out.y <- out.y
+  info$out.x <- out.x
   
   nobs <- length(est.y)
   nforecast <- length(out.y)
@@ -145,6 +151,10 @@ midas_dl <- function(data.x, data.xdate, data.y, data.ydate, x.lag, est.start, e
   if(loss=="mse"){
     fit <- sqrt(mean((est.y - pred_in)^2))
   } 
+  if (loss=="als"){
+    r <- est.y - pred_in
+    fit <- 1/length(r)*sum(r^2*abs( tau - as.numeric((r < 0)) ))
+  }
   if (loss=="rq"){
     r <- est.y - pred_in
     fit <- 1/length(r)*sum(r*( tau - as.numeric((r < 0)) ))
@@ -198,6 +208,10 @@ midas_dl <- function(data.x, data.xdate, data.y, data.ydate, x.lag, est.start, e
   if(loss=="mse"){
     pred.obj$rmse <- sqrt(mean((out.y-pred)^2))
   }
+  if(loss=="als"){
+    r <- out.y-pred
+    pred.obj$loss <- 1/length(r)*sum(r^2*abs( tau - as.numeric((r < 0)) ))
+  }
   if(loss=="rq"){
     r <- out.y-pred
     pred.obj$loss <- 1/length(r)*sum(r*( tau - as.numeric((r < 0)) ))
@@ -217,7 +231,7 @@ midas_dl <- function(data.x, data.xdate, data.y, data.ydate, x.lag, est.start, e
 #' @description 
 #'  Estimates and predicts using a single variate ARDL-MIDAS model.
 #' @details 
-#'  \ifelse{html}{\out{Several polynomial functional forms are available (input variable <code>polynomial</code>): <br><br> - <code>beta_w</code>: Beta polynomial</center> <br> - <code>rbeta_w</code>: restricted Beta polynomial <br> - <code>expalmon_w</code>: exponential Almon polynomial <br>  - <code>umidas_w</code>: unrestricted lags (U-MIDAS) <br> - <code>step_fun</code>: polynomial with step functions <br> - <code>legendre_w</code>: Legendre polynomials <br> <br> different forecasting schemes (input variable <code>scheme</code>): <br><br>  - <code>fixed</code>: fixed scheme <br> - <code>rolling</code>: rolling window <br> - <code>expand</code>: expanding window <br><br> and different loss functions (input variable <code>loss</code>): <br><br> - <code>mse</code>: least squares <br> - <code>als</code>: asymmetric least squares <br> - <code>rq</code>: quantile. <br> <br> The ARDL-MIDAS model is: <br> <center> y<sub>t</sub> =  &mu; + &Sigma;<sub>p</sub> &rho;<sub>p</sub> y<sub>t-p</sub> + &beta;  &Sigma;<sub>j</sub> &omega;<sub>j</sub>(&theta;)x<sub>t-1</sub> </center> <br> where &mu;, &beta;, &theta; and  &rho;<sub>p</sub> are model parameters, p is the number of low-frequency lags and &omega; is the weight function.}}{Several polynomial functional forms are available (input variable \code{polynomial}): \cr  - \code{beta_w}: Beta polynomial \cr - \code{rbeta_w}: restricted Beta polynomial \cr - \code{expalmon_w}: Exp Almon polynomial \cr - \code{umidas_w}: unrestricted lags (U-MIDAS) \cr - \code{step_fun}: polynomial with step functions  \cr - \code{legendre_w}: Legendre polynomials \cr different forecasting schemes (input variable \code{scheme}): \cr - \code{fixed}: fixed scheme \cr - \code{rolling}: rolling window \cr - \code{expand}: expanding window \cr  and different loss functions (input variable \code{loss}) \cr - \code{mse}: least squares \cr - \code{als}: asymmetric least squares \cr - \code{rq}: quantile.  \cr\cr The DL-MIDAS model is: \cr \deqn{y_t =  \mu + \sum_p \rho_p y_{t-p} \beta + \sum_j \omega_j(\theta)x_{t-1}} \cr where \eqn{\mu}, \eqn{\beta}, \eqn{\theta}, \eqn{\rho_p}  are model parameters, p is number of low-frequency and \eqn{\omega} is the weight function.}     
+#'  \ifelse{html}{\out{Several polynomial functional forms are available (input variable <code>polynomial</code>): <br><br> - <code>beta_w</code>: Beta polynomial</center> <br> - <code>rbeta_w</code>: restricted Beta polynomial <br> - <code>expalmon_w</code>: exponential Almon polynomial <br>  - <code>umidas_w</code>: unrestricted lags (U-MIDAS) <br> - <code>step_fun</code>: polynomial with step functions <br> - <code>legendre_w</code>: Legendre polynomials <br> <br> different forecasting schemes (input variable <code>scheme</code>): <br><br>  - <code>fixed</code>: fixed scheme <br> - <code>rolling</code>: rolling window <br> - <code>expand</code>: expanding window <br><br> and different loss functions (input variable <code>loss</code>): <br><br> - <code>mse</code>: least squares <br> - <code>als</code>: asymmetric least squares <br> - <code>rq</code>: quantile. <br> <br> The ARDL-MIDAS model is: <br> <center> y<sub>t</sub> =  &mu; + &Sigma;<sub>p</sub> &rho;<sub>p</sub> y<sub>t-p</sub> + &beta;  &Sigma;<sub>j</sub> &omega;<sub>j</sub>(&theta;)x<sub>t-1</sub> </center> <br> where &mu;, &beta;, &theta; and  &rho;<sub>p</sub> are model parameters, p is the number of low-frequency lags and &omega; is the weight function.}}{Several polynomial functional forms are available (input variable \code{polynomial}): \cr  - \code{beta_w}: Beta polynomial \cr - \code{rbeta_w}: restricted Beta polynomial \cr - \code{expalmon_w}: Exp Almon polynomial \cr - \code{umidas_w}: unrestricted lags (U-MIDAS) \cr - \code{step_fun}: polynomial with step functions  \cr - \code{legendre_w}: Legendre polynomials \cr different forecasting schemes (input variable \code{scheme}): \cr - \code{fixed}: fixed scheme \cr - \code{rolling}: rolling window \cr - \code{expand}: expanding window \cr  and different loss functions (input variable \code{loss}) \cr - \code{mse}: least squares \cr - \code{als}: asymmetric least squares \cr - \code{rq}: quantile.  \cr\cr The ARDL-MIDAS model is: \cr \deqn{y_t =  \mu + \sum_p \rho_p y_{t-p} + \beta \sum_j \omega_j(\theta)x_{t-1}} \cr where \eqn{\mu}, \eqn{\beta}, \eqn{\theta}, \eqn{\rho_p}  are model parameters, p is number of low-frequency and \eqn{\omega} is the weight function.}     
 #' @usage 
 #' midas_ardl(data.y, data.ydate, data.x, data.xdate, x.lag, 
 #'   y.lag, est.start, est.end, horizon = 1, 
@@ -300,12 +314,19 @@ midas_ardl <- function(data.y, data.ydate, data.x, data.xdate, x.lag, y.lag, est
     legendre_degree <- options$legendre_degree
     info$legendre_degree <- legendre_degree   
   }
+  if(loss=="als"){
+    if(is.null(options$tau))
+      stop("set quantile level tau in options")
+    tau <- options$tau
+    info$tau <- tau
+  }
   if(loss=="rq"){
     if(is.null(options$tau))
       stop("set quantile level tau in options")
     tau <- options$tau
     info$tau <- tau
   }
+
   mf.data <- mixed_freq_data(data.y,data.ydate,data.x,data.xdate,x.lag,y.lag,horizon,est.start,est.end,disp.flag)
   # in-sample data
   est.y <- mf.data$est.y
@@ -322,9 +343,12 @@ midas_ardl <- function(data.y, data.ydate, data.x, data.xdate, x.lag, y.lag, est
   
   info$est.y <- est.y
   info$est.x <- est.x
+  info$est.lag.y <- est.lag.y
   info$out.y <- out.y
   info$x.lag <- x.lag
   info$y.lag <- y.lag
+  info$out.x <- out.x
+  info$out.lag.y <- out.lag.y
   
   nobs <- length(est.y)
   nforecast <- length(out.y)
@@ -341,6 +365,10 @@ midas_ardl <- function(data.y, data.ydate, data.x, data.xdate, x.lag, y.lag, est
   if (loss=="mse"){
     fit <- sqrt(mean((est.y - pred_in)^2))
   } 
+  if (loss=="als"){
+    r <- est.y - pred_in
+    fit <- 1/length(r)*sum(r^2*abs( tau - as.numeric((r < 0)) ))
+  }
   if (loss=="rq"){
     r <- est.y - pred_in
     fit <- 1/length(r)*sum(r*( tau - as.numeric((r < 0)) ))
@@ -399,6 +427,10 @@ midas_ardl <- function(data.y, data.ydate, data.x, data.xdate, x.lag, y.lag, est
   if(loss=="mse"){
     pred.obj$rmse <- sqrt(mean((out.y-pred)^2))
   }
+  if(loss=="als"){
+    r <- out.y-pred
+    pred.obj$loss <- 1/length(r)*sum(r^2*abs( tau - as.numeric((r < 0)) ))
+  }
   if(loss=="rq"){
     r <- out.y-pred
     pred.obj$loss <- 1/length(r)*sum(r*( tau - as.numeric((r < 0)) ))
@@ -448,6 +480,12 @@ midas_estimate <- function(est.y,est.x,est.lag.y,est.xdate,polynomial,loss,num.e
     obj_fun <- rq_loss
   }
   if (loss == "als"){
+    #stop("check step functions, legendre, umidas...")
+    tau <- options$tau
+    if(is.null(tau)){
+      tau <- 0.95
+      message("MIDAS quantile regression is used without specifying the quantile level. 'tau' was set set to default value (0.95). set 'tau' in options if this is not a good choice")
+    }
     obj_fun <- als_loss
   }
   if (is.null(options$profiling)){
@@ -548,15 +586,16 @@ midas_estimate <- function(est.y,est.x,est.lag.y,est.xdate,polynomial,loss,num.e
       }
       if(loss=="mse"){
         which_loss <- 1
+        tau <- 0
       } else if(loss=="als"){
         which_loss <- 2
       } else if(loss=="rq"){
         which_loss <- 3
       }
       if(!is.null(est.lag.y)){
-        coef <- midasar_pr(est.y,est.lag.y,est.x,as.double(1),as.double(tau),as.double(which_loss),as.double(max_iter))
+        coef <- midasar_pr(as.vector(est.y),as.matrix(est.lag.y),as.matrix(est.x),as.double(1),as.double(tau),as.double(which_loss),as.double(max_iter))
       } else {
-        coef <- midas_pr(est.y,est.x,as.double(1),as.double(tau),as.double(which_loss),as.double(max_iter))
+        coef <- midas_pr(as.vector(est.y),as.matrix(est.x),as.double(1),as.double(tau),as.double(which_loss),as.double(max_iter))
       }
       ar_lags <- NULL
       if(!is.null(est.lag.y)){
@@ -823,7 +862,7 @@ midas_forecast <- function(params,x,ylag,polynomial,...){
 #' @return returns \code{num.coef} number of initial parameter values.
 #' @export get_start_midas
 #' @keywords internal
-get_start_midas <- function(y, X, z = NULL, loss = c("mse", "rq"), weight, polynomial, num.evals=1000, num.coef=10, seed=NULL, tau=tau) {
+get_start_midas <- function(y, X, z = NULL, loss = c("mse", "als", "rq"), weight, polynomial, num.evals=1000, num.coef=10, seed=NULL, tau=tau) {
   if (is.null(seed))
     seed <- 100
   if (polynomial=="rbeta_w")
@@ -832,6 +871,12 @@ get_start_midas <- function(y, X, z = NULL, loss = c("mse", "rq"), weight, polyn
     nw <- 2
   
   loss <- match.arg(loss)
+  if (loss=="als"){
+    if(is.null(tau)){
+      tau <- 0.95
+      message("MIDAS als regression is used without specifying the quantile level. 'tau' was set set to default value (0.95). set 'tau' in options if this is not a good choice")
+    }
+  }
   if (loss=="rq"){
     if(is.null(tau)){
       tau <- 0.95
@@ -930,7 +975,7 @@ get_start_midas <- function(y, X, z = NULL, loss = c("mse", "rq"), weight, polyn
   if (loss=="als"){
     fn0 <- function(param_eval,XX,nw) {
       r  <- y - fit_xb(param_eval,XX,nw)
-      1/n*sum(r^2*( tau - as.numeric((r < 0)) ))
+      1/n*sum(r^2*abs( tau - as.numeric((r < 0)) ))
     }
   }
   if (loss=="rq"){
@@ -946,7 +991,7 @@ get_start_midas <- function(y, X, z = NULL, loss = c("mse", "rq"), weight, polyn
   return(coefs)
 }
 
-#' MIDAS weight plot function
+#' MIDAS weights plot function
 #' 
 #' @description 
 #'  Based on specification in \code{obj}, plots a basic R figure of estimated MIDAS weights.
