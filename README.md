@@ -3,7 +3,7 @@
 midasML - estimation and prediction for high-dimensional mixed frequency time series data.
 
 ## About
-The midasML package implements estimation and prediction methods for high dimensional time series regression models under mixed data sampling data structures using structured-sparsity penalties and orthogonal polynomials. For more information on the midasML approach see [1]. The package also allows to estimate and predict using single-variate MIDAS regression. Note that single-variate MIDAS regressions are also implemented in ```midasr``` package. Functions for single-variate MIDAS regressions implemented in this package allows to directly compare low-dimensional and high-dimensional MIDAS regression models.
+The midasML package implements estimation and prediction methods for high dimensional time series regression models under mixed data sampling data structures using structured-sparsity penalties and orthogonal polynomials. For more information on the midasML approach see [1]. The package also allows to estimate and predict using single-variate MIDAS regressions. Note that single-variate MIDAS regressions are also implemented in ```midasr``` package. Functions for single-variate MIDAS regressions implemented in this package allows to directly compare low-dimensional and high-dimensional MIDAS regression models.
 
 The core of the midasML method is the sparse-group LASSO (sg-LASSO) estimator proposed by [2], and studied for high-dimensional time series data by [1, 3]. The sg-LASSO consists of group structures that are present in high-dimensional ARDL-MIDAS model, hence it is a natural estimator for such model. 
 
