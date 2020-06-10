@@ -8,7 +8,7 @@ get_start_midas(
   y,
   X,
   z = NULL,
-  loss = c("mse", "rq"),
+  loss = c("mse", "als", "rq"),
   weight,
   polynomial,
   num.evals = 1000,
