@@ -22,7 +22,7 @@ mixed_freq_data_mhorizon(data.x, data.xdate, x.lag, est.start, est.end,
 
 \item{disp.flag}{display flag to indicate whether or not to display obtained MIDAS data structure in console.}
 
-\item{...}{an optional parameter \code{aggregation} specifying the aggregation method of high-frequency data to get low-frequency target (non-overlapping). "sum" - sum of high-frequency lags, sum&abs - sum of absolute value of high-frequency lags, mean - average of high-frequency lags, first_val - the most recent lag value of high-frequency lags.}
+\item{...}{an optional parameter \code{aggregation} specifying the aggregation method of high-frequency data to get low-frequency target (non-overlapping). "sum" - sum of high-frequency lags, sum&abs - sum of high-frequency lags which after aggregation are taken in absolute value, sum&sq - sum of high-frequency lags which after aggregation are taken in squares, mean - average of high-frequency lags, first_val - the most recent lag value of high-frequency lags.}
 }
 \value{
 a list of midas data structure.
