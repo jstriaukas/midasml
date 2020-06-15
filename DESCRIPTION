@@ -6,6 +6,7 @@ Authors@R: person("Jonas", "Striaukas", email = "jonas.striaukas@gmail.com", rol
 Author: Jonas Striaukas [aut, cre] 
 Maintainer: Jonas Striaukas <jonas.striaukas@gmail.com>
 Description: The midasml estimation and prediction methods for high dimensional time series regression models under mixed data sampling data structures using structured-sparsity penalties and orthogonal polynomials. For more information on the midasml approach see Babii, Ghysels, and Striaukas (2020) <arXiv:2005.14057>. Functions that compute MIDAS data structures were inspired by MIDAS Matlab toolbox (v2.3) written by Eric Ghysels. 
+BugReports: https://github.com/jstriaukas/midasml/issues
 License: GPL (>= 2)
 Depends: foreach (>= 1.4.4)
 Imports: 

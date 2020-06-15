@@ -47,6 +47,11 @@ midasml_forecast <- function(y_in, y_out, x_in, x_out, group_index, gamma_w, y_o
       y_hat[i] <- predict.reg_sgl(fit, newX = as.matrix(x_out[i,]))$pred
     }
   }
+  if(scheme=="real_time"){
+    fit <- reg_sgl(X = x_in, y = y_in, index = group_index, gamma_w = gamma_w, verbose = verbose, ...)
+    y_hat <- predict.reg_sgl(fit, newX = x_out)$pred
+  }
+  
   return(y_hat)
 }
 #' High-dimensional mixed frequency data sort function
@@ -72,10 +77,13 @@ midasml_forecast <- function(y_in, y_out, x_in, x_out, group_index, gamma_w, y_o
 #' @param est.end estimation end date, taken as the last ... . Remainig data after this date is dropped to out-of-sample evaluation data. 
 #' @param standardize TRUE/FALSE to standardize high-frequneyc covariates in high-frequency units.
 #' @param group_ar_lags TRUE/FALSE to group AR lags.
+#' @param real_time_predictions TRUE/FALSE in case real-time data is used for predictions 
 #' @param disp.flag display flag to indicate whether or not to display obtained MIDAS data structure in console.
 #' @return MIDAS covariates and group memberships based on desired specification.
 #' @export qtarget.sort_midasml
-qtarget.sort_midasml <- function(y.data, x.macro.data = NULL, x.real.time = NULL, x.quarterly_group = NULL, x.lag = NULL, legendre_degree, horizon, macro_delay = 1, est.start, est.end, standardize = TRUE, group_ar_lags = FALSE, disp.flag = TRUE){
+qtarget.sort_midasml <- function(y.data, x.macro.data = NULL, x.real.time = NULL, x.quarterly_group = NULL, x.lag = NULL, legendre_degree, horizon, macro_delay = 1, est.start, est.end, standardize = TRUE, group_ar_lags = FALSE, real_time_predictions = FALSE, disp.flag = TRUE){
+  if(is.null(x.macro.data)&&is.null(x.real.time))
+    stop("both macro and real time data were not inputed. program stops as you need monthly data to compute nowcasts. please input either x.macro.data or x.real.time on the next run.")
   dim_macro <- dim_real.time <- dim_quarterly <- 0
   if(!is.null(x.macro.data))
     dim_macro <- dim(x.macro.data)[2]-1
@@ -112,8 +120,19 @@ qtarget.sort_midasml <- function(y.data, x.macro.data = NULL, x.real.time = NULL
     x.macro_data <- x.macro.data[,-1]
     data.refdate <- y.data$DATE
     lubridate::month(data.refdate) <- lubridate::month(data.refdate)-macro_delay
-    lubridate::month(est.start) <- lubridate::month(est.start)-macro_delay
-    lubridate::month(est.end) <- lubridate::month(est.end)-macro_delay
+    est.start_m <- est.start
+    est.end_m <- est.end
+    lubridate::month(est.start_m) <- lubridate::month(est.start_m)-macro_delay
+    lubridate::month(est.end_m) <- lubridate::month(est.end_m)-macro_delay
+    lubridate::month(data.refdate) <- lubridate::month(data.refdate) - horizon
+    lubridate::month(est.end_m) <- lubridate::month(est.end_m) - horizon
+    if(real_time_predictions){
+      if(horizon>=0){
+      tmp_date <- data.refdate[length(data.refdate)]
+      lubridate::month(tmp_date) <- lubridate::month(tmp_date) + 3
+      data.refdate <- c(data.refdate, tmp_date)
+      }
+    }
     for (j_macro in seq(dim_macro)){
       if(standardize){
         j_data <- scale(x.macro_data[,j_macro], center = TRUE, scale = TRUE)
@@ -122,12 +141,13 @@ qtarget.sort_midasml <- function(y.data, x.macro.data = NULL, x.real.time = NULL
       }
       # get MIDAS structure:
       tmp <- mixed_freq_data_single(data.refdate = data.refdate, data.x = j_data, data.xdate = x.macro_date,
-                                    x.lag[j_macro], horizon, est.start, est.end, disp.flag = disp.flag)
+                                    x.lag[j_macro], horizon = 0, est.start, est.end_m, disp.flag = disp.flag) #horizon is taken into account by shifting est.end_m back
       if(j_macro==1){
         ref_in <- tmp$est.refdate
         ref_out <- tmp$out.refdate
-        lubridate::month(ref_in) <- lubridate::month(ref_in)+macro_delay
-        lubridate::month(ref_out) <- lubridate::month(ref_out)+macro_delay
+        lubridate::month(ref_in) <- lubridate::month(ref_in)+macro_delay+horizon
+        if(!is.null(ref_out))
+          lubridate::month(ref_out) <- lubridate::month(ref_out)+macro_delay+horizon
       }
       # get Legendre weights:
       tmp_w <- lb(legendre_degree[j_macro],a=0,b=1,jmax=x.lag[j_macro])
@@ -151,6 +171,15 @@ qtarget.sort_midasml <- function(y.data, x.macro.data = NULL, x.real.time = NULL
     x.real.time_date <- x.real.time$DATE
     x.real.time_data <- x.real.time[,-1]
     data.refdate <- y.data$DATE
+    lubridate::month(est.end) <- lubridate::month(est.end) - horizon
+    lubridate::month(data.refdate) <- lubridate::month(data.refdate) - horizon
+    if(real_time_predictions){
+      if(horizon>=0){
+        tmp_date <- data.refdate[length(data.refdate)]
+        lubridate::month(tmp_date) <- lubridate::month(tmp_date) + 3
+        data.refdate <- c(data.refdate, tmp_date)
+      }
+    }
     for (j_real.time in seq(dim_real.time)){
       if(standardize){
         j_data <- scale(x.real.time_data[,j_real.time], center = TRUE, scale = TRUE)
@@ -159,11 +188,14 @@ qtarget.sort_midasml <- function(y.data, x.macro.data = NULL, x.real.time = NULL
       }
       # get MIDAS structure:
       tmp <- mixed_freq_data_single(data.refdate = data.refdate, data.x = j_data, data.xdate = x.real.time_date,
-                                    x.lag[j_real.time+dim_macro], horizon, est.start, est.end, disp.flag = disp.flag)
+                                    x.lag[j_real.time+dim_macro], horizon = 0, est.start, est.end, disp.flag = disp.flag)
       
       if(j_real.time==1){
         ref_in <- tmp$est.refdate
         ref_out <- tmp$out.refdate
+        lubridate::month(ref_in) <- lubridate::month(ref_in)+horizon
+        if(!is.null(ref_out))
+          lubridate::month(ref_out) <- lubridate::month(ref_out)+horizon
       }
       # get Legendre weights:
       tmp_w <- lb(legendre_degree[j_real.time+dim_macro],a=0,b=1,jmax=x.lag[j_real.time+dim_macro])
@@ -184,7 +216,8 @@ qtarget.sort_midasml <- function(y.data, x.macro.data = NULL, x.real.time = NULL
   }  
   
   if(is.null(ref_in) || is.null(ref_out))
-    stop("ref dates were not computed. likely that both macro and real time datasets where not inputed. at least one dataset must be inputed.")
+    message("ref dates were not computed. likely that both macro and real time datasets where not inputed. at least one dataset must be inputed.")
+  
   
   # computing the quarterly data if inputed
   if(!is.null(x.quarterly_group)){
@@ -218,7 +251,12 @@ qtarget.sort_midasml <- function(y.data, x.macro.data = NULL, x.real.time = NULL
   # augment lags if inputed
   if(dim(y.data)[2]>2){
     y.lags_in <- y.data_in[,-c(1,2)]
-    y.lags_out <- y.data_out[,-c(1,2)]
+    num_lags <- dim(y.lags_in)[2]
+    if(real_time_predictions){
+      y.lags_out <- matrix(y.data_in[(dim(y.data_in)[1]-num_lags+1):dim(y.data_in)[1],2],nrow=1,ncol=num_lags)
+    } else {
+      y.lags_out <- y.data_out[,-c(1,2)]
+    }
     if(group_ar_lags)
       group_ar <- rep(1,times=dim(y.lags_in)[2])
     if(!group_ar_lags)
@@ -231,9 +269,9 @@ qtarget.sort_midasml <- function(y.data, x.macro.data = NULL, x.real.time = NULL
     x_average <- cbind(y.lags_in, x_average)
     x_average_out <- cbind(y.lags_out, x_average_out)
     
-    group_index <- c(group_ar,group_index)
-    group_index_un <- c(group_ar,group_index_un)
-    group_index_av <- c(group_ar,group_index_av)
+    group_index <- c(group_ar,group_index+max(group_ar))
+    group_index_un <- c(group_ar,group_index_un+max(group_ar))
+    group_index_av <- c(group_ar,group_index_av+max(group_ar))
   }
   y_in <- y.data_in$Y
   y_in_dates <- y.data_in$DATE

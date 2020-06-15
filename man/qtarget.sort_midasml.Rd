@@ -34,6 +34,8 @@ qtarget.sort_midasml(y.data, x.macro.data = NULL, x.real.time = NULL,
 
 \item{group_ar_lags}{TRUE/FALSE to group AR lags.}
 
+\item{real_time_predictions}{TRUE/FALSE in case real-time data is used for predictions}
+
 \item{disp.flag}{display flag to indicate whether or not to display obtained MIDAS data structure in console.}
 }
 \value{
