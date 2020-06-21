@@ -16,8 +16,8 @@ midas_forecast(params, x, ylag, polynomial, ...)
 \item{polynomial}{polynomial specification.}
 
 \item{...}{optional parameters to feed into other functions. 
-step_idx - index for step function polynomial specification (warning: if left unspecified, the program computes index the same way as in the estimation function), 
-legendre_degree - the degree of Legendre polynomials (warning: if left unspecified, the program sets it to 3, the same way as in the estimation function).}
+\code{step_idx} - index for step function polynomial specification (warning: if left unspecified, the program computes index the same way as in the estimation function), 
+\code{legendre_degree} - the degree of Legendre polynomials (warning: if left unspecified, the program sets it to 3, the same way as in the estimation function).}
 }
 \value{
 returns prediction value.
@@ -27,5 +27,8 @@ Predicts from single variate MIDAS model estimated based on specification suppli
 }
 \details{
 For specficiation details, see \code{midas_dl} or \code{midas_ardl} function descriptions for more details.
+}
+\author{
+Jonas Striaukas
 }
 \keyword{internal}

@@ -17,3 +17,13 @@ changed date vector.
 \description{
 Change the date to the beginning of the month date.
 }
+\examples{
+x <- seq(as.Date("2020-01-01"),as.Date("2020-12-01"), by = "day")
+set.seed(100)
+x <- x[-sample(1:336, 100)]
+y <- seq(as.Date("2020-01-01"),as.Date("2020-12-01"), by = "month")
+dateMatch(x,y)
+}
+\author{
+Jonas Striaukas
+}

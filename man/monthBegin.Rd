@@ -15,3 +15,9 @@ changed date value.
 \description{
 Change the date to the beginning of the month date.
 }
+\examples{
+monthBegin(as.Date("2020-05-15"))
+}
+\author{
+Jonas Striaukas
+}

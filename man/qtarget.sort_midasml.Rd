@@ -7,7 +7,7 @@
 qtarget.sort_midasml(y.data, x.macro.data = NULL, x.real.time = NULL,
   x.quarterly_group = NULL, x.lag = NULL, legendre_degree, horizon, 
   macro_delay = 1, est.start, est.end, standardize = TRUE, group_ar_lags = FALSE, 
-  disp.flag = TRUE)
+  real_time_predictions = FALSE, disp.flag = TRUE)
 }
 \arguments{
 \item{y.data}{response variable data.}
@@ -46,4 +46,19 @@ Sorts high-dimensional mixed frequency data for quarterly target variable.
 }
 \details{
 \ifelse{html}{\out{Sorts high-dimensional mixed frequency data for quarterly target variable read to be inputed into <code>midasml_forecast</code> function to produce nowcasts & forecasts.}}{Sorts high-dimensional mixed frequency data for quarterly target variable read to be inputed into \code{midasml_forecast} function to produce nowcasts & forecasts.}
+}
+\examples{
+data(macro_midasml)
+est.start <- as.Date("1990-12-01")
+est.end <- as.Date("2017-03-01")
+rgdp.data <- macro_midasml$rgdp.data
+rgdp.data <- rgdp.data[rgdp.data$DATE<=as.Date("2017-06-01"),]
+qtarget.sort_midasml(y.data = rgdp.data, x.macro.data = macro_midasml$md.data, 
+         x.real.time = macro_midasml$text.data, x.quarterly_group = macro_midasml$survey.data, 
+         x.lag = 12, legendre_degree = 3, 
+         horizon = 1, macro_delay = 1, est.start, est.end, 
+         standardize = TRUE, group_ar_lags = FALSE, disp.flag = FALSE)
+}
+\author{
+Jonas Striaukas
 }

@@ -17,3 +17,11 @@ expalmon_w(param, dayLag)
 \description{
 For a given set of parameters \eqn{\theta} and the number of high-frequency lags, returns weights implied by exponential Almon functional form.
 }
+\examples{
+param <- c(0.02,-0.2)
+dayLag <- 22
+expalmon_w(param, dayLag)
+}
+\author{
+Jonas Striaukas
+}

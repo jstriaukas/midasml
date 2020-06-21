@@ -7,6 +7,11 @@
 #' @param jmax number of high-frequency lags.
 #' @param X optional evaluation grid vector.
 #' @return Psi weight matrix with Legendre functions upto \code{degree}.
+#' @author Jonas Striaukas
+#' @examples
+#' degree <- 3
+#' jmax <- 66
+#' lb(degree = degree, a = 0, b = 1, jmax = jmax)
 #' @export lb
 lb <- function(degree,a=0,b=1,jmax=NULL,X=NULL){
   # Notes:
@@ -35,7 +40,7 @@ lb <- function(degree,a=0,b=1,jmax=NULL,X=NULL){
 
 #' Gegenbauer polynomials shifted to [a,b]
 #' 
-#' @description For a given set of points in X, computes the orthonormal Gegenbauer polynomials basis of L2 [a,b] for a given degree and \eqn{\alpha} parameter. The Gegenbauer polynomials are special cases of Jacobi polynomials. In turn, you may get Legendre polynomials from Gegenbauer by setting \eqn{\alpha} = 0, or Chebychev's polynomials 
+#' @description For a given set of points in X, computes the orthonormal Gegenbauer polynomials basis of L2 [a,b] for a given degree and \eqn{\alpha} parameter. The Gegenbauer polynomials are a special case of more general Jacobi polynomials. In turn, you may get Legendre polynomials from Gegenbauer by setting \eqn{\alpha} = 0, or Chebychev's polynomials 
 #'  by setting \eqn{\alpha} = 1/2 or -1/2.
 #' @param degree polynomial degree.
 #' @param alpha Gegenbauer polynomials parameter.
@@ -44,6 +49,12 @@ lb <- function(degree,a=0,b=1,jmax=NULL,X=NULL){
 #' @param jmax number of high-frequency lags.
 #' @param X optional evaluation grid vector.
 #' @return Psi weight matrix with Gegenbauer functions upto \code{degree}.
+#' @author Jonas Striaukas
+#' @examples
+#' degree <- 3
+#' alpha <- 1
+#' jmax <- 66
+#' gb(degree = degree, alpha = alpha, a = 0, b = 1, jmax = jmax)
 #' @export gb
 gb <- function(degree,alpha,a=0,b=1,jmax=NULL,X=NULL){
   if (!is.null(jmax)){
@@ -58,9 +69,9 @@ gb <- function(degree,alpha,a=0,b=1,jmax=NULL,X=NULL){
   P[, 2] <-  2*X/(b-a) - ((b+a)/(b-a))
   if(degree>0){
     for (i in 1:degree){
-      a <- (2*i + 2*alpha + 1)*(2*i + 2*alpha + 2)/(2*(i+1)*(i + 2*alpha + 1))
+      d <- (2*i + 2*alpha + 1)*(2*i + 2*alpha + 2)/(2*(i+1)*(i + 2*alpha + 1))
       c <- (alpha + i)^2*(2*i + 2*alpha + 2)/( (i+1)*(i + 2*alpha + 1)*(2*i + 2*alpha)) 
-      P[, i+2]   <- a * P[, 2]*P[, i+1] - c * P[, i]
+      P[, i+2]   <- d * P[, 2]*P[, i+1] - c * P[, i]
       Psi[, i+1] <- sqrt((2*i + 1) / (b-a)) %*% P[, i+1]
     }
   }
@@ -72,7 +83,12 @@ gb <- function(degree,alpha,a=0,b=1,jmax=NULL,X=NULL){
 #' @param param two-dimensional parameter vector \eqn{\theta}.
 #' @param dayLag number of high-frequency lags.
 #' @return (normalized) weights vector.
+#' @author Jonas Striaukas
 #' @description For a given set of parameters \eqn{\theta} and the number of high-frequency lags, returns weights implied by exponential Almon functional form.
+#' @examples 
+#' param <- c(0.02,-0.2)
+#' dayLag <- 22
+#' expalmon_w(param, dayLag)
 #' @export expalmon_w
 expalmon_w <- function(param,dayLag){
   grid <- seq(1,dayLag,length.out = dayLag)
@@ -86,8 +102,13 @@ expalmon_w <- function(param,dayLag){
 #' @param param two-dimensional parameter vector \eqn{\theta}.
 #' @param dayLag number of high-frequency lags.
 #' @return (normalized) weights vector.
+#' @author Jonas Striaukas
 #' @description For a given set of parameters \eqn{\theta} and the number of high-frequency lags, returns weights implied by Beta density functional form.
-#' @export expalmon_w
+#' @examples 
+#' param <- c(2,2)
+#' dayLag <- 22
+#' beta_w(param, dayLag)
+#' @export beta_w
 beta_w <- function(param,dayLag){
   eps <- .Machine$double.eps
   u <- seq(eps,1-eps,length.out = dayLag)
@@ -101,8 +122,13 @@ beta_w <- function(param,dayLag){
 #' @param param one-dimensional parameter vector \eqn{\theta}.
 #' @param dayLag number of high-frequency lags.
 #' @return (normalized) weights vector.
+#' @author Jonas Striaukas
 #' @description For a given set of parameters \eqn{\theta} and the number of high-frequency lags, returns weights implied by Restricted Beta density functional form.
-#' @export expalmon_w
+#' @examples 
+#' param <- 3
+#' dayLag <- 22
+#' rbeta_w(param, dayLag)
+#' @export rbeta_w
 rbeta_w <- function(param,dayLag){
   eps <- .Machine$double.eps
   u <- seq(eps,1-eps,length.out = dayLag)

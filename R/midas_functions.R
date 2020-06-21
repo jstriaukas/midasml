@@ -16,19 +16,32 @@
 #' @param est.start start date of the estimation sample (referenced with data.xdate).
 #' @param est.end end date of the estimation sample (referenced with data.xdate).
 #' @param horizon forecast horizon measured in predictor variable sampling frequency (default set 1 unit ahead).
-#' @param polynomial MIDAS lag polynomial specification. Options are: Legendre (legendre_w), Beta desity (beta_w), restricted Beta density (rbeta_w), exponential Almon (expalmon_w), unrestricted MIDAS (umidas_w), step functions (step_fun).
+#' @param polynomial MIDAS lag polynomial specification. Options are: Legendre (\code{legendre_w}), Beta density (\code{beta_w}), restricted Beta density (\code{rbeta_w}), exponential Almon (\code{expalmon_w}), unrestricted MIDAS (\code{umidas_w}), step functions (\code{step_fun}).
 #' @param scheme forecasting scheme. Options are: fixed scheme (fixed), rolling window scheme (rolling), expanding window scheme (expand).
 #' @param loss loss function. Options are: mean squared error (mse), quantile (rq), asymmetric least squares (als).
-#' @param ... optional parameters to feed into other functions. forecast.flag - TRUE/FALSE to compute out-of-sample predictions (default TRUE), disp.flag - TRUE/FALSE  to display MIDAS data structures (default FALSE), 
-#'    num.evals - number of objective function evaluations using random starting parameter values in the case of non-linear MIDAS polynomial (default 1e4), 
-#'    num.coef - number of best coefficients to use as starting values in nonlinear optimization (default 10),
-#'    seed - value used in set.seed for randomly drawing initial starting values around OLS optimal solution,
-#'    profiling - TRUE/FALSE to use MIDAS paramater profiling, coded only for rbeta_w polynomial, (default FALSE),
-#'    step_idx - index of step function lags. If step_fun is used as a polynomial, it is best to specify this option too, otherwise, the program figures out the sampling frequency ratio and computes \code{step_idx} accordingly (message is displayed in this case),
-#'    legendre_degree - a degree of legendre polynomials. If legendre_w is used as a polynomial, it is best to specify this option too, otherwise, the value is set to 3 (message is displayed in this case),
-#'    tau - quantile level for als and rq regressions. If eithr als or rq loss is used, this option must be specified, program stops if not, 
-#'    midas_gen - option on how to generate the low-frequency variable. 'from_hf' - computes from high-frequency variable (see \code{mixed_freq_data_mhorizon}, \code{aggregation} method could be specified as an additional input) or 'as_ref' - computes MIDAS data structures using low-frequency variable (default 'from_hf').
-#' @return returns midas_dl list which contains parameter estimates, in- and out-of-sample statistics and predictions, and some information about the specification of the method used.
+#' @param ... optional parameters to feed into other functions: \cr
+#'    \code{forecast.flag} - TRUE/FALSE to compute out-of-sample predictions (default TRUE) \cr
+#'    \code{disp.flag} - TRUE/FALSE  to display MIDAS data structures (default FALSE) \cr
+#'    \code{num.evals} - number of objective function evaluations using random starting parameter values in the case of non-linear MIDAS polynomial (default 1e4) \cr
+#'    \code{num.coef} - number of best coefficients to use as starting values in nonlinear optimization (default 10) \cr
+#'    \code{seed} - value used in set.seed for randomly drawing initial starting values around OLS optimal solution \cr
+#'    \code{profiling} - TRUE/FALSE to use MIDAS paramater profiling, coded only for rbeta_w polynomial, (default FALSE) \cr
+#'    \code{step_idx} - index of step function lags. If \code{step_fun} is used as a polynomial, it is best to specify this option too, otherwise, the program figures out the sampling frequency ratio and computes \code{step_idx} accordingly (message is displayed in this case) \cr
+#'    \code{legendre_degree} - a degree of legendre polynomials. If \code{legendre_w} is used as a polynomial, it is best to specify this option too, otherwise, the value is set to 3 (message is displayed in this case) \cr
+#'    \code{tau} - quantile level for als and rq regressions. If eithr als or rq loss is used, this option must be specified, program stops if no value is provided \cr
+#'    \code{midas_gen} - option on how to generate the low-frequency variable. \code{from_hf} - computes from high-frequency variable (see \code{mixed_freq_data_mhorizon}, \code{aggregation} method could be specified as an additional input) or \code{as_ref} - computes MIDAS data structures using low-frequency variable (default 'from_hf').
+#' @return returns \code{midas_dl} list which contains parameter estimates, in- and out-of-sample statistics and predictions, and some information about the specification of the method used.
+#' @author Jonas Striaukas
+#' @examples 
+#' data(market_ret)
+#' data.x <- market_ret$snp500ret
+#' data.xdate <- market_ret$DATE
+#' est.start <- as.Date("2005-01-01")
+#' est.end <- as.Date("2017-12-31")
+#' midas_dl(data.x, data.xdate, x.lag = 5, 
+#'          est.start = est.start, est.end = est.end,
+#'          horizon = 1, polynomial = "legendre_w", legendre_degree = 3,
+#'          scheme = "fixed", loss = "mse", midas_gen = "from_hf")
 #' @export midas_dl
 midas_dl <- function(data.x, data.xdate, data.y, data.ydate, x.lag, est.start, est.end, horizon = 1,
                      polynomial = c("legendre_w","beta_w","rbeta_w","expalmon_w","umidas_w","step_fun"), 
@@ -247,18 +260,35 @@ midas_dl <- function(data.x, data.xdate, data.y, data.ydate, x.lag, est.start, e
 #' @param est.start start date of the estimation sample (referenced with data.xdate).
 #' @param est.end end date of the estimation sample (referenced with data.xdate).
 #' @param horizon forecast horizon measured in predictor variable sampling frequency (default set 1 unit ahead).
-#' @param polynomial MIDAS lag polynomial specification. Options are: Legendre (legendre_w), Beta desity (beta_w), restricted Beta density (rbeta_w), exponential Almon (expalmon_w), unrestricted MIDAS (umidas_w), step functions (step_fun).
+#' @param polynomial MIDAS lag polynomial specification. Options are: Legendre (\code{legendre_w}), Beta density (\code{beta_w}), restricted Beta density (\code{rbeta_w}), exponential Almon (\code{expalmon_w}), unrestricted MIDAS (\code{umidas_w}), step functions (\code{step_fun}).
 #' @param scheme forecasting scheme. Options are: fixed scheme (fixed), rolling window scheme (rolling), expanding window scheme (expand).
 #' @param loss loss function. Options are: mean squared error (mse), quantile (rq), asymmetric least squares (als).
-#' @param ... optional parameters to feed into other functions. forecast.flag - TRUE/FALSE to compute out-of-sample predictions (default TRUE), disp.flag - TRUE/FALSE  to display MIDAS data structures (default FALSE), 
-#'    num.evals - number of objective function evaluations using random starting parameter values in the case of non-linear MIDAS polynomial (default 1e4), 
-#'    num.coef - number of best coefficients to use as starting values in nonlinear optimization (default 10),
-#'    seed - value used in set.seed for randomly drawing initial starting values around OLS optimal solution,
-#'    profiling - TRUE/FALSE to use MIDAS paramater profiling, coded only for rbeta_w polynomial, (default FALSE),
-#'    step_idx - index of step function lags. If step_fun is used as a polynomial, it is best to specify this option too, otherwise, the program figures out the sampling frequency ratio and computes \code{step_idx} accordingly (message is displayed in this case),
-#'    legendre_degree - degree of legendre polynomials. If legendre_w is used as a polynomial, it is best to specify this option too, otherwise, the value is set to 3 (message is displayed in this case),
-#'    tau - quantile level for als and rq regressions. If eithr als or rq loss is used, this option must be specified, program stops if not, 
-#' @return returns  midas_ardl list which contains parameter estimates, in- and out-of-sample statistics and predictions, and some information about the specification of the method used.
+#' @param ... optional parameters to feed into other functions. 
+#'    \code{forecast.flag} - TRUE/FALSE to compute out-of-sample predictions (default TRUE), disp.flag - TRUE/FALSE  to display MIDAS data structures (default FALSE) \cr 
+#'    \code{num.evals} - number of objective function evaluations using random starting parameter values in the case of non-linear MIDAS polynomial (default 1e4) \cr
+#'    \code{num.coef} - number of best coefficients to use as starting values in nonlinear optimization (default 10) \cr
+#'    \code{seed} - value used in set.seed for randomly drawing initial starting values around OLS optimal solution \cr
+#'    \code{profiling} - TRUE/FALSE to use MIDAS parameter profiling, coded only for \code{rbeta_w} polynomial, (default FALSE) \cr
+#'    \code{step_idx} - index of step function lags. If step_fun is used as a polynomial, it is best to specify this option too, otherwise, the program figures out the sampling frequency ratio and computes \code{step_idx} accordingly (message is displayed in this case) \cr
+#'    \code{legendre_degree} - degree of Legendre polynomials. If \code{legendre_w} is used as a polynomial, it is best to specify this option too, otherwise, the value is set to 3 (message is displayed in this case) \cr
+#'    \code{tau} - quantile level for als and rq regressions. If either als or rq loss is used, this option must be specified, program stops if no value is provided.
+#' @return returns  \code{midas_ardl} list which contains parameter estimates, in- and out-of-sample statistics and predictions, and some information about the specification of the method used.
+#' @author Jonas Striaukas
+#' @examples 
+#' data(us_rgdp)
+#' rgdp <- us_rgdp$rgdp
+#' cfnai <- us_rgdp$cfnai
+#' rgdp[-1, 2] <- ((rgdp[-1, 2]/rgdp[-dim(rgdp)[1], 2])^4-1)*100
+#' rgdp <- rgdp[-1, ]
+#' data.y <- rgdp[,2]
+#' data.ydate <- rgdp[,1]
+#' est.start <- as.Date("1990-01-01")
+#' est.end <- as.Date("2002-03-01")
+#' data.x <- cfnai[,2]
+#' data.xdate <- cfnai[,1] 
+#' midas_ardl(data.y, data.ydate, data.x, data.xdate,
+#'    x.lag = 12, y.lag = 4, est.start, est.end, horizon = 1,
+#'    polynomial = "legendre_w", legendre_degree = 3)
 #' @export midas_ardl
 midas_ardl <- function(data.y, data.ydate, data.x, data.xdate, x.lag, y.lag, est.start, est.end, horizon = 1,
                        polynomial = c("legendre_w","beta_w","rbeta_w","expalmon_w","umidas_w","step_fun"), 
@@ -464,6 +494,7 @@ midas_ardl <- function(data.y, data.ydate, data.x, data.xdate, x.lag, y.lag, est
 #' @param seed value used in set.seed for randomly drawing initial starting values.
 #' @param ... optional parameters to feed into other functions. 
 #' @return returns estimates of coefficient vector for a desired model specification.
+#' @author Jonas Striaukas
 #' @export midas_estimate
 #' @keywords internal
 midas_estimate <- function(est.y,est.x,est.lag.y,est.xdate,polynomial,loss,num.evals,num.coef,startx_all = NULL,seed = NULL,...){
@@ -771,9 +802,10 @@ midas_estimate <- function(est.y,est.x,est.lag.y,est.xdate,polynomial,loss,num.e
 #' @param ylag out-of-sample lagged depedent variable data.
 #' @param polynomial polynomial specification.
 #' @param ... optional parameters to feed into other functions. 
-#' step_idx - index for step function polynomial specification (warning: if left unspecified, the program computes index the same way as in the estimation function), 
-#' legendre_degree - the degree of Legendre polynomials (warning: if left unspecified, the program sets it to 3, the same way as in the estimation function).
+#' \code{step_idx} - index for step function polynomial specification (warning: if left unspecified, the program computes index the same way as in the estimation function), 
+#' \code{legendre_degree} - the degree of Legendre polynomials (warning: if left unspecified, the program sets it to 3, the same way as in the estimation function).
 #' @return returns prediction value.
+#' @author Jonas Striaukas
 #' @export midas_forecast
 #' @keywords internal
 midas_forecast <- function(params,x,ylag,polynomial,...){
@@ -842,6 +874,83 @@ midas_forecast <- function(params,x,ylag,polynomial,...){
   
   pred <- c + arpred + midaspred
   return(pred)
+}
+
+#' MIDAS weights plot function
+#' 
+#' @description 
+#'  Based on specification in \code{obj}, plots a basic R figure of estimated MIDAS weights.
+#' @details 
+#'  MIDAS regression pecifcation is picked up from obj, see \code{midas_dl} or \code{midas_ardl} function descriptions for more details. 
+#' @param obj \code{midas_ardl} or \code{midas_dl} object with parameter estimates and model specfication inputs.
+#' @return returns R figure of estimated MIDAS weights.
+#' @author Jonas Striaukas
+#' @examples 
+#' data(us_rgdp)
+#' rgdp <- us_rgdp$rgdp
+#' cfnai <- us_rgdp$cfnai
+#' rgdp[-1, 2] <- ((rgdp[-1, 2]/rgdp[-dim(rgdp)[1], 2])^4-1)*100
+#' rgdp <- rgdp[-1, ]
+#' data.y <- rgdp[,2]
+#' data.ydate <- rgdp[,1]
+#' est.start <- as.Date("1990-01-01")
+#' est.end <- as.Date("2002-03-01")
+#' data.x <- cfnai[,2]
+#' data.xdate <- cfnai[,1]
+#' fit <- midas_ardl(data.y, data.ydate, data.x, data.xdate,
+#'                   x.lag = 12, y.lag = 4, est.start, est.end, horizon = 1,
+#'                   polynomial = "legendre_w", legendre_degree = 3)
+# plot_weights(obj = fit$est.obj)
+#' @export plot_weights
+plot_weights <- function(obj){
+  polynomial <- obj$polynomial
+  params <- obj$params
+  dlag <- obj$info$mf.data$x.lag
+  if(polynomial%in%c("beta_w","rbeta_w","expalmon_w")){
+    if (polynomial%in%"rbeta_w"){
+      d <- 2
+      weight <- rbeta_w
+    } else {
+      d <- 3
+      if (polynomial%in%"beta_w")
+        weight <- beta_w
+      if (polynomial%in%"expalmon_w")
+        weight <- expalmon_w
+    }
+    params_midas <- as.numeric(params[(length(params)-d+1):length(params)])
+    w <- params_midas[1]*weight(params_midas[-1],dlag)
+  } else {
+    if(polynomial%in%"umidas_w"){
+      w <- as.numeric(params[(length(params)-dlag+1):length(params)])
+    }
+    
+    if (polynomial%in%"step_fun"){
+      step_idx <- obj$info$step_idx
+      if (is.null(step_idx))
+        stop("information about estimated step function scheme weights is missing")
+      
+      w <- numeric(max(step_idx))
+      d <- length(step_idx)
+      params_step <- as.numeric(params[(length(params)-d+1):length(params)])
+      lag_idx <- seq(1,dlag,by=1)
+      for (j in seq(length(step_idx),1,by=-1))
+        w[which(lag_idx<=step_idx[j])] <- rep(params_step[j],times=step_idx[j])
+    }
+    
+    if (polynomial%in%"legendre_w"){
+      legendre_degree <- obj$info$legendre_degree
+      if (is.null(legendre_degree))
+        stop("information about estimated Legender polynomial scheme weights is missing")
+      
+      wlb <- lb(legendre_degree, jmax = dlag)
+      d <- legendre_degree+1
+      params_lb <- as.numeric(params[(length(params)-d+1):length(params)])
+      w <- as.numeric(wlb%*%params_lb)
+    }
+  }
+  grid <- 1:dlag
+  title <- paste0("Estimated weights for ",polynomial," scheme")
+  plot(grid, w, main = title , type = 'l', xlab = 'Lag', ylab = ' Weight')
 }
 
 #' MIDAS regression function for initial values
@@ -991,65 +1100,5 @@ get_start_midas <- function(y, X, z = NULL, loss = c("mse", "als", "rq"), weight
   all <- all[order(all[,1]),]
   coefs <- all[1:num.coef,-1]
   return(coefs)
-}
-
-#' MIDAS weights plot function
-#' 
-#' @description 
-#'  Based on specification in \code{obj}, plots a basic R figure of estimated MIDAS weights.
-#' @details 
-#'  MIDAS regression pecifcation is picked up from obj, see \code{midas_dl} or \code{midas_ardl} function descriptions for more details. 
-#' @param obj midas_ardl or midas_dl object with parameter estimates and model specfication inputs.
-#' @return returns R figure of estimated MIDAS weights.
-#' @export plot_weights
-plot_weights <- function(obj){
-  polynomial <- obj$polynomial
-  params <- obj$params
-  dlag <- obj$info$mf.data$x.lag
-  if(polynomial%in%c("beta_w","rbeta_w","expalmon_w")){
-    if (polynomial%in%"rbeta_w"){
-      d <- 2
-      weight <- rbeta_w
-    } else {
-      d <- 3
-      if (polynomial%in%"beta_w")
-        weight <- beta_w
-      if (polynomial%in%"expalmon_w")
-        weight <- expalmon_w
-    }
-    params_midas <- as.numeric(params[(length(params)-d+1):length(params)])
-    w <- params_midas[1]*weight(params_midas[-1],dlag)
-  } else {
-    if(polynomial%in%"umidas_w"){
-      w <- as.numeric(params[(length(params)-dlag+1):length(params)])
-    }
-    
-    if (polynomial%in%"step_fun"){
-      step_idx <- obj$info$step_idx
-      if (is.null(step_idx))
-        stop("information about estimated step function scheme weights is missing")
-      
-      w <- numeric(max(step_idx))
-      d <- length(step_idx)
-      params_step <- as.numeric(params[(length(params)-d+1):length(params)])
-      lag_idx <- seq(1,dlag,by=1)
-      for (j in seq(length(step_idx),1,by=-1))
-        w[which(lag_idx<=step_idx[j])] <- rep(params_step[j],times=step_idx[j])
-    }
-    
-    if (polynomial%in%"legendre_w"){
-      legendre_degree <- obj$info$legendre_degree
-      if (is.null(legendre_degree))
-        stop("information about estimated Legender polynomial scheme weights is missing")
-      
-      wlb <- lb(legendre_degree, jmax = dlag)
-      d <- legendre_degree+1
-      params_lb <- as.numeric(params[(length(params)-d+1):length(params)])
-      w <- as.numeric(wlb%*%params_lb)
-    }
-  }
-  grid <- 1:dlag
-  title <- paste0("Estimated weights for ",polynomial," scheme")
-  plot(grid, w, main = title , type = 'l', xlab = 'Lag', ylab = ' Weight')
 }
 

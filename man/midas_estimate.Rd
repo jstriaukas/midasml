@@ -50,4 +50,7 @@ Estimates a single variate MIDAS model.
 \details{
 For specficiation details, \code{midas_dl} or \code{midas_ardl} function descriptions for more details.
 }
+\author{
+Jonas Striaukas
+}
 \keyword{internal}

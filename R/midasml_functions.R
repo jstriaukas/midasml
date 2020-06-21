@@ -18,6 +18,25 @@
 #' @param verbose flag to print information. 
 #' @param ... optional parameters to feed into \ifelse{html}{\out{<code>reg_sgl</code>}}{\code{reg_sgl}}. 
 #' @return out-of-sample predictions.
+#' @examples 
+#' \dontrun{
+#' data(macro_midasml)
+#' est.start <- as.Date("1990-12-01")
+#' est.end <- as.Date("2017-03-01")
+#' rgdp.data <- macro_midasml$rgdp.data
+#' rgdp.data <- rgdp.data[rgdp.data$DATE<=as.Date("2017-06-01"),]
+#' data <- qtarget.sort_midasml(y.data = rgdp.data, x.macro.data = macro_midasml$md.data, 
+#'          x.real.time = macro_midasml$text.data, x.quarterly_group = macro_midasml$survey.data, 
+#'          x.lag = 12, legendre_degree = 3, 
+#'          horizon = 1, macro_delay = 1, est.start, est.end, 
+#'          standardize = TRUE, group_ar_lags = FALSE, disp.flag = FALSE)
+#' midasml_forecast(y_in = data$y_in, y_out = data$y_out, 
+#'          x_in = data$x_str, x_out = data$x_str_out, 
+#'          group_index = data$group_index, gamma_w = 0.65, 
+#'          y_out_dates = data$y_out_dates, scheme = "expand", 
+#'          method_choice = "ic", num_cores = 2)
+#' }
+#' @author Jonas Striaukas
 #' @export midasml_forecast
 midasml_forecast <- function(y_in, y_out, x_in, x_out, group_index, gamma_w, y_out_dates, scheme, verbose=FALSE, ...){
   y_hat <- numeric(length(y_out))
@@ -54,6 +73,7 @@ midasml_forecast <- function(y_in, y_out, x_in, x_out, group_index, gamma_w, y_o
   
   return(y_hat)
 }
+
 #' High-dimensional mixed frequency data sort function
 #' 
 #' @description 
@@ -64,7 +84,7 @@ midasml_forecast <- function(y_in, y_out, x_in, x_out, group_index, gamma_w, y_o
 #' qtarget.sort_midasml(y.data, x.macro.data = NULL, x.real.time = NULL,
 #'   x.quarterly_group = NULL, x.lag = NULL, legendre_degree, horizon, 
 #'   macro_delay = 1, est.start, est.end, standardize = TRUE, group_ar_lags = FALSE, 
-#'   disp.flag = TRUE)
+#'   real_time_predictions = FALSE, disp.flag = TRUE)
 #' @param y.data response variable data. 
 #' @param x.macro.data macro data which is not real-time, i.e. is used with publication delay defined in \ifelse{html}{\out{<code>macro_delay</code>}}{\code{macro_delay}}.
 #' @param x.real.time real-time data.
@@ -80,6 +100,18 @@ midasml_forecast <- function(y_in, y_out, x_in, x_out, group_index, gamma_w, y_o
 #' @param real_time_predictions TRUE/FALSE in case real-time data is used for predictions 
 #' @param disp.flag display flag to indicate whether or not to display obtained MIDAS data structure in console.
 #' @return MIDAS covariates and group memberships based on desired specification.
+#' @examples 
+#' data(macro_midasml)
+#' est.start <- as.Date("1990-12-01")
+#' est.end <- as.Date("2017-03-01")
+#' rgdp.data <- macro_midasml$rgdp.data
+#' rgdp.data <- rgdp.data[rgdp.data$DATE<=as.Date("2017-06-01"),]
+#' qtarget.sort_midasml(y.data = rgdp.data, x.macro.data = macro_midasml$md.data, 
+#'          x.real.time = macro_midasml$text.data, x.quarterly_group = macro_midasml$survey.data, 
+#'          x.lag = 12, legendre_degree = 3, 
+#'          horizon = 1, macro_delay = 1, est.start, est.end, 
+#'          standardize = TRUE, group_ar_lags = FALSE, disp.flag = FALSE)
+#' @author Jonas Striaukas
 #' @export qtarget.sort_midasml
 qtarget.sort_midasml <- function(y.data, x.macro.data = NULL, x.real.time = NULL, x.quarterly_group = NULL, x.lag = NULL, legendre_degree, horizon, macro_delay = 1, est.start, est.end, standardize = TRUE, group_ar_lags = FALSE, real_time_predictions = FALSE, disp.flag = TRUE){
   if(is.null(x.macro.data)&&is.null(x.real.time))

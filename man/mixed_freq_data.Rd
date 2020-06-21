@@ -24,13 +24,30 @@ mixed_freq_data(data.y, data.ydate, data.x, data.xdate, x.lag, y.lag,
 
 \item{est.start}{estimation start date, taken as the first ... .}
 
-\item{est.end}{estimation end date, taken as the last ... . Remainig data after this date is dropped to out-of-sample evaluation data.}
+\item{est.end}{estimation end date, taken as the last ... . Remaining data after this date is dropped to out-of-sample evaluation data.}
 
 \item{disp.flag}{display flag to indicate whether or not to display obtained MIDAS data structure in console.}
 }
 \value{
-a list of midas data structure.
+a list of MIDAS data structure.
 }
 \description{
 Creates a MIDAS data structure for a single high-frequency covariate and a single low-frequency dependent variable.
+}
+\examples{
+data(us_rgdp)
+rgdp <- us_rgdp$rgdp
+payems <- us_rgdp$payems
+payems[-1, 2] <- log(payems[-1, 2]/payems[-dim(payems)[1], 2])*100
+payems <- payems[-1, ]
+rgdp[-1, 2] <- ((rgdp[-1, 2]/rgdp[-dim(rgdp)[1], 2])^4-1)*100
+rgdp <- rgdp[-1, ]
+est.start <- as.Date("1990-01-01")
+est.end <- as.Date("2002-03-01")
+mixed_freq_data(rgdp[,2], as.Date(rgdp[,1]), payems[,2], 
+  as.Date(payems[,1]), x.lag = 9, y.lag = 4, horizon = 1, 
+  est.start, est.end, disp.flag = FALSE)
+}
+\author{
+Jonas Striaukas
 }

@@ -16,17 +16,34 @@ mixed_freq_data_mhorizon(data.x, data.xdate, x.lag, est.start, est.end,
 
 \item{est.start}{estimation start date, taken as the first ... .}
 
-\item{est.end}{estimation end date, taken as the last ... . Remainig data after this date is dropped to out-of-sample evaluation data.}
+\item{est.end}{estimation end date, taken as the last ... . Remaining data after this date is dropped to out-of-sample evaluation data.}
 
 \item{horizon}{forecast horizon relative to \code{data.ydate} date in high-frequency time units.}
 
 \item{disp.flag}{display flag to indicate whether or not to display obtained MIDAS data structure in console.}
 
-\item{...}{an optional parameter \code{aggregation} specifying the aggregation method of high-frequency data to get low-frequency target (non-overlapping). "sum" - sum of high-frequency lags, sum&abs - sum of high-frequency lags which after aggregation are taken in absolute value, sum&sq - sum of high-frequency lags which after aggregation are taken in squares, mean - average of high-frequency lags, first_val - the most recent lag value of high-frequency lags.}
+\item{...}{an optional parameter \code{aggregation} specifying the aggregation method of high-frequency data to get low-frequency target (non-overlapping) 
+\code{sum} - sum of high-frequency lags \cr
+\code{sum&abs} - sum of high-frequency lags which after aggregation are taken in absolute value \cr
+\code{sum&sq} - sum of high-frequency lags which after aggregation are taken in squares \cr
+\code{mean} - average of high-frequency lags \cr
+\code{first_val} - the most recent lag value of high-frequency lags.}
 }
 \value{
 a list of midas data structure.
 }
 \description{
 Creates a MIDAS data structure for a single high-frequency covariate and a single low-frequency dependent variable computed from high-frequency covariate (e.g. stock returns).
+}
+\examples{
+data(market_ret)
+data.x <- market_ret$snp500ret
+data.xdate <- market_ret$DATE
+est.start <- as.Date("2005-01-01")
+est.end <- as.Date("2017-12-31")
+mixed_freq_data_mhorizon(data.x, data.xdate, x.lag = 5, est.start, est.end,
+                         horizon = 1, disp.flag = FALSE, aggregation = "sum")
+}
+\author{
+Jonas Striaukas
 }

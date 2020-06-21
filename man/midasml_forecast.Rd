@@ -37,3 +37,25 @@ Predicts from a high-dimensional MIDAS model.
 \details{
 \ifelse{html}{\out{Based on desired computation of the tuning parameter &lambda; (<code>ic/cv</code>), the MIDAS ML regression is fit and predictions are computed based on the chosen scheme (<code>rolling/expanding</code>). The regression function that is fit is <br><br> <center> RSS(&alpha;, &beta;) + 2&lambda;  &Omega;<sub>&gamma;</sub>(&beta;), </center> <br> where X (<code>x_in</code> and <code>x_out</code>) contains autoregressive lags and MIDAS covariates of <code>sort_midasml</code> class and RSS(&alpha;, &beta;) is the mse loss function. The group index vector should be used from data sorting function <code>qtarget.sort_midasml</code>. The penalty function &Omega;<sub>&gamma;</sub>(.) is applied on &beta; coefficients and is <br> <br> <center> &Omega;<sub>&gamma;</sub>(&beta;) = &gamma; |&beta;|<sub>1</sub> + (1-&gamma;)||&beta;||<sub>2,1</sub>, </center> <br> a convex combination of LASSO and group LASSO penalty functions.}}{Based on desired computation of the tuning parameter \eqn{\lambda} (\code{ic/cv}), the MIDAS ML regression is fit and predictions are computed based on the chosen scheme (\code{rolling/expanding}). The regression function that is fit is \cr \cr  \deqn{||y - \alpha \iota - X \beta||^2_T + 2\lambda  \Omega_\gamma(\beta)}, \cr where \eqn{X} (\code{x_in} and \code{x_out}) contains autoregressive lags and MIDAS covariates of \code{sort_midasml} class. The group index vector should be used from data sorting function \code{qtarget.sort_midasml}. The penalty function \eqn{\Omega_\gamma(.)} is applied on \eqn{\beta} coefficients and is \deqn{\Omega_\gamma(\beta) = \gamma |\beta|_1 + (1-\gamma)||\beta||_2,1,} a convex combination of LASSO and group LASSO penalty functions.}
 }
+\examples{
+\dontrun{
+data(macro_midasml)
+est.start <- as.Date("1990-12-01")
+est.end <- as.Date("2017-03-01")
+rgdp.data <- macro_midasml$rgdp.data
+rgdp.data <- rgdp.data[rgdp.data$DATE<=as.Date("2017-06-01"),]
+data <- qtarget.sort_midasml(y.data = rgdp.data, x.macro.data = macro_midasml$md.data, 
+         x.real.time = macro_midasml$text.data, x.quarterly_group = macro_midasml$survey.data, 
+         x.lag = 12, legendre_degree = 3, 
+         horizon = 1, macro_delay = 1, est.start, est.end, 
+         standardize = TRUE, group_ar_lags = FALSE, disp.flag = FALSE)
+midasml_forecast(y_in = data$y_in, y_out = data$y_out, 
+         x_in = data$x_str, x_out = data$x_str_out, 
+         group_index = data$group_index, gamma_w = 0.65, 
+         y_out_dates = data$y_out_dates, scheme = "expand", 
+         method_choice = "ic", num_cores = 2)
+}
+}
+\author{
+Jonas Striaukas
+}

@@ -17,3 +17,11 @@ rbeta_w(param, dayLag)
 \description{
 For a given set of parameters \eqn{\theta} and the number of high-frequency lags, returns weights implied by Restricted Beta density functional form.
 }
+\examples{
+param <- 3
+dayLag <- 22
+rbeta_w(param, dayLag)
+}
+\author{
+Jonas Striaukas
+}

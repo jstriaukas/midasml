@@ -15,3 +15,9 @@ changed date value.
 \description{
 Change the date to the end of the month date.
 }
+\examples{
+monthEnd(as.Date("2020-05-15"))
+}
+\author{
+Jonas Striaukas
+}

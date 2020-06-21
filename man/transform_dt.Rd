@@ -17,3 +17,7 @@ transformed time series vector.
 \description{
 Transform time series a vector based on transformation code.
 }
+\examples{
+x <- rnorm(100,1)
+transform_dt(x, tcode = 1)
+}

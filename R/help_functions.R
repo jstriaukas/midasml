@@ -13,9 +13,23 @@
 #' @param y.lag number of low-frequency lags to construct in low-frequency time units.
 #' @param horizon forecast horizon relative to \code{data.ydate} date in high-frequency time units.
 #' @param est.start estimation start date, taken as the first ... .
-#' @param est.end estimation end date, taken as the last ... . Remainig data after this date is dropped to out-of-sample evaluation data. 
+#' @param est.end estimation end date, taken as the last ... . Remaining data after this date is dropped to out-of-sample evaluation data. 
 #' @param disp.flag display flag to indicate whether or not to display obtained MIDAS data structure in console.
-#' @return a list of midas data structure. 
+#' @return a list of MIDAS data structure. 
+#' @author Jonas Striaukas
+#' @examples 
+#' data(us_rgdp)
+#' rgdp <- us_rgdp$rgdp
+#' payems <- us_rgdp$payems
+#' payems[-1, 2] <- log(payems[-1, 2]/payems[-dim(payems)[1], 2])*100
+#' payems <- payems[-1, ]
+#' rgdp[-1, 2] <- ((rgdp[-1, 2]/rgdp[-dim(rgdp)[1], 2])^4-1)*100
+#' rgdp <- rgdp[-1, ]
+#' est.start <- as.Date("1990-01-01")
+#' est.end <- as.Date("2002-03-01")
+#' mixed_freq_data(rgdp[,2], as.Date(rgdp[,1]), payems[,2], 
+#'   as.Date(payems[,1]), x.lag = 9, y.lag = 4, horizon = 1, 
+#'   est.start, est.end, disp.flag = FALSE)
 #' @export mixed_freq_data
 mixed_freq_data <- function (data.y, data.ydate, data.x, data.xdate, x.lag, y.lag, horizon, est.start, est.end, disp.flag = TRUE){
   mask.na <- !is.na(data.y)
@@ -231,9 +245,21 @@ mixed_freq_data <- function (data.y, data.ydate, data.x, data.xdate, x.lag, y.la
 #' @param x.lag number of high-frequency lags to construct in high-frequency time units.
 #' @param horizon forecast horizon relative to \code{data.refdate} date in high-frequency time units.
 #' @param est.start estimation start date, taken as the first ... .
-#' @param est.end estimation end date, taken as the last ... . Remainig data after this date is dropped to out-of-sample evaluation data. 
+#' @param est.end estimation end date, taken as the last ... . Remaining data after this date is dropped to out-of-sample evaluation data. 
 #' @param disp.flag display flag to indicate whether or not to display obtained MIDAS data strcuture in console. 
 #' @return a list of midas data structure. 
+#' @examples 
+#' data(us_rgdp)
+#' rgdp <- us_rgdp$rgdp
+#' cfnai <- us_rgdp$cfnai
+#' data.refdate <- rgdp$date
+#' data.x <- cfnai$cfnai
+#' data.xdate <- cfnai$date
+#' est.start <- as.Date("1990-01-01")
+#' est.end <- as.Date("2002-03-01")
+#' mixed_freq_data_single(data.refdate, data.x, data.xdate, x.lag = 12, horizon = 1,
+#'  est.start, est.end, disp.flag = FALSE)
+#' @author Jonas Striaukas
 #' @export mixed_freq_data_single
 mixed_freq_data_single <- function(data.refdate,data.x,data.xdate,x.lag,horizon,est.start,est.end,disp.flag=TRUE) {
   mask.na <- !is.na(data.refdate)
@@ -411,11 +437,25 @@ mixed_freq_data_single <- function(data.refdate,data.x,data.xdate,x.lag,horizon,
 #' @param data.xdate nm by 1 high-frequency time series date vector.
 #' @param x.lag number of high-frequency lags to construct in high-frequency time units.
 #' @param est.start estimation start date, taken as the first ... .
-#' @param est.end estimation end date, taken as the last ... . Remainig data after this date is dropped to out-of-sample evaluation data. 
+#' @param est.end estimation end date, taken as the last ... . Remaining data after this date is dropped to out-of-sample evaluation data. 
 #' @param horizon forecast horizon relative to \code{data.ydate} date in high-frequency time units.
 #' @param disp.flag display flag to indicate whether or not to display obtained MIDAS data structure in console.
-#' @param ... an optional parameter \code{aggregation} specifying the aggregation method of high-frequency data to get low-frequency target (non-overlapping). "sum" - sum of high-frequency lags, sum&abs - sum of high-frequency lags which after aggregation are taken in absolute value, sum&sq - sum of high-frequency lags which after aggregation are taken in squares, mean - average of high-frequency lags, first_val - the most recent lag value of high-frequency lags.
+#' @param ... an optional parameter \code{aggregation} specifying the aggregation method of high-frequency data to get low-frequency target (non-overlapping) 
+#'    \code{sum} - sum of high-frequency lags \cr
+#'    \code{sum&abs} - sum of high-frequency lags which after aggregation are taken in absolute value \cr
+#'    \code{sum&sq} - sum of high-frequency lags which after aggregation are taken in squares \cr
+#'    \code{mean} - average of high-frequency lags \cr
+#'    \code{first_val} - the most recent lag value of high-frequency lags.
 #' @return a list of midas data structure. 
+#' @examples 
+#' data(market_ret)
+#' data.x <- market_ret$snp500ret
+#' data.xdate <- market_ret$DATE
+#' est.start <- as.Date("2005-01-01")
+#' est.end <- as.Date("2017-12-31")
+#' mixed_freq_data_mhorizon(data.x, data.xdate, x.lag = 5, est.start, est.end,
+#'                          horizon = 1, disp.flag = FALSE, aggregation = "sum")
+#' @author Jonas Striaukas
 #' @export mixed_freq_data
 mixed_freq_data_mhorizon <- function(data.x,data.xdate,x.lag,est.start,est.end,horizon,disp.flag = TRUE,...) {
   options <- list(...)
@@ -515,6 +555,147 @@ mixed_freq_data_mhorizon <- function(data.x,data.xdate,x.lag,est.start,est.end,h
   }
   return(list(est.y = est.y, est.x = est.x, est.ydate = est.ydate, est.xdate = est.xdate, est.xother = est.xother,
               out.y = out.y, out.x = out.x, out.ydate = out.ydate, out.xdate = out.xdate, out.xother = out.xother))
+}
+
+#' End of the month date
+#' 
+#' @description 
+#' Change the date to the end of the month date.
+#' @param x date value.
+#' @return changed date value.
+#' @author Jonas Striaukas
+#' @examples 
+#' monthEnd(as.Date("2020-05-15"))
+#' @export monthEnd
+monthEnd <- function(x){
+  lubridate::ceiling_date(x, "month") - lubridate::days(1)
+}
+
+#' Beginning of the month date
+#' 
+#' @description 
+#' Change the date to the beginning of the month date.
+#' @param x date value.
+#' @return changed date value.
+#' @author Jonas Striaukas
+#' @examples 
+#' monthBegin(as.Date("2020-05-15"))
+#' @export monthBegin
+monthBegin <- function(x){
+  lubridate::floor_date(x, "month") 
+}
+
+#' Match dates
+#' 
+#' @description 
+#' Change the date to the beginning of the month date.
+#' @param x date vector to match with y date vector.
+#' @param y date vector.
+#' @return changed date vector.
+#' @author Jonas Striaukas
+#' @examples
+#' x <- seq(as.Date("2020-01-01"),as.Date("2020-12-01"), by = "day")
+#' set.seed(100)
+#' x <- x[-sample(1:336, 100)]
+#' y <- seq(as.Date("2020-01-01"),as.Date("2020-12-01"), by = "month")
+#' dateMatch(x,y)
+#' @export dateMatch
+dateMatch <- function(x,y){
+  n <- length(x)
+  x.out <- numeric(n)
+  x <- as.Date(x)
+  y <- as.Date(y)
+  for (i in 1:n){
+    i.x <- x[i]
+    if (i.x%in%y){
+      x.out[i] <- i.x
+    } else {
+      i.match <- FALSE
+      i.x.k <- i.x
+      k <- 1
+      while (i.match==FALSE && k >= 5){
+        lubridate::day(i.x.k) <- lubridate::day(i.x.k) - 1
+        i.match <- i.x.k%in%y
+        k <- k + 1
+      }
+      if (k<5){
+        x.out[i] <- i.x.k
+      } else {
+        x.out[i] <- i.x
+      }
+    }
+  }
+  x.out
+}
+
+#' Time series vector transformation
+#' 
+#' @description 
+#' Transform time series a vector based on transformation code.
+#' @param x time series vector. 
+#' @param tcode transformation code. 1 - not transformed, 2 - first difference, 3 - second difference, 4 - natural log, 5 - first difference of natural log, 6 - second difference of natural log, 7 - first difference of percent change. 
+#' @return transformed time series vector.
+#' @examples 
+#' x <- rnorm(100,1)
+#' transform_dt(x, tcode = 1)
+#' @export transform_dt
+transform_dt <- function(x,tcode){
+  t <- length(x)
+  small <- 1e-9
+  y <- rep(NA, t) 
+  if(tcode==1) { # Level (i.e. no transformation): x(t)
+    y = x
+  }
+  if(tcode==2){ # First difference: x(t)-x(t-1)
+    y[-1] <- x[-1] - x[-t]
+  }
+  if(tcode==3){ # Second difference: (x(t)-x(t-1))-(x(t-1)-x(t-2))
+    y[-c(1,2)] <- x[-c(1,2)] - 2*x[-c(1,t)] + x[-c(t-1,t)]
+  } 
+  if(tcode==4){ # Natural log: ln(x)
+    x[abs(x)<small] <- NA
+    y <- log(x)
+  }  
+  if(tcode==5){ # First difference of natural log: ln(x)-ln(x-1)
+    x[abs(x)<small] <- NA
+    x <- log(x)
+    y[-1] <- x[-1] - x[-t]
+  }   
+  if(tcode==6){ # Second difference of natural log: ln(x)-2*ln(x-1)+ln(x-2)
+    x[abs(x)<small] <- NA
+    x <- log(x)
+    y[-c(1,2)] <- x[-c(1,2)] - 2*x[-c(1,t)] + x[-c(t-1,t)]
+  }    
+  if(tcode==7){ # First difference of percent change: (x(t)/x(t-1)-1)-(x(t-1)/x(t-2)-1)
+    x[abs(x)<small] <- NA
+    y.tmp <- y
+    y.tmp[-1] <- (x[-1]-x[-t])/x[-t]
+    y[-c(1,2)] <- y.tmp[-c(1,2)] - y.tmp[-c(1,t)] 
+  } 
+  return(y)
+}
+
+#' Time series matrix transformation
+#' 
+#' @description 
+#' Transform time series a matrix based on transformation code.
+#' @param data.in time series matrix. 
+#' @param tcode.all transformation code vector. 1 - not transformed, 2 - first difference, 3 - second difference, 4 - natural log, 5 - first difference of natural log, 6 - second difference of natural log, 7 - first difference of percent change. 
+#' @return transformed time series matrix.
+#' @examples 
+#' data.in <- matrix(rnorm(100*10,1),nrow = 100, ncol = 10)
+#' apply_transform(data.in, tcode = rep(1,times=10))
+#' @export apply_transform
+apply_transform <- function(data.in,tcode.all){
+  data.in <- as.matrix(data.in)
+  data.out <- matrix(data=NA, nrow = nrow(data.in), ncol = ncol(data.in))
+  colnames(data.out) <- colnames(data.in)
+  n <- dim(data.in)[2]
+  for (i in 1:n){
+    tmp <-  transform_dt(data.in[,i],tcode.all[i])
+    data.out[,i] <- tmp
+  }
+  return(data.out)
 }
 
 #' Identify data frequency
@@ -744,126 +925,4 @@ diff_time_mf <- function(time1, time2, origin, units = c("auto", "secs", "mins",
          hours = .difftime(z/3600, units = "hours"), 
          days = .difftime(z/86400, units = "days"), 
          weeks = .difftime(z/(7 * 86400), units = "weeks"))
-}
-
-#' End of the month date
-#' 
-#' @description 
-#' Change the date to the end of the month date.
-#' @param x date value.
-#' @return changed date value.
-#' @export monthEnd
-monthEnd <- function(x){
-  lubridate::ceiling_date(x, "month") - lubridate::days(1)
-}
-
-#' Beginning of the month date
-#' 
-#' @description 
-#' Change the date to the beginning of the month date.
-#' @param x date value.
-#' @return changed date value.
-#' @export monthBegin
-monthBegin <- function(x){
-  lubridate::floor_date(x, "month") 
-}
-
-#' Match dates
-#' 
-#' @description 
-#' Change the date to the beginning of the month date.
-#' @param x date vector to match with y date vector.
-#' @param y date vector.
-#' @return changed date vector.
-#' @export dateMatch
-dateMatch <- function(x,y){
-  n <- length(x)
-  x.out <- numeric(n)
-  x <- as.Date(x)
-  y <- as.Date(y)
-  for (i in 1:n){
-    i.x <- x[i]
-    if (i.x%in%y){
-      x.out[i] <- i.x
-    } else {
-      i.match <- FALSE
-      i.x.k <- i.x
-      k <- 1
-      while (i.match==FALSE && k >= 5){
-        lubridate::day(i.x.k) <- lubridate::day(i.x.k) - 1
-        i.match <- i.x.k%in%y
-        k <- k + 1
-      }
-      if (k<5){
-        x.out[i] <- i.x.k
-      } else {
-        x.out[i] <- i.x
-      }
-    }
-  }
-  x.out
-}
-
-#' Time series vector transformation
-#' 
-#' @description 
-#' Transform time series a vector based on transformation code.
-#' @param x time series vector. 
-#' @param tcode transformation code. 1 - not transformed, 2 - first difference, 3 - second difference, 4 - natural log, 5 - first difference of natural log, 6 - second difference of natural log, 7 - first difference of percent change. 
-#' @return transformed time series vector.
-#' @export transform_dt
-transform_dt <- function(x,tcode){
-  t <- length(x)
-  small <- 1e-9
-  y <- rep(NA, t) 
-  if(tcode==1) { # Level (i.e. no transformation): x(t)
-    y = x
-  }
-  if(tcode==2){ # First difference: x(t)-x(t-1)
-    y[-1] <- x[-1] - x[-t]
-  }
-  if(tcode==3){ # Second difference: (x(t)-x(t-1))-(x(t-1)-x(t-2))
-    y[-c(1,2)] <- x[-c(1,2)] - 2*x[-c(1,t)] + x[-c(t-1,t)]
-  } 
-  if(tcode==4){ # Natural log: ln(x)
-    x[abs(x)<small] <- NA
-    y <- log(x)
-  }  
-  if(tcode==5){ # First difference of natural log: ln(x)-ln(x-1)
-    x[abs(x)<small] <- NA
-    x <- log(x)
-    y[-1] <- x[-1] - x[-t]
-  }   
-  if(tcode==6){ # Second difference of natural log: ln(x)-2*ln(x-1)+ln(x-2)
-    x[abs(x)<small] <- NA
-    x <- log(x)
-    y[-c(1,2)] <- x[-c(1,2)] - 2*x[-c(1,t)] + x[-c(t-1,t)]
-  }    
-  if(tcode==7){ # First difference of percent change: (x(t)/x(t-1)-1)-(x(t-1)/x(t-2)-1)
-    x[abs(x)<small] <- NA
-    y.tmp <- y
-    y.tmp[-1] <- (x[-1]-x[-t])/x[-t]
-    y[-c(1,2)] <- y.tmp[-c(1,2)] - y.tmp[-c(1,t)] 
-  } 
-  return(y)
-}
-
-#' Time series matrix transformation
-#' 
-#' @description 
-#' Transform time series a matrix based on transformation code.
-#' @param data.in time series matrix. 
-#' @param tcode.all transformation code vector. 1 - not transformed, 2 - first difference, 3 - second difference, 4 - natural log, 5 - first difference of natural log, 6 - second difference of natural log, 7 - first difference of percent change. 
-#' @return transformed time series matrix.
-#' @export apply_transform
-apply_transform <- function(data.in,tcode.all){
-  data.in <- as.matrix(data.in)
-  data.out <- matrix(data=NA, nrow = nrow(data.in), ncol = ncol(data.in))
-  colnames(data.out) <- colnames(data.in)
-  n <- dim(data.in)[2]
-  for (i in 1:n){
-    tmp <-  transform_dt(data.in[,i],tcode.all[i])
-    data.out[,i] <- tmp
-  }
-  return(data.out)
 }

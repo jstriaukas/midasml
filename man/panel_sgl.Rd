@@ -71,17 +71,21 @@ Fits panel data regression model, random and fixed effects, under sg-LASSO penal
 \ifelse{html}{\out{The sequence of panel data models implied by <code>lambdas</code> vector is fit by block coordinate-descent. The objective function is <br><br> <center> RSS(&alpha;,&beta;)/NT + 2&lambda;  &Omega;<sub>&gamma;</sub>(&beta;), </center> <br> where RSS(&alpha;,&beta;) is either random or fixed effects model fit. The penalty function &Omega;<sub>&gamma;</sub>(.) is applied on coefficients of time-varying covariates &beta; and is <br> <br> <center> &Omega;<sub>&gamma;</sub>(&beta;) = &gamma; |&beta;|<sub>1</sub> + (1-&gamma;)||&beta;||<sub>2,1</sub>, </center> <br> a convex combination of LASSO and group LASSO penalty functions. There are additional options to apply sg-LASSO structures on fixed effects coefficient vector &alpha; (see description of input variables for more details).}}{The sequence of panel data models implied by \code{lambdas} vector is fit by block coordinate-descent. The objective function is \deqn{RSS(\alpha,\beta)/NT + 2\lambda * \Omega_\gamma(\beta),} where \eqn{RSS(\alpha,\beta)} is either random or fixed effects model fit. The penalty function \eqn{\Omega_\gamma(.)} is applied on coefficients of time-varying covariates \eqn{\beta} and is \deqn{\Omega_\gamma(\beta) = \gamma |\beta|_1 + (1-\gamma)||\beta||_2,1,} a convex combination of LASSO and group LASSO penalty functions. There are additional options to apply sg-LASSO structures on fixed effects coefficient vector \eqn{\alpha} (see description of input variables for more details).}
 }
 \examples{
+\dontrun{
 # simulate DGP
 set.seed(1)
-t <- 21; n = 20; p = 100; size.groups = 4 #337
+t <- 21; n = 20; p = 100; size.groups = 4 
 index <- ceiling(1:p / size.groups)
 X <- matrix(rnorm(n * t * p), ncol = p, nrow = n*t)
 beta <- c(5,4,3,2,1)
 y <- X[,1:5] \%*\% beta + 5*rnorm(n*t)
 entity_indices <- sort(rep(1:n,times=t-1))
-# fit panel data sg-LASSO regression
 panel_sgl(X = X, Z = NULL, y = y, index = index, 
   entity_indices = entity_indices, gamma_w = 1, 
   regress_choice = "fe", method_choice = "initial", 
-  verbose = FALSE)
+  num_cores = 2, verbose = FALSE)
+}
+}
+\author{
+Jonas Striaukas
 }

@@ -7,7 +7,7 @@
 plot_weights(obj)
 }
 \arguments{
-\item{obj}{midas_ardl or midas_dl object with parameter estimates and model specfication inputs.}
+\item{obj}{\code{midas_ardl} or \code{midas_dl} object with parameter estimates and model specfication inputs.}
 }
 \value{
 returns R figure of estimated MIDAS weights.
@@ -17,4 +17,23 @@ Based on specification in \code{obj}, plots a basic R figure of estimated MIDAS 
 }
 \details{
 MIDAS regression pecifcation is picked up from obj, see \code{midas_dl} or \code{midas_ardl} function descriptions for more details.
+}
+\examples{
+data(us_rgdp)
+rgdp <- us_rgdp$rgdp
+cfnai <- us_rgdp$cfnai
+rgdp[-1, 2] <- ((rgdp[-1, 2]/rgdp[-dim(rgdp)[1], 2])^4-1)*100
+rgdp <- rgdp[-1, ]
+data.y <- rgdp[,2]
+data.ydate <- rgdp[,1]
+est.start <- as.Date("1990-01-01")
+est.end <- as.Date("2002-03-01")
+data.x <- cfnai[,2]
+data.xdate <- cfnai[,1]
+fit <- midas_ardl(data.y, data.ydate, data.x, data.xdate,
+                  x.lag = 12, y.lag = 4, est.start, est.end, horizon = 1,
+                  polynomial = "legendre_w", legendre_degree = 3)
+}
+\author{
+Jonas Striaukas
 }

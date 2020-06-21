@@ -23,6 +23,15 @@ gb(degree, alpha, a = 0, b = 1, jmax = NULL, X = NULL)
 Psi weight matrix with Gegenbauer functions upto \code{degree}.
 }
 \description{
-For a given set of points in X, computes the orthonormal Gegenbauer polynomials basis of L2 [a,b] for a given degree and \eqn{\alpha} parameter. The Gegenbauer polynomials are special cases of Jacobi polynomials. In turn, you may get Legendre polynomials from Gegenbauer by setting \eqn{\alpha} = 0, or Chebychev's polynomials 
+For a given set of points in X, computes the orthonormal Gegenbauer polynomials basis of L2 [a,b] for a given degree and \eqn{\alpha} parameter. The Gegenbauer polynomials are a special case of more general Jacobi polynomials. In turn, you may get Legendre polynomials from Gegenbauer by setting \eqn{\alpha} = 0, or Chebychev's polynomials 
  by setting \eqn{\alpha} = 1/2 or -1/2.
+}
+\examples{
+degree <- 3
+alpha <- 1
+jmax <- 66
+gb(degree = degree, alpha = alpha, a = 0, b = 1, jmax = jmax)
+}
+\author{
+Jonas Striaukas
 }

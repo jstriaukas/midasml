@@ -52,3 +52,6 @@ index = 1:20
 Z <- as.matrix(rep(1,times=length(y)))
 sgl_fit(X = x, Z = Z, y = y, index = index, lambdas = c(1,2,3), gamma_w = 1)
 }
+\author{
+Jonas Striaukas
+}

@@ -28,27 +28,47 @@ midas_ardl(data.y, data.ydate, data.x, data.xdate, x.lag,
 
 \item{horizon}{forecast horizon measured in predictor variable sampling frequency (default set 1 unit ahead).}
 
-\item{polynomial}{MIDAS lag polynomial specification. Options are: Legendre (legendre_w), Beta desity (beta_w), restricted Beta density (rbeta_w), exponential Almon (expalmon_w), unrestricted MIDAS (umidas_w), step functions (step_fun).}
+\item{polynomial}{MIDAS lag polynomial specification. Options are: Legendre (\code{legendre_w}), Beta density (\code{beta_w}), restricted Beta density (\code{rbeta_w}), exponential Almon (\code{expalmon_w}), unrestricted MIDAS (\code{umidas_w}), step functions (\code{step_fun}).}
 
 \item{scheme}{forecasting scheme. Options are: fixed scheme (fixed), rolling window scheme (rolling), expanding window scheme (expand).}
 
 \item{loss}{loss function. Options are: mean squared error (mse), quantile (rq), asymmetric least squares (als).}
 
-\item{...}{optional parameters to feed into other functions. forecast.flag - TRUE/FALSE to compute out-of-sample predictions (default TRUE), disp.flag - TRUE/FALSE  to display MIDAS data structures (default FALSE), 
-num.evals - number of objective function evaluations using random starting parameter values in the case of non-linear MIDAS polynomial (default 1e4), 
-num.coef - number of best coefficients to use as starting values in nonlinear optimization (default 10),
-seed - value used in set.seed for randomly drawing initial starting values around OLS optimal solution,
-profiling - TRUE/FALSE to use MIDAS paramater profiling, coded only for rbeta_w polynomial, (default FALSE),
-step_idx - index of step function lags. If step_fun is used as a polynomial, it is best to specify this option too, otherwise, the program figures out the sampling frequency ratio and computes \code{step_idx} accordingly (message is displayed in this case),
-legendre_degree - degree of legendre polynomials. If legendre_w is used as a polynomial, it is best to specify this option too, otherwise, the value is set to 3 (message is displayed in this case),
-tau - quantile level for als and rq regressions. If eithr als or rq loss is used, this option must be specified, program stops if not,}
+\item{...}{optional parameters to feed into other functions. 
+\code{forecast.flag} - TRUE/FALSE to compute out-of-sample predictions (default TRUE), disp.flag - TRUE/FALSE  to display MIDAS data structures (default FALSE) \cr 
+\code{num.evals} - number of objective function evaluations using random starting parameter values in the case of non-linear MIDAS polynomial (default 1e4) \cr
+\code{num.coef} - number of best coefficients to use as starting values in nonlinear optimization (default 10) \cr
+\code{seed} - value used in set.seed for randomly drawing initial starting values around OLS optimal solution \cr
+\code{profiling} - TRUE/FALSE to use MIDAS parameter profiling, coded only for \code{rbeta_w} polynomial, (default FALSE) \cr
+\code{step_idx} - index of step function lags. If step_fun is used as a polynomial, it is best to specify this option too, otherwise, the program figures out the sampling frequency ratio and computes \code{step_idx} accordingly (message is displayed in this case) \cr
+\code{legendre_degree} - degree of Legendre polynomials. If \code{legendre_w} is used as a polynomial, it is best to specify this option too, otherwise, the value is set to 3 (message is displayed in this case) \cr
+\code{tau} - quantile level for als and rq regressions. If either als or rq loss is used, this option must be specified, program stops if no value is provided.}
 }
 \value{
-returns  midas_ardl list which contains parameter estimates, in- and out-of-sample statistics and predictions, and some information about the specification of the method used.
+returns  \code{midas_ardl} list which contains parameter estimates, in- and out-of-sample statistics and predictions, and some information about the specification of the method used.
 }
 \description{
 Estimates and predicts using a single variate ARDL-MIDAS model.
 }
 \details{
 \ifelse{html}{\out{Several polynomial functional forms are available (input variable <code>polynomial</code>): <br><br> - <code>beta_w</code>: Beta polynomial</center> <br> - <code>rbeta_w</code>: restricted Beta polynomial <br> - <code>expalmon_w</code>: exponential Almon polynomial <br>  - <code>umidas_w</code>: unrestricted lags (U-MIDAS) <br> - <code>step_fun</code>: polynomial with step functions <br> - <code>legendre_w</code>: Legendre polynomials <br> <br> different forecasting schemes (input variable <code>scheme</code>): <br><br>  - <code>fixed</code>: fixed scheme <br> - <code>rolling</code>: rolling window <br> - <code>expand</code>: expanding window <br><br> and different loss functions (input variable <code>loss</code>): <br><br> - <code>mse</code>: least squares <br> - <code>als</code>: asymmetric least squares <br> - <code>rq</code>: quantile. <br> <br> The ARDL-MIDAS model is: <br> <center> y<sub>t</sub> =  &mu; + &Sigma;<sub>p</sub> &rho;<sub>p</sub> y<sub>t-p</sub> + &beta;  &Sigma;<sub>j</sub> &omega;<sub>j</sub>(&theta;)x<sub>t-1</sub> </center> <br> where &mu;, &beta;, &theta; and  &rho;<sub>p</sub> are model parameters, p is the number of low-frequency lags and &omega; is the weight function.}}{Several polynomial functional forms are available (input variable \code{polynomial}): \cr  - \code{beta_w}: Beta polynomial \cr - \code{rbeta_w}: restricted Beta polynomial \cr - \code{expalmon_w}: Exp Almon polynomial \cr - \code{umidas_w}: unrestricted lags (U-MIDAS) \cr - \code{step_fun}: polynomial with step functions  \cr - \code{legendre_w}: Legendre polynomials \cr different forecasting schemes (input variable \code{scheme}): \cr - \code{fixed}: fixed scheme \cr - \code{rolling}: rolling window \cr - \code{expand}: expanding window \cr  and different loss functions (input variable \code{loss}) \cr - \code{mse}: least squares \cr - \code{als}: asymmetric least squares \cr - \code{rq}: quantile.  \cr\cr The ARDL-MIDAS model is: \cr \deqn{y_t =  \mu + \sum_p \rho_p y_{t-p} + \beta \sum_j \omega_j(\theta)x_{t-1}} \cr where \eqn{\mu}, \eqn{\beta}, \eqn{\theta}, \eqn{\rho_p}  are model parameters, p is number of low-frequency and \eqn{\omega} is the weight function.}
+}
+\examples{
+data(us_rgdp)
+rgdp <- us_rgdp$rgdp
+cfnai <- us_rgdp$cfnai
+rgdp[-1, 2] <- ((rgdp[-1, 2]/rgdp[-dim(rgdp)[1], 2])^4-1)*100
+rgdp <- rgdp[-1, ]
+data.y <- rgdp[,2]
+data.ydate <- rgdp[,1]
+est.start <- as.Date("1990-01-01")
+est.end <- as.Date("2002-03-01")
+data.x <- cfnai[,2]
+data.xdate <- cfnai[,1] 
+midas_ardl(data.y, data.ydate, data.x, data.xdate,
+   x.lag = 12, y.lag = 4, est.start, est.end, horizon = 1,
+   polynomial = "legendre_w", legendre_degree = 3)
+}
+\author{
+Jonas Striaukas
 }

@@ -23,3 +23,11 @@ Psi weight matrix with Legendre functions upto \code{degree}.
 \description{
 For a given set of points in X, computes the orthonormal Legendre polynomials basis of L2 [a,b] for a given degree.
 }
+\examples{
+degree <- 3
+jmax <- 66
+lb(degree = degree, a = 0, b = 1, jmax = jmax)
+}
+\author{
+Jonas Striaukas
+}

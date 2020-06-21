@@ -37,20 +37,22 @@
 #' @param inner_iter the maximum number of inner sg-LASSO loop iterations. We recommend leaving this to NULL.
 #' @param outer_iter the maximum number of outer sg-LASSO loop iterations. We recommend leaving this to NULL.
 #' @return Parameter estimates of panel data regression model under sg-LASSO penalty.
+#' @author Jonas Striaukas
 #' @examples 
+#' \dontrun{
 #' # simulate DGP
 #' set.seed(1)
-#' t <- 21; n = 20; p = 100; size.groups = 4 #337
+#' t <- 21; n = 20; p = 100; size.groups = 4 
 #' index <- ceiling(1:p / size.groups)
 #' X <- matrix(rnorm(n * t * p), ncol = p, nrow = n*t)
 #' beta <- c(5,4,3,2,1)
 #' y <- X[,1:5] %*% beta + 5*rnorm(n*t)
 #' entity_indices <- sort(rep(1:n,times=t-1))
-#' # fit panel data sg-LASSO regression
 #' panel_sgl(X = X, Z = NULL, y = y, index = index, 
 #'   entity_indices = entity_indices, gamma_w = 1, 
 #'   regress_choice = "fe", method_choice = "initial", 
-#'   verbose = FALSE)
+#'   num_cores = 2, verbose = FALSE)
+#' }
 #' @export panel_sgl
 panel_sgl <- function(X, Z=NULL, y, index, entity_indices, gamma_w=NULL, l1_factor=NULL, l21_factor=NULL, dummies_index=NULL, full_est=NULL, regress_choice=c("re","fe"), method_choice=c("ic","cv","initial"), nlam=100, lambdas=NULL,min_frac=NULL, nfolds=10, lambda_choice=c("min","1se"), ic_choice=c("bic","aic","aicc"),
                             num_cores = NULL, verbose=FALSE,thresh=NULL, outer_thresh=NULL, inner_iter=NULL, outer_iter=NULL){
@@ -300,12 +302,14 @@ panel_sgl <- function(X, Z=NULL, y, index, entity_indices, gamma_w=NULL, l1_fact
 #' @param inner_iter the maximum number of inner sg-LASSO loop iterations. We recommend leaving this to NULL.
 #' @param outer_iter the maximum number of outer sg-LASSO loop iterations. We recommend leaving this to NULL.
 #' @return Parameter estimates of linear regression model under sg-LASSO penalty.
+#' @author Jonas Striaukas
 #' @examples 
 #' set.seed(1)
 #' x = matrix(rnorm(100 * 20), 100, 20)
 #' y = rnorm(100)
 #' index = 1:20
-#' reg_sgl(X = x, y = y, index = index, gamma_w = 1, method_choice = "initial", verbose = FALSE)
+#' reg_sgl(X = x, y = y, index = index, gamma_w = 1, method_choice = "initial", 
+#'   num_cores = 2, verbose = FALSE)
 #' @export reg_sgl
 reg_sgl <- function(X, y, index, gamma_w=NULL, full_est=NULL, method_choice=c("ic","cv","initial"), nlam=100, lambdas=NULL,min_frac=NULL, nfolds=10, lambda_choice=c("min","1se"), ic_choice=c("bic","aic","aicc"),
                         num_cores = NULL, verbose=FALSE,thresh=NULL, outer_thresh=NULL, inner_iter=NULL, outer_iter=NULL){
@@ -469,6 +473,7 @@ reg_sgl <- function(X, y, index, gamma_w=NULL, full_est=NULL, method_choice=c("i
 #' @param inner_iter the maximum number of inner sg-LASSO loop iterations. We recommend leaving this to NULL.
 #' @param outer_iter the maximum number of outer sg-LASSO loop iterations. We recommend leaving this to NULL.
 #' @return sg-LASSO regression fitted coefficients.
+#' @author Jonas Striaukas
 #' @examples
 #' set.seed(1)
 #' x = matrix(rnorm(100 * 20), 100, 20)
@@ -527,6 +532,88 @@ sgl_fit <- function(X, Z, y, index, lambdas, gamma_w=NULL, l1_factor=NULL, l21_f
   return(list(alphahat=alphahat,betahat=betahat))
 }
 
+#' Computes prediction for the sg-LASSO panel regression model
+#' 
+#' @param object fit object from \code{panel_sgl}.
+#' @param newX matrix of out-of-sample covariate observations.
+#' @param newZ optional matrix of dummies for panel data model.
+#' @param regress_choice choose between `re` and `fe`. Must be consistent with \code{object}.
+#' @param ... currently ignored optional parameters. 
+#' @return a list of these variables:
+#' @return pred - overall prediction.
+#' @return predZ - dummies prediction.
+#' @return predX - covariates prediction.
+#' @examples 
+#' set.seed(1)
+#' t <- 21; n = 20; p = 100; size.groups = 4 
+#' index <- ceiling(1:p / size.groups)
+#' X <- matrix(rnorm(n * t * p), ncol = p, nrow = n*t)
+#' beta <- c(5,4,3,2,1)
+#' y <- X[,1:5] %*% beta + 5*rnorm(n*t)
+#' Z <- kronecker(diag(n), rep(1, times = t))
+#' entity_indices <- sort(rep(1:n,times=t-1))
+#' fit <- panel_sgl(X = X, Z = Z, y = y, index = index, 
+#'          entity_indices = entity_indices, gamma_w = 1, 
+#'          regress_choice = "fe", method_choice = "ic", 
+#'          num_cores = 2, verbose = FALSE)
+#' predict.panel_sgl(object = fit, newX = X, newZ = Z, regress_choice = "fe")$pred
+#' @author Jonas Striaukas
+#' @method predict panel_sgl
+#' @rdname predict.panel_sgl
+#' @export predict.panel_sgl
+predict.panel_sgl <- function(object, newX, newZ=NULL, regress_choice=c("re","fe"), ...){
+  newX <- as.matrix(newX)
+  n <- dim(newX)[1]
+  reg <- match.arg(regress_choice)
+  
+  alpha <- object$alpha
+  beta <- object$beta
+  if (is.null(newZ)){
+    if (reg=="re"){
+      Z <- matrix(rep(1,times=n),nrow=n,ncol=1)
+    }
+    if (reg=="fe"){ 
+      Z <- diag(n)
+    }
+  } else {
+    Z <- newZ
+  }
+  predZ <- as.numeric(Z%*%alpha)
+  predX <- as.numeric(newX%*%beta)
+  pred <- as.numeric(predZ+predX)
+  return(list(pred=pred,predZ=predZ,predX=predX))
+}
+
+#' Computes prediction for the sg-LASSO linear regression
+#' 
+#' @param object fit object from sglassofit.
+#' @param newX matrix of out-of-sample covariate observations.
+#' @param ... currently ignored optional parameters. 
+#' @return a list of these variables:
+#' @return pred - overall prediction.
+#' @return predZ - intercept prediction.
+#' @return predX - covariates prediction.
+#' @author Jonas Striaukas
+#' @examples 
+#' set.seed(1)
+#' x <- matrix(rnorm(100 * 20), 100, 20)
+#' y <- rnorm(100)
+#' index <- 1:20
+#' fit <- reg_sgl(X = x, y = y, index = index, gamma_w = 1, method_choice = "ic", 
+#'        num_cores = 2, verbose = FALSE)
+#' predict.reg_sgl(object = fit, newX = x)
+#' @method predict reg_sgl
+#' @rdname predict.reg_sgl
+#' @export predict.reg_sgl
+predict.reg_sgl <- function(object, newX, ...){
+  alpha <- object$alpha
+  beta <- object$beta
+  predZ <- alpha
+  predX <- as.numeric(newX%*%beta)
+  pred <- as.numeric(predZ+predX)
+  return(list(pred=pred,predZ=predZ,predX=predX))
+}
+
 #' Computes a sequence of lambda parameters for the mse sg-LASSO regression
 #' 
 #' @param X T by p data matrix, where t and p respectively denote the sample size and the number of regressors.
@@ -564,7 +651,7 @@ path_calc <- function(X, Z, y, index, gamma_w=NULL, l1_factor=0, l21_factor=0, d
   y <- as.vector(y)
   n <- dim(X)[1]
   max_lam_tmp <- max(t(cbind(Z,X))%*%y)/n
-    
+  
   # we just need approximate solutions so coordinate-descent parameters are set to be loose
   inner_iter <- 1e3
   outer_iter <- 1e3
@@ -685,66 +772,6 @@ path_calc_panel <- function(X, Z, y, index, gamma_w=NULL, l1_factor=NULL, l21_fa
   seq_loglambdas <- seq(log_max_lam,log_min_lam,length.out = nlam)
   lambdas <- exp(seq_loglambdas)
   lambdas
-}
-
-#' Computes prediction for the sg-LASSO panel regression model
-#' 
-#' @param object fit object from panelsglassofit.
-#' @param newX matrix of out-of-sample covariate observations.
-#' @param newZ optional matrix of dummies for panel data model.
-#' @param regress_choice choose between `re` and `fe`. Must be consistent with \code{object}.
-#' @param ... currently ignored optional parameters. 
-#' @return a list of these variables:
-#' @return pred - overall prediction.
-#' @return predZ - dummies prediction.
-#' @return predX - covariates prediction.
-#' @author Jonas Striaukas
-#' @method predict panel_sgl
-#' @rdname predict.panel_sgl
-#' @export predict.panel_sgl
-predict.panel_sgl <- function(object, newX, newZ=NULL, regress_choice=c("re","fe"), ...){
-  newX <- as.matrix(newX)
-  n <- dim(newX)[1]
-  reg <- match.arg(regress_choice)
-  
-  alpha <- object$alpha
-  beta <- object$beta
-  if (is.null(newZ)){
-    if (reg=="re"){
-      Z <- matrix(rep(1,times=n),nrow=n,ncol=1)
-    }
-    if (reg=="fe"){ 
-      Z <- diag(n)
-    }
-  } else {
-    Z <- newZ
-  }
-  predZ <- as.numeric(Z%*%alpha)
-  predX <- as.numeric(newX%*%beta)
-  pred <- as.numeric(predZ+predX)
-  return(list(pred=pred,predZ=predZ,predX=predX))
-}
-
-#' Computes prediction for the sg-LASSO linear regression
-#' 
-#' @param object fit object from sglassofit.
-#' @param newX matrix of out-of-sample covariate observations.
-#' @param ... currently ignored optional parameters. 
-#' @return a list of these variables:
-#' @return pred - overall prediction.
-#' @return predZ - intercept prediction.
-#' @return predX - covariates prediction.
-#' @author Jonas Striaukas
-#' @method predict reg_sgl
-#' @rdname predict.reg_sgl
-#' @export predict.reg_sgl
-predict.reg_sgl <- function(object, newX, ...){
-  alpha <- object$alpha
-  beta <- object$beta
-  predZ <- alpha
-  predX <- as.numeric(newX%*%beta)
-  pred <- as.numeric(predZ+predX)
-  return(list(pred=pred,predZ=predZ,predX=predX))
 }
 
 #' Updates the cross-validation error estimates

@@ -20,7 +20,7 @@ mixed_freq_data_single(data.refdate, data.x, data.xdate, x.lag, horizon,
 
 \item{est.start}{estimation start date, taken as the first ... .}
 
-\item{est.end}{estimation end date, taken as the last ... . Remainig data after this date is dropped to out-of-sample evaluation data.}
+\item{est.end}{estimation end date, taken as the last ... . Remaining data after this date is dropped to out-of-sample evaluation data.}
 
 \item{disp.flag}{display flag to indicate whether or not to display obtained MIDAS data strcuture in console.}
 }
@@ -29,4 +29,19 @@ a list of midas data structure.
 }
 \description{
 Creates a MIDAS data structure for a single high-frequency covariate based on low-frequency reference date.
+}
+\examples{
+data(us_rgdp)
+rgdp <- us_rgdp$rgdp
+cfnai <- us_rgdp$cfnai
+data.refdate <- rgdp$date
+data.x <- cfnai$cfnai
+data.xdate <- cfnai$date
+est.start <- as.Date("1990-01-01")
+est.end <- as.Date("2002-03-01")
+mixed_freq_data_single(data.refdate, data.x, data.xdate, x.lag = 12, horizon = 1,
+ est.start, est.end, disp.flag = FALSE)
+}
+\author{
+Jonas Striaukas
 }

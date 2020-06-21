@@ -17,3 +17,7 @@ transformed time series matrix.
 \description{
 Transform time series a matrix based on transformation code.
 }
+\examples{
+data.in <- matrix(rnorm(100*10,1),nrow = 100, ncol = 10)
+apply_transform(data.in, tcode = rep(1,times=10))
+}
