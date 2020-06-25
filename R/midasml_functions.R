@@ -19,7 +19,7 @@
 #' @param ... optional parameters to feed into \ifelse{html}{\out{<code>reg_sgl</code>}}{\code{reg_sgl}}. 
 #' @return out-of-sample predictions.
 #' @examples 
-#' \dontrun{
+#' \donttest{
 #' data(macro_midasml)
 #' est.start <- as.Date("1990-12-01")
 #' est.end <- as.Date("2017-03-01")

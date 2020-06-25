@@ -39,7 +39,7 @@
 #' @return Parameter estimates of panel data regression model under sg-LASSO penalty.
 #' @author Jonas Striaukas
 #' @examples 
-#' \dontrun{
+#' \donttest{
 #' # simulate DGP
 #' set.seed(1)
 #' t <- 21; n = 20; p = 100; size.groups = 4 
