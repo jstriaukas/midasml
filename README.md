@@ -1,3 +1,6 @@
+[![CRAN_Status_Badge](https://www.r-pkg.org/badges/version/midasml)](https://cran.r-project.org/package=midasml)
+[![Downloads](http://cranlogs.r-pkg.org/badges/midasml)](http://www.r-pkg.org/pkg/midasml)
+
 # midasML
 
 midasML - estimation and prediction for high-dimensional mixed frequency time series data.

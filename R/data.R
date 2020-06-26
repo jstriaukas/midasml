@@ -48,7 +48,7 @@ NULL
 #' @source 
 #'   \code{macro_midasml$rgdp} - \href{https://fred.stlouisfed.org/}{FRED} \cr
 #'   \code{macro_midasml$md.data} - \href{https://research.stlouisfed.org/econ/mccracken/fred-databases/}{St. Louis Fed M. W. McCracken website} \cr
-#'   \code{macro_midasml$text.data} - \href{http://www.structureofnews.com/}{The Structure of Economic News website} 
+#'   \code{macro_midasml$text.data} - \href{http://www.structureofnews.com/}{The Structure of Economic News website} \cr
 #'   \code{macro_midasml$survey.data} - \href{https://philadelphiafed.org/research-and-data/real-time-center/survey-of-professional-forecasters}{Philadelphia Fed SPF data} 
 #' @examples
 #' data(macro_midasml)
