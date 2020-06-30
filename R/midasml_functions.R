@@ -47,7 +47,7 @@ midasml_forecast <- function(y_in, y_out, x_in, x_out, group_index, gamma_w, y_o
       if(i==1){
         fit <- reg_sgl(X = x_in, y = y_in, index = group_index, gamma_w = gamma_w, verbose = verbose, ...)
       } else {
-        fit <- reg_sgl(X = rbind(x_in,x_out[i-1,]), y = c(y_in, y_out[i]), 
+        fit <- reg_sgl(X = rbind(x_in,x_out[(1:i-1),]), y = c(y_in, y_out[(1:i-1)]), 
                               index = group_index, gamma_w = gamma_w, verbose = verbose, ...)
       }
       y_hat[i] <- predict.reg_sgl(fit, newX = as.matrix(x_out[i,]))$pred
@@ -60,7 +60,7 @@ midasml_forecast <- function(y_in, y_out, x_in, x_out, group_index, gamma_w, y_o
       if(i==1){
         fit <- reg_sgl(X = x_in, y = y_in, index = group_index, gamma_w = gamma_w, verbose = verbose, ...)
       } else {
-        fit <- reg_sgl(X = rbind(x_in[-c(1:(i-1)),],x_out[i-1,]), y = c(y_in[-c(1:(i-1)),], y_out[i]), 
+        fit <- reg_sgl(X = rbind(x_in[-c(1:(i-1)),],x_out[(1:i-1),]), y = c(y_in[-c(1:(i-1)),], y_out[(1:i-1)]), 
                        index = group_index, gamma_w = gamma_w, verbose = verbose, ...)
       }
       y_hat[i] <- predict.reg_sgl(fit, newX = as.matrix(x_out[i,]))$pred

@@ -1,7 +1,7 @@
 Package: midasml
 Type: Package
 Title: Estimation and Prediction Methods for High-Dimensional Mixed Frequency Time Series Data
-Version: 0.0.1
+Version: 0.0.2
 Authors@R: person("Jonas", "Striaukas", email = "jonas.striaukas@gmail.com", role = c("aut", "cre"))
 Author: Jonas Striaukas [aut, cre] 
 Maintainer: Jonas Striaukas <jonas.striaukas@gmail.com>
