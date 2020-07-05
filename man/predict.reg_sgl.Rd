@@ -26,6 +26,7 @@ predX - covariates prediction.
 Computes prediction for the sg-LASSO linear regression
 }
 \examples{
+\donttest{
 set.seed(1)
 x <- matrix(rnorm(100 * 20), 100, 20)
 y <- rnorm(100)
@@ -33,6 +34,7 @@ index <- 1:20
 fit <- reg_sgl(X = x, y = y, index = index, gamma_w = 1, method_choice = "ic", 
        num_cores = 2, verbose = FALSE)
 predict.reg_sgl(object = fit, newX = x)
+}
 }
 \author{
 Jonas Striaukas

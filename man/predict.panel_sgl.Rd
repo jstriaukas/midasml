@@ -30,6 +30,7 @@ predX - covariates prediction.
 Computes prediction for the sg-LASSO panel regression model
 }
 \examples{
+\donttest{
 set.seed(1)
 t <- 21; n = 20; p = 100; size.groups = 4 
 index <- ceiling(1:p / size.groups)
@@ -43,6 +44,7 @@ fit <- panel_sgl(X = X, Z = Z, y = y, index = index,
          regress_choice = "fe", method_choice = "ic", 
          num_cores = 2, verbose = FALSE)
 predict.panel_sgl(object = fit, newX = X, newZ = Z, regress_choice = "fe")$pred
+}
 }
 \author{
 Jonas Striaukas

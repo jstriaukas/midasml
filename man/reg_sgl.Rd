@@ -57,12 +57,14 @@ Fits sg-LASSO least squares regression model. Options include cross-validation a
 \ifelse{html}{\out{The sequence of linear regression models implied by <code>lambdas</code> vector is fit by block coordinate-descent. The objective function is <br><br> <center> RSS(&alpha;,&beta;)/T + 2&lambda;  &Omega;<sub>&gamma;</sub>(&beta;), </center> <br> where RSS(&alpha;,&beta;) is the least squares fit. The penalty function &Omega;<sub>&gamma;</sub>(.) is applied on  &beta; coefficients and is <br> <br> <center> &Omega;<sub>&gamma;</sub>(&beta;) = &gamma; |&beta;|<sub>1</sub> + (1-&gamma;)||&beta;||<sub>2,1</sub>, </center> <br> a convex combination of LASSO and group LASSO penalty functions.}}{The sequence of linear regression models implied by \code{lambdas} vector is fit by block coordinate-descent. The objective function is \deqn{RSS(\alpha,\beta)/T + 2\lambda * \Omega_\gamma(\beta),} where \eqn{RSS(\alpha,\beta)} is the least squares fit. The penalty function \eqn{\Omega_\gamma(.)} is applied on \eqn{\beta} coefficients and is \deqn{\Omega_\gamma(\beta) = \gamma |\beta|_1 + (1-\gamma)||\beta||_{2,1},} a convex combination of LASSO and group LASSO penalty functions.}
 }
 \examples{
+\donttest{ 
 set.seed(1)
 x = matrix(rnorm(100 * 20), 100, 20)
 y = rnorm(100)
 index = 1:20
 reg_sgl(X = x, y = y, index = index, gamma_w = 1, method_choice = "initial", 
   num_cores = 2, verbose = FALSE)
+}
 }
 \author{
 Jonas Striaukas

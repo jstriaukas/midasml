@@ -303,13 +303,15 @@ panel_sgl <- function(X, Z=NULL, y, index, entity_indices, gamma_w=NULL, l1_fact
 #' @param outer_iter the maximum number of outer sg-LASSO loop iterations. We recommend leaving this to NULL.
 #' @return Parameter estimates of linear regression model under sg-LASSO penalty.
 #' @author Jonas Striaukas
-#' @examples 
+#' @examples
+#' \donttest{ 
 #' set.seed(1)
 #' x = matrix(rnorm(100 * 20), 100, 20)
 #' y = rnorm(100)
 #' index = 1:20
 #' reg_sgl(X = x, y = y, index = index, gamma_w = 1, method_choice = "initial", 
 #'   num_cores = 2, verbose = FALSE)
+#' }
 #' @export reg_sgl
 reg_sgl <- function(X, y, index, gamma_w=NULL, full_est=NULL, method_choice=c("ic","cv","initial"), nlam=100, lambdas=NULL,min_frac=NULL, nfolds=10, lambda_choice=c("min","1se"), ic_choice=c("bic","aic","aicc"),
                         num_cores = NULL, verbose=FALSE,thresh=NULL, outer_thresh=NULL, inner_iter=NULL, outer_iter=NULL){
@@ -544,6 +546,7 @@ sgl_fit <- function(X, Z, y, index, lambdas, gamma_w=NULL, l1_factor=NULL, l21_f
 #' @return predZ - dummies prediction.
 #' @return predX - covariates prediction.
 #' @examples 
+#' \donttest{
 #' set.seed(1)
 #' t <- 21; n = 20; p = 100; size.groups = 4 
 #' index <- ceiling(1:p / size.groups)
@@ -557,6 +560,7 @@ sgl_fit <- function(X, Z, y, index, lambdas, gamma_w=NULL, l1_factor=NULL, l21_f
 #'          regress_choice = "fe", method_choice = "ic", 
 #'          num_cores = 2, verbose = FALSE)
 #' predict.panel_sgl(object = fit, newX = X, newZ = Z, regress_choice = "fe")$pred
+#' }
 #' @author Jonas Striaukas
 #' @method predict panel_sgl
 #' @rdname predict.panel_sgl
@@ -595,6 +599,7 @@ predict.panel_sgl <- function(object, newX, newZ=NULL, regress_choice=c("re","fe
 #' @return predX - covariates prediction.
 #' @author Jonas Striaukas
 #' @examples 
+#' \donttest{
 #' set.seed(1)
 #' x <- matrix(rnorm(100 * 20), 100, 20)
 #' y <- rnorm(100)
@@ -602,6 +607,7 @@ predict.panel_sgl <- function(object, newX, newZ=NULL, regress_choice=c("re","fe
 #' fit <- reg_sgl(X = x, y = y, index = index, gamma_w = 1, method_choice = "ic", 
 #'        num_cores = 2, verbose = FALSE)
 #' predict.reg_sgl(object = fit, newX = x)
+#' }
 #' @method predict reg_sgl
 #' @rdname predict.reg_sgl
 #' @export predict.reg_sgl
