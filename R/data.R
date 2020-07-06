@@ -13,11 +13,13 @@
 #'   \code{payems} - \href{https://fred.stlouisfed.org/}{FRED} \cr
 #'   \code{ads} - \href{https://www.philadelphiafed.org/research-and-data/real-time-center/business-conditions-index}{Philadelphia Fed website} 
 #' @examples
+#' \donttest{
 #' data(us_rgdp)
 #' us_rgdp$rgdp # - GDP data
 #' us_rgdp$cfnai # - CFNAI predictor data
 #' us_rgdp$payems # - Nonfarm payrolls predictor data 
 #' us_rgdp$ads # - ADS predictor data
+#' }
 NULL
 
 #' SNP500 returns
@@ -32,8 +34,10 @@ NULL
 #' @source 
 #'   \code{rgdp} - \href{https://fred.stlouisfed.org/}{FRED} 
 #' @examples
+#' \donttest{
 #' data(market_ret)
 #' market_ret$snp500ret
+#' }
 NULL
 
 #' GDP nowcasting using midasML approach example data
@@ -51,11 +55,13 @@ NULL
 #'   \code{macro_midasml$text.data} - \href{http://www.structureofnews.com/}{The Structure of Economic News website} \cr
 #'   \code{macro_midasml$survey.data} - \href{https://philadelphiafed.org/research-and-data/real-time-center/survey-of-professional-forecasters}{Philadelphia Fed SPF data} 
 #' @examples
+#' \donttest{
 #' data(macro_midasml)
 #' macro_midasml$rgdp.data # GDP data
 #' macro_midasml$md.data # FRED-MD data
 #' macro_midasml$text.data # textual analysis data
 #' macro_midasml$survey.data # SPF data
+#' }
 NULL
 
 

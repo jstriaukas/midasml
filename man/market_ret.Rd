@@ -17,7 +17,9 @@ data(market_ret)
 SNP500 returns
 }
 \examples{
+\donttest{
 data(market_ret)
 market_ret$snp500ret
+}
 }
 \keyword{datasets}

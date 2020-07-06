@@ -5,6 +5,14 @@
 
 midasML - estimation and prediction for high-dimensional mixed frequency time series data.
 
+## Run to install the package
+
+```{r }
+# install.packages("devtools")
+library(devtools)
+install_github("midasml","jstriaukas")
+```
+
 ## About
 The midasML package implements estimation and prediction methods for high dimensional time series regression models under mixed data sampling data structures using structured-sparsity penalties and orthogonal polynomials. For more information on the midasML approach see [1]. The package also allows to estimate and predict using single-variate MIDAS regressions. Note that such regressions are also implemented in ```midasr``` package. Functions implemented in this package allows to directly compare low-dimensional and high-dimensional MIDAS regression models.
 

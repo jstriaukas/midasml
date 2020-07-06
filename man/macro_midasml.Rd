@@ -20,10 +20,12 @@ data(market_ret)
 US real GDP, FRED-MD monthly dataset, SPF survey and textual analysis data.
 }
 \examples{
+\donttest{
 data(macro_midasml)
 macro_midasml$rgdp.data # GDP data
 macro_midasml$md.data # FRED-MD data
 macro_midasml$text.data # textual analysis data
 macro_midasml$survey.data # SPF data
+}
 }
 \keyword{datasets}

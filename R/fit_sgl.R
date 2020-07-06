@@ -42,7 +42,7 @@
 #' \donttest{
 #' # simulate DGP
 #' set.seed(1)
-#' t <- 21; n = 20; p = 100; size.groups = 4 
+#' t <- 10; n = 5; p = 20; size.groups = 4 
 #' index <- ceiling(1:p / size.groups)
 #' X <- matrix(rnorm(n * t * p), ncol = p, nrow = n*t)
 #' beta <- c(5,4,3,2,1)
@@ -310,7 +310,7 @@ panel_sgl <- function(X, Z=NULL, y, index, entity_indices, gamma_w=NULL, l1_fact
 #' y = rnorm(100)
 #' index = 1:20
 #' reg_sgl(X = x, y = y, index = index, gamma_w = 1, method_choice = "initial", 
-#'   num_cores = 2, verbose = FALSE)
+#'   num_cores = 2, verbose = FALSE, lambdas = c(1,2,3))
 #' }
 #' @export reg_sgl
 reg_sgl <- function(X, y, index, gamma_w=NULL, full_est=NULL, method_choice=c("ic","cv","initial"), nlam=100, lambdas=NULL,min_frac=NULL, nfolds=10, lambda_choice=c("min","1se"), ic_choice=c("bic","aic","aicc"),
@@ -477,12 +477,14 @@ reg_sgl <- function(X, y, index, gamma_w=NULL, full_est=NULL, method_choice=c("i
 #' @return sg-LASSO regression fitted coefficients.
 #' @author Jonas Striaukas
 #' @examples
+#' \donttest{
 #' set.seed(1)
 #' x = matrix(rnorm(100 * 20), 100, 20)
 #' y = rnorm(100)
 #' index = 1:20
 #' Z <- as.matrix(rep(1,times=length(y)))
 #' sgl_fit(X = x, Z = Z, y = y, index = index, lambdas = c(1,2,3), gamma_w = 1)
+#' }
 #' @export sgl_fit
 sgl_fit <- function(X, Z, y, index, lambdas, gamma_w=NULL, l1_factor=NULL, l21_factor=NULL, dummies_index=NULL, inner_iter=NULL, outer_iter=NULL, thresh=NULL, outer_thresh=NULL){
   nlam <- length(lambdas)
@@ -548,7 +550,7 @@ sgl_fit <- function(X, Z, y, index, lambdas, gamma_w=NULL, l1_factor=NULL, l21_f
 #' @examples 
 #' \donttest{
 #' set.seed(1)
-#' t <- 21; n = 20; p = 100; size.groups = 4 
+#' t <- 10; n = 5; p = 20; size.groups = 4 
 #' index <- ceiling(1:p / size.groups)
 #' X <- matrix(rnorm(n * t * p), ncol = p, nrow = n*t)
 #' beta <- c(5,4,3,2,1)

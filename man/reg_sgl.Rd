@@ -63,7 +63,7 @@ x = matrix(rnorm(100 * 20), 100, 20)
 y = rnorm(100)
 index = 1:20
 reg_sgl(X = x, y = y, index = index, gamma_w = 1, method_choice = "initial", 
-  num_cores = 2, verbose = FALSE)
+  num_cores = 2, verbose = FALSE, lambdas = c(1,2,3))
 }
 }
 \author{

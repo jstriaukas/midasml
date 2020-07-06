@@ -101,6 +101,7 @@ midasml_forecast <- function(y_in, y_out, x_in, x_out, group_index, gamma_w, y_o
 #' @param disp.flag display flag to indicate whether or not to display obtained MIDAS data structure in console.
 #' @return MIDAS covariates and group memberships based on desired specification.
 #' @examples 
+#' \donttest{
 #' data(macro_midasml)
 #' est.start <- as.Date("1990-12-01")
 #' est.end <- as.Date("2017-03-01")
@@ -111,6 +112,7 @@ midasml_forecast <- function(y_in, y_out, x_in, x_out, group_index, gamma_w, y_o
 #'          x.lag = 12, legendre_degree = 3, 
 #'          horizon = 1, macro_delay = 1, est.start, est.end, 
 #'          standardize = TRUE, group_ar_lags = FALSE, disp.flag = FALSE)
+#' }
 #' @author Jonas Striaukas
 #' @export qtarget.sort_midasml
 qtarget.sort_midasml <- function(y.data, x.macro.data = NULL, x.real.time = NULL, x.quarterly_group = NULL, x.lag = NULL, legendre_degree, horizon, macro_delay = 1, est.start, est.end, standardize = TRUE, group_ar_lags = FALSE, real_time_predictions = FALSE, disp.flag = TRUE){

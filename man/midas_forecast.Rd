@@ -11,7 +11,7 @@ midas_forecast(params, x, ylag, polynomial, ...)
 
 \item{x}{out-of-sample predictor variable data.}
 
-\item{ylag}{out-of-sample lagged depedent variable data.}
+\item{ylag}{out-of-sample lagged dependent variable data.}
 
 \item{polynomial}{polynomial specification.}
 

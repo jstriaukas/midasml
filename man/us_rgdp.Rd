@@ -20,10 +20,12 @@ data(us_rgdp)
 US real GDP, Chicago National Activity Index, Nonfarm payrolls and ADS Index
 }
 \examples{
+\donttest{
 data(us_rgdp)
 us_rgdp$rgdp # - GDP data
 us_rgdp$cfnai # - CFNAI predictor data
 us_rgdp$payems # - Nonfarm payrolls predictor data 
 us_rgdp$ads # - ADS predictor data
+}
 }
 \keyword{datasets}

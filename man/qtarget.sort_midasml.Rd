@@ -48,6 +48,7 @@ Sorts high-dimensional mixed frequency data for quarterly target variable.
 \ifelse{html}{\out{Sorts high-dimensional mixed frequency data for quarterly target variable read to be inputed into <code>midasml_forecast</code> function to produce nowcasts & forecasts.}}{Sorts high-dimensional mixed frequency data for quarterly target variable read to be inputed into \code{midasml_forecast} function to produce nowcasts & forecasts.}
 }
 \examples{
+\donttest{
 data(macro_midasml)
 est.start <- as.Date("1990-12-01")
 est.end <- as.Date("2017-03-01")
@@ -58,6 +59,7 @@ qtarget.sort_midasml(y.data = rgdp.data, x.macro.data = macro_midasml$md.data,
          x.lag = 12, legendre_degree = 3, 
          horizon = 1, macro_delay = 1, est.start, est.end, 
          standardize = TRUE, group_ar_lags = FALSE, disp.flag = FALSE)
+}
 }
 \author{
 Jonas Striaukas

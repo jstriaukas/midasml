@@ -32,12 +32,12 @@
 #'    \code{midas_gen} - option on how to generate the low-frequency variable. \code{from_hf} - computes from high-frequency variable (see \code{mixed_freq_data_mhorizon}, \code{aggregation} method could be specified as an additional input) or \code{as_ref} - computes MIDAS data structures using low-frequency variable (default 'from_hf').
 #' @return returns \code{midas_dl} list which contains parameter estimates, in- and out-of-sample statistics and predictions, and some information about the specification of the method used.
 #' @author Jonas Striaukas
-#' @examples 
+#' @examples
 #' data(market_ret)
 #' data.x <- market_ret$snp500ret
 #' data.xdate <- market_ret$DATE
 #' est.start <- as.Date("2005-01-01")
-#' est.end <- as.Date("2017-12-31")
+#' est.end <- as.Date("2008-12-31")
 #' midas_dl(data.x, data.xdate, x.lag = 5, 
 #'          est.start = est.start, est.end = est.end,
 #'          horizon = 1, polynomial = "legendre_w", legendre_degree = 3,
@@ -799,7 +799,7 @@ midas_estimate <- function(est.y,est.x,est.lag.y,est.xdate,polynomial,loss,num.e
 #'  For specficiation details, see \code{midas_dl} or \code{midas_ardl} function descriptions for more details.
 #' @param params parameter vector from \code{midas_estimate}.
 #' @param x out-of-sample predictor variable data.
-#' @param ylag out-of-sample lagged depedent variable data.
+#' @param ylag out-of-sample lagged dependent variable data.
 #' @param polynomial polynomial specification.
 #' @param ... optional parameters to feed into other functions. 
 #' \code{step_idx} - index for step function polynomial specification (warning: if left unspecified, the program computes index the same way as in the estimation function), 
@@ -886,6 +886,7 @@ midas_forecast <- function(params,x,ylag,polynomial,...){
 #' @return returns R figure of estimated MIDAS weights.
 #' @author Jonas Striaukas
 #' @examples 
+#' \donttest{
 #' data(us_rgdp)
 #' rgdp <- us_rgdp$rgdp
 #' cfnai <- us_rgdp$cfnai
@@ -900,7 +901,8 @@ midas_forecast <- function(params,x,ylag,polynomial,...){
 #' fit <- midas_ardl(data.y, data.ydate, data.x, data.xdate,
 #'                   x.lag = 12, y.lag = 4, est.start, est.end, horizon = 1,
 #'                   polynomial = "legendre_w", legendre_degree = 3)
-# plot_weights(obj = fit$est.obj)
+#' plot_weights(obj = fit$est.obj)
+#' }
 #' @export plot_weights
 plot_weights <- function(obj){
   polynomial <- obj$polynomial

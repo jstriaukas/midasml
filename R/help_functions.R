@@ -683,8 +683,8 @@ transform_dt <- function(x,tcode){
 #' @param tcode.all transformation code vector. 1 - not transformed, 2 - first difference, 3 - second difference, 4 - natural log, 5 - first difference of natural log, 6 - second difference of natural log, 7 - first difference of percent change. 
 #' @return transformed time series matrix.
 #' @examples 
-#' data.in <- matrix(rnorm(100*10,1),nrow = 100, ncol = 10)
-#' apply_transform(data.in, tcode = rep(1,times=10))
+#' data.in <- matrix(rnorm(100*2,1),nrow = 100, ncol = 2)
+#' apply_transform(data.in, tcode = rep(1,times=2))
 #' @export apply_transform
 apply_transform <- function(data.in,tcode.all){
   data.in <- as.matrix(data.in)

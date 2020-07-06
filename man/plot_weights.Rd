@@ -19,6 +19,7 @@ Based on specification in \code{obj}, plots a basic R figure of estimated MIDAS 
 MIDAS regression pecifcation is picked up from obj, see \code{midas_dl} or \code{midas_ardl} function descriptions for more details.
 }
 \examples{
+\donttest{
 data(us_rgdp)
 rgdp <- us_rgdp$rgdp
 cfnai <- us_rgdp$cfnai
@@ -33,6 +34,8 @@ data.xdate <- cfnai[,1]
 fit <- midas_ardl(data.y, data.ydate, data.x, data.xdate,
                   x.lag = 12, y.lag = 4, est.start, est.end, horizon = 1,
                   polynomial = "legendre_w", legendre_degree = 3)
+plot_weights(obj = fit$est.obj)
+}
 }
 \author{
 Jonas Striaukas

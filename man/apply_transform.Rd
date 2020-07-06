@@ -18,6 +18,6 @@ transformed time series matrix.
 Transform time series a matrix based on transformation code.
 }
 \examples{
-data.in <- matrix(rnorm(100*10,1),nrow = 100, ncol = 10)
-apply_transform(data.in, tcode = rep(1,times=10))
+data.in <- matrix(rnorm(100*2,1),nrow = 100, ncol = 2)
+apply_transform(data.in, tcode = rep(1,times=2))
 }

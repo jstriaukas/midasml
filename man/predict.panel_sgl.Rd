@@ -32,7 +32,7 @@ Computes prediction for the sg-LASSO panel regression model
 \examples{
 \donttest{
 set.seed(1)
-t <- 21; n = 20; p = 100; size.groups = 4 
+t <- 10; n = 5; p = 20; size.groups = 4 
 index <- ceiling(1:p / size.groups)
 X <- matrix(rnorm(n * t * p), ncol = p, nrow = n*t)
 beta <- c(5,4,3,2,1)

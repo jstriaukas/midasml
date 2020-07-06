@@ -57,7 +57,7 @@ data(market_ret)
 data.x <- market_ret$snp500ret
 data.xdate <- market_ret$DATE
 est.start <- as.Date("2005-01-01")
-est.end <- as.Date("2017-12-31")
+est.end <- as.Date("2008-12-31")
 midas_dl(data.x, data.xdate, x.lag = 5, 
          est.start = est.start, est.end = est.end,
          horizon = 1, polynomial = "legendre_w", legendre_degree = 3,
