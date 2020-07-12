@@ -29,7 +29,8 @@ double linNegLogLikelihoodCalc(int *nrow, double *eta, double *y){
   return squareSum/nrow[0];   /* OR MAYBE NOT? */
 }
 
-// these functions allows for lambda1 and lambda2 to be vectors, i.e. penalty terms for each coefficients and group of cofficients
+// these functions allow for lambda1 and lambda2 to be vectors rather than scalars, i.e. penalty terms 
+// for each coefficients and group of coefficients.
 
 void linSolverLamGrid(double *X, double *y, int* index, int *nrow, int *ncol, int *numGroup, double *beta, int *rangeGroupInd, int *groupLen, double *lambda1, double *lambda2, int *innerIter, double *thresh, double *ldot, double *nullBeta, double *gamma, double *eta, int* betaIsZero, int& groupChange, int* isActive, int* useGroup, double *step, int *reset){
   double *theta = new double[ncol[0]];
