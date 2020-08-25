@@ -39,7 +39,7 @@ midas_ardl(data.y, data.ydate, data.x, data.xdate, x.lag,
 \code{num.evals} - number of objective function evaluations using random starting parameter values in the case of non-linear MIDAS polynomial (default 1e4) \cr
 \code{num.coef} - number of best coefficients to use as starting values in nonlinear optimization (default 10) \cr
 \code{seed} - value used in set.seed for randomly drawing initial starting values around OLS optimal solution \cr
-\code{profiling} - TRUE/FALSE to use MIDAS parameter profiling, coded only for \code{rbeta_w} polynomial, (default FALSE) \cr
+\code{profiling} - TRUE/FALSE to use MIDAS parameter profiling, coded only for \code{rbeta_w} polynomial, (default FALSE). Optional input \code{prof_max_iter} sets the number of evaluation points of MIDAS parameter on an equally spaced grid from 1 to 70, (default 50) \cr
 \code{step_idx} - index of step function lags. If step_fun is used as a polynomial, it is best to specify this option too, otherwise, the program figures out the sampling frequency ratio and computes \code{step_idx} accordingly (message is displayed in this case) \cr
 \code{legendre_degree} - degree of Legendre polynomials. If \code{legendre_w} is used as a polynomial, it is best to specify this option too, otherwise, the value is set to 3 (message is displayed in this case) \cr
 \code{tau} - quantile level for als and rq regressions. If either als or rq loss is used, this option must be specified, program stops if no value is provided.}

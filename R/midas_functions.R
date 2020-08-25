@@ -25,7 +25,7 @@
 #'    \code{num.evals} - number of objective function evaluations using random starting parameter values in the case of non-linear MIDAS polynomial (default 1e4) \cr
 #'    \code{num.coef} - number of best coefficients to use as starting values in nonlinear optimization (default 10) \cr
 #'    \code{seed} - value used in set.seed for randomly drawing initial starting values around OLS optimal solution \cr
-#'    \code{profiling} - TRUE/FALSE to use MIDAS paramater profiling, coded only for rbeta_w polynomial, (default FALSE) \cr
+#'    \code{profiling} - TRUE/FALSE to use MIDAS paramater profiling, coded only for rbeta_w polynomial, (default FALSE). Optional input \code{prof_max_iter} sets the number of evaluation points of MIDAS parameter on an equally spaced grid from 1 to 70, (default 50) \cr
 #'    \code{step_idx} - index of step function lags. If \code{step_fun} is used as a polynomial, it is best to specify this option too, otherwise, the program figures out the sampling frequency ratio and computes \code{step_idx} accordingly (message is displayed in this case) \cr
 #'    \code{legendre_degree} - a degree of legendre polynomials. If \code{legendre_w} is used as a polynomial, it is best to specify this option too, otherwise, the value is set to 3 (message is displayed in this case) \cr
 #'    \code{tau} - quantile level for als and rq regressions. If eithr als or rq loss is used, this option must be specified, program stops if no value is provided \cr
@@ -161,7 +161,7 @@ midas_dl <- function(data.x, data.xdate, data.y, data.ydate, x.lag, est.start, e
   # estimate: 
   
   params <- midas_estimate(est.y, est.x, NULL, est.xdate, polynomial, loss = loss, num.evals = num.evals, num.coef = num.coef, seed = seed, tau = tau, step_idx = step_idx, legendre_degree = legendre_degree, profiling = profiling)
-  pred_in <- midas_forecast(params, est.x, NULL, polynomial, step_idx = step_idx, legendre_degree = legendre_degree)
+  pred_in <- midas_forecast(params, est.x, NULL, polynomial, loss = loss, step_idx = step_idx, legendre_degree = legendre_degree)
   if(loss=="mse"){
     fit <- sqrt(mean((est.y - pred_in)^2))
   } 
@@ -268,7 +268,7 @@ midas_dl <- function(data.x, data.xdate, data.y, data.ydate, x.lag, est.start, e
 #'    \code{num.evals} - number of objective function evaluations using random starting parameter values in the case of non-linear MIDAS polynomial (default 1e4) \cr
 #'    \code{num.coef} - number of best coefficients to use as starting values in nonlinear optimization (default 10) \cr
 #'    \code{seed} - value used in set.seed for randomly drawing initial starting values around OLS optimal solution \cr
-#'    \code{profiling} - TRUE/FALSE to use MIDAS parameter profiling, coded only for \code{rbeta_w} polynomial, (default FALSE) \cr
+#'    \code{profiling} - TRUE/FALSE to use MIDAS parameter profiling, coded only for \code{rbeta_w} polynomial, (default FALSE). Optional input \code{prof_max_iter} sets the number of evaluation points of MIDAS parameter on an equally spaced grid from 1 to 70, (default 50) \cr
 #'    \code{step_idx} - index of step function lags. If step_fun is used as a polynomial, it is best to specify this option too, otherwise, the program figures out the sampling frequency ratio and computes \code{step_idx} accordingly (message is displayed in this case) \cr
 #'    \code{legendre_degree} - degree of Legendre polynomials. If \code{legendre_w} is used as a polynomial, it is best to specify this option too, otherwise, the value is set to 3 (message is displayed in this case) \cr
 #'    \code{tau} - quantile level for als and rq regressions. If either als or rq loss is used, this option must be specified, program stops if no value is provided.
@@ -291,7 +291,7 @@ midas_dl <- function(data.x, data.xdate, data.y, data.ydate, x.lag, est.start, e
 #'    polynomial = "legendre_w", legendre_degree = 3)
 #' @export midas_ardl
 midas_ardl <- function(data.y, data.ydate, data.x, data.xdate, x.lag, y.lag, est.start, est.end, horizon = 1,
-                       polynomial = c("legendre_w","beta_w","rbeta_w","expalmon_w","umidas_w","step_fun"), 
+                       polynomial = c("legendre_w","beta_w","expalmon_w","umidas_w","step_fun"), 
                        scheme = c("fixed","rolling","expand"),
                        loss = c("mse","rq","als"),...){
   polynomial <- match.arg(polynomial)
@@ -309,8 +309,8 @@ midas_ardl <- function(data.y, data.ydate, data.x, data.xdate, x.lag, y.lag, est
   } else {
     disp.flag <- options$disp.flag
   }
-  info <- tau <- legendre_degree <- step_idx <- num.evals <- num.coef <- seed <- profiling <- NULL
-  if(polynomial%in%c("beta_w","rbeta_w","expalmon_w")){
+  info <- tau <- legendre_degree <- step_idx <- num.evals <- num.coef <- seed <- profiling <- poly_spec <- NULL
+  if(polynomial%in%c("beta_w","expalmon_w")){
     if(is.null(options$num.evals)) {
       num.evals <- 1e4
     } else {
@@ -329,6 +329,13 @@ midas_ardl <- function(data.y, data.ydate, data.x, data.xdate, x.lag, y.lag, est
       seed <- options$seed
     }
     info$seed <- seed
+    if(any(loss==c("mse","logit"))){
+      if(is.null(options$poly_spec)){
+        poly_spec <- 0
+      } else {
+        poly_spec <- options$poly_spec
+      }
+    }
   }
   if(polynomial%in%c("rbeta_w")){
     if(is.null(options$profiling)){
@@ -392,8 +399,8 @@ midas_ardl <- function(data.y, data.ydate, data.x, data.xdate, x.lag, y.lag, est
   
   # estimate: 
   
-  params <- midas_estimate(est.y, est.x, est.lag.y, est.xdate, polynomial, loss = loss, num.evals = num.evals, num.coef = num.coef, seed = seed, tau = tau, step_idx = step_idx, legendre_degree = legendre_degree, profiling = profiling)
-  pred_in <- midas_forecast(params, est.x, est.lag.y, polynomial, step_idx = step_idx, legendre_degree = legendre_degree)
+  params <- midas_estimate(est.y, est.x, est.lag.y, est.xdate, polynomial, loss = loss, num.evals = num.evals, num.coef = num.coef, seed = seed, tau = tau, step_idx = step_idx, legendre_degree = legendre_degree, profiling = profiling, poly_spec = poly_spec)
+  pred_in <- midas_forecast(params, est.x, est.lag.y, polynomial, loss = loss, step_idx = step_idx, legendre_degree = legendre_degree, poly_spec = poly_spec)
   if (loss=="mse"){
     fit <- sqrt(mean((est.y - pred_in)^2))
   } 
@@ -410,7 +417,7 @@ midas_ardl <- function(data.y, data.ydate, data.x, data.xdate, x.lag, y.lag, est
   if (forecast.flag){
     if (scheme=="fixed"){
       #params <- midas_estimate(est.y,est.x,est.lag.y,est.xdate,polynomial,loss = loss,num.evals = num.evals,num.coef = num.coef, seed = seed, tau = tau)
-      pred <- midas_forecast(params,out.x,out.lag.y,polynomial)
+      pred <- midas_forecast(params, out.x, out.lag.y, polynomial, loss = loss, step_idx = step_idx, legendre_degree = legendre_degree, poly_spec = poly_spec)
     } else {
       nroll <- nforecast
       if (nroll == 0)
@@ -443,12 +450,12 @@ midas_ardl <- function(data.y, data.ydate, data.x, data.xdate, x.lag, y.lag, est
         out.lag.y.roll <- lag.y.big[nobs+t,]
         out.y.dateroll <- y.date.big[nobs+t]
         if (t == 1){
-          tmp_params <- midas_estimate(est.y.roll,est.x.roll,est.lag.y.roll,est.x.date.roll,polynomial,loss = loss,num.evals = num.evals,num.coef = num.coef, seed = seed, tau = tau, step_idx = step_idx, legendre_degree = legendre_degree)
+          tmp_params <- midas_estimate(est.y.roll,est.x.roll,est.lag.y.roll,est.x.date.roll,polynomial,loss = loss,num.evals = num.evals,num.coef = num.coef, seed = seed, tau = tau, step_idx = step_idx, legendre_degree = legendre_degree, poly_spec = poly_spec)
         } else  {
           startx_all <- as.numeric(tmp_params)
-          tmp_params <- midas_estimate(est.y.roll, est.x.roll, est.lag.y.roll, est.x.date.roll, polynomial, loss = loss, num.evals = num.evals, num.coef = num.coef, startx_all = startx_all, seed = seed, tau = tau, step_idx = step_idx, legendre_degree = legendre_degree)
+          tmp_params <- midas_estimate(est.y.roll, est.x.roll, est.lag.y.roll, est.x.date.roll, polynomial, loss = loss, num.evals = num.evals, num.coef = num.coef, startx_all = startx_all, seed = seed, tau = tau, step_idx = step_idx, legendre_degree = legendre_degree, poly_spec = poly_spec)
         }
-        tmp <- midas_forecast(tmp_params,t(as.matrix(out.x.roll)),t(as.matrix(out.lag.y.roll)),polynomial)
+        tmp <- midas_forecast(tmp_params,t(as.matrix(out.x.roll)),t(as.matrix(out.lag.y.roll)),polynomial, step_idx = step_idx, legendre_degree = legendre_degree, poly_spec = poly_spec)
         pred[t] <- tmp
         params <- rbind(params,tmp_params)
       }
@@ -502,7 +509,8 @@ midas_estimate <- function(est.y,est.x,est.lag.y,est.xdate,polynomial,loss,num.e
   if(!is.null(est.lag.y))
     est.lag.y <- matrix(est.lag.y, nrow = length(est.y))
   if (loss == "mse")
-    obj_fun <- mse_loss
+    #obj_fun <- mse_loss
+    message("Using analytical gradients with multistart to compute MIDAS parameters for MSE loss function")
   if (loss == "rq"){
     #stop("check step functions, legendre, umidas...")
     tau <- options$tau
@@ -527,17 +535,22 @@ midas_estimate <- function(est.y,est.x,est.lag.y,est.xdate,polynomial,loss,num.e
     profiling <- options$profiling
   }
   
-  # nls-midas:
+  
   if (polynomial=="beta_w" || polynomial=="expalmon_w") {
+    if (is.null(options$poly_spec)){
+      poly_spec <- 0
+    } else {
+      poly_spec <- options$poly_spec
+    }
     if (polynomial=="beta_w")
       weight <- beta_w
     if (polynomial=="expalmon_w")
       weight <-  expalmon_w
     if(is.null(startx_all)){# generate initial param guess:
-      if(!profiling)  
+      if(!profiling && !any(loss==c("mse","logit")))  
         startx_all <- get_start_midas(y = est.y, X = est.x, z = est.lag.y, loss = loss, weight, polynomial, num.evals=num.evals, num.coef=num.coef, seed=seed, tau=tau)
     }
-    if(!profiling){
+    if(!profiling && !any(loss==c("mse","logit"))){
       p <- dim(est.lag.y)[2]
       if(is.null(p))
         p <- 0
@@ -557,23 +570,50 @@ midas_estimate <- function(est.y,est.x,est.lag.y,est.xdate,polynomial,loss,num.e
         upper <- c(upper, max(startx_all[,p+2]), 0.3, -0.01)+.Machine$double.eps
       }
       est <- NULL
-      for (j in seq(num.coef))
-        est[[j]] <-  suppressWarnings(optimx::optimx(startx_all[j,], obj_fun, y = est.y, x = est.x, z = est.lag.y, weight = weight, tau = tau,lower = lower, upper = upper, scheme=c("L-BFGS-B")))
-      
-      estim <- NULL
-      for (j in seq(num.coef))
-        estim <- rbind(estim,est[[j]]$value)
-      
-      est <- est[[which.min(estim[,dim(estim)[2]])]]
-      coef <- est[-((length(est)-7):(length(est)))]
-      rownames(coef) <- ""
-      ar_lags <- NULL
-      if(!is.null(dim(est.lag.y))){
-        for (i in 1:dim(est.lag.y)[2]) 
-          ar_lags <- c(ar_lags, paste0("AR-",i))
+      if(!any(loss==c("mse","logit"))){
+        # here we are running the NLS estimator with multiple starting values, except for mse and logit loss functions
+        for (j in seq(num.coef))
+          est[[j]] <-  suppressWarnings(optimx::optimx(startx_all[j,], obj_fun, y = est.y, x = est.x, z = est.lag.y, weight = weight, tau = tau,lower = lower, upper = upper, scheme=c("L-BFGS-B")))
+        
+        estim <- NULL
+        for (j in seq(num.coef))
+          estim <- rbind(estim,est[[j]]$value)
+        
+        est <- est[[which.min(estim[,dim(estim)[2]])]]
+        coef <- est[-((length(est)-7):(length(est)))]
+        
+        rownames(coef) <- ""
+        ar_lags <- NULL
+        if(!is.null(dim(est.lag.y))){
+          for (i in 1:dim(est.lag.y)[2]) 
+            ar_lags <- c(ar_lags, paste0("AR-",i))
+        }
+        colnames(coef) <- c("(Intercept)",ar_lags,"beta","k1","k2")
+      } else {
+        if (loss=="mse"){
+          # estimating the regression under mse loss using analytical gradients
+          # beta density weight function
+          if (polynomial == "beta_w") {
+            coef <- optim_ardl_beta(y = est.y, z = est.lag.y, x = est.x, poly_spec, num.coef)
+          }
+          # exponential Almon weight function
+          if (polynomial == "expalmon_w") {
+            coef <- optim_ardl_expalmon(y = est.y, z = est.lag.y, x = est.x, num.coef)
+          }
+          
+        }
+        if (loss=="logit"){
+          # estimating the regression under logistic loss using analytical gradients
+          if (polynomial == "beta_w"){
+            stop("MIDAS Logit model is not implemented for beta_w choice. Choose either expalmon_w for exponential Almon case or any linear choice (e.g. Legnedre polynomials - legendre_w")
+          }
+          # exponential Almon weight function
+          if (polynomial == "expalmon_w") {
+            #coef <- optim_logit_exp(y = est.y, z = est.lag.y, x = est.x, fix_flag, num.coef)
+          }
+        }
+        
       }
-      colnames(coef) <- c("(Intercept)",ar_lags,"beta","k1","k2")
-      
     } else {
       stop("MIDAS regression estimation with parameter profiling has only been implemented for restricted Beta polynomial. Please reset 'polynomial' to 'rbeta_w' and re-run.")
     }
@@ -624,6 +664,8 @@ midas_estimate <- function(est.y,est.x,est.lag.y,est.xdate,polynomial,loss,num.e
         which_loss <- 2
       } else if(loss=="rq"){
         which_loss <- 3
+      } else if(loss=="logit"){
+        stop("MIDAS Logit with parameter profiling has not yet been implemented using efficient code. to run such specification, you can use glm R function on a grid of MIDAS parameter.")
       }
       if(!is.null(est.lag.y)){
         coef <- midasar_pr(as.vector(est.y),as.matrix(est.lag.y),as.matrix(est.x),as.double(1),as.double(tau),as.double(which_loss),as.double(max_iter))
@@ -685,9 +727,17 @@ midas_estimate <- function(est.y,est.x,est.lag.y,est.xdate,polynomial,loss,num.e
     }
     if (loss=="rq"){
       if(is.null(est.lag.y)){
-        est <- quantreg::rq(est.y~x_cov,tau = tau)
+        est <- quantreg::rq(est.y~x_cov, tau = tau)
       } else {
         est <- quantreg::rq(est.y~est.lag.y+x_cov, tau = tau)
+      }
+      coef <- as.numeric(est$coefficients)
+    }
+    if (loss=="logit"){
+      if(is.null(est.lag.y)){
+        est <- stats::glm(est.y~x_cov, family = "binomial")
+      } else {
+        est <- stats::glm(est.y~est.lag.y+x_cov, family = "binomial")
       }
       coef <- as.numeric(est$coefficients)
     }
@@ -725,6 +775,14 @@ midas_estimate <- function(est.y,est.x,est.lag.y,est.xdate,polynomial,loss,num.e
         est <- quantreg::rq(est.y~est.lag.y+est.x,tau = tau)
       } else {
         est <- quantreg::rq(est.y~est.lag.y+est.x,tau = tau)
+      }
+      coef <- as.numeric(est$coefficients)
+    }
+    if (loss=="logit"){
+      if(is.null(est.lag.y)){
+        est <- stats::glm(est.y~est.x, family = "binomial")
+      } else {
+        est <- stats::glm(est.y~est.lag.y+est.x, family = "binomial")
       }
       coef <- as.numeric(est$coefficients)
     }
@@ -771,6 +829,14 @@ midas_estimate <- function(est.y,est.x,est.lag.y,est.xdate,polynomial,loss,num.e
         est <- quantreg::rq(est.y~xw,tau = tau)
       } else {
         est <- quantreg::rq(est.y~est.lag.y+xw,tau = tau)
+      }
+      coef <- as.numeric(est$coefficients)
+    }
+    if (loss=="logit"){
+      if(is.null(est.lag.y)){
+        est <- stats::glm(est.y~xw, family = "binomial")
+      } else {
+        est <- stats::glm(est.y~est.lag.y+xw, family = "binomial")
       }
       coef <- as.numeric(est$coefficients)
     }
@@ -827,14 +893,49 @@ midas_forecast <- function(params,x,ylag,polynomial,...){
     param_midas <- as.numeric(params_c)
   }
   if(polynomial%in%c("beta_w","rbeta_w","expalmon_w")) {
-    # nonlinear MIDAS schemes
-    if (polynomial=="beta_w")
-      weight <- beta_w
-    if (polynomial=="expalmon_w")
-      weight <-  expalmon_w
-    if (polynomial=="rbeta_w")
-      weight <- rbeta_w
-    midaspred <- param_midas[1]*x%*%weight(param_midas[-1], d)
+    # nonlinear MIDAS schemes 
+    if (any(options$loss == c("mse", "logit") )){
+      poly_spec <- options$poly_spec
+      if (polynomial=="beta_w"){
+        if (poly_spec==0){
+          theta1 <- param_midas[2]
+          theta3 <- param_midas[3]
+        } else if (poly_spec==1){
+          theta1 <- 1
+          theta3 <- param_midas[3]     
+        } else if (poly_spec==2){
+          theta1 <- param_midas[1]
+          theta3 <- 0 
+        } else if (poly_spec==3){
+          theta1 <- 1
+          theta3 <- 0    
+        }
+        ii <- matrix(1, dim(x)[2], 1)   
+        xx <- matrix(c(1:dim(x)[2])/(dim(x)[2]+1))  
+        theta2 <- param_midas[3]
+        beta <- param_midas[1]
+        m <- gamma(theta1+theta2)/(gamma(theta1)*gamma(theta2))
+        weights <- xx^(theta1-1)*(ii-xx)^(theta2-1)*m + theta3 
+      } else if(polynomial=="expalmon_w"){
+        theta1 <- param_midas[2]  
+        theta2 <- param_midas[3]
+        beta <- param_midas[1]
+        
+        p <- dim(x)[2]
+        xi <- matrix(1:p, p,1)
+        xi_sq <- xi^2  
+        weights <- exp(theta1 * xi + theta2 * xi_sq)
+      }
+      midaspred <- beta*x%*%weights
+    } else {
+      if (polynomial=="beta_w")
+        weight <- beta_w
+      if (polynomial=="expalmon_w")
+        weight <-  expalmon_w
+      if (polynomial=="rbeta_w")
+        weight <- rbeta_w
+      midaspred <- param_midas[1]*x%*%weight(param_midas[-1], d)
+    }
   } else {
     # linear in parameters MIDAS schemes
     if (polynomial=="step_fun"){
@@ -873,6 +974,10 @@ midas_forecast <- function(params,x,ylag,polynomial,...){
     arpred <- 0
   
   pred <- c + arpred + midaspred
+  
+  if (loss == "logit"){
+    pred <- exp(pred)/(1+exp(pred))
+  }
   return(pred)
 }
 

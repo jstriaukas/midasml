@@ -20,7 +20,7 @@ path_calc_panel(
 \arguments{
 \item{X}{nT by p data matrix, where n, t and p respectively denote the number of individuals, sample size and the number of regressors.}
 
-\item{Z}{dummies matrix for random effects or fixed effects panel data model. If left unspecified, it is computed based on \code{regress_choice} choice.}
+\item{Z}{dummies matrix for pooled or fixed effects panel data model. If left unspecified, it is computed based on \code{regress_choice} choice.}
 
 \item{y}{nT by 1 vector of outcome.}
 

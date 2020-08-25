@@ -1,7 +1,7 @@
 #' Panel sg-LASSO regression model
 #' 
 #' @description 
-#' Fits panel data regression model, random and fixed effects, under sg-LASSO penalty function. Options include random effects and fixed effects models, cross-validation and information criteria for \eqn{\lambda} penalty parameter selection. 
+#' Fits panel data regression model, random and fixed effects, under sg-LASSO penalty function. Options include pooled and fixed effects models, cross-validation and information criteria for \eqn{\lambda} penalty parameter selection. 
 #' @details
 #' \ifelse{html}{\out{The sequence of panel data models implied by <code>lambdas</code> vector is fit by block coordinate-descent. The objective function is <br><br> <center> RSS(&alpha;,&beta;)/NT + 2&lambda;  &Omega;<sub>&gamma;</sub>(&beta;), </center> <br> where RSS(&alpha;,&beta;) is either random or fixed effects model fit. The penalty function &Omega;<sub>&gamma;</sub>(.) is applied on coefficients of time-varying covariates &beta; and is <br> <br> <center> &Omega;<sub>&gamma;</sub>(&beta;) = &gamma; |&beta;|<sub>1</sub> + (1-&gamma;)||&beta;||<sub>2,1</sub>, </center> <br> a convex combination of LASSO and group LASSO penalty functions. There are additional options to apply sg-LASSO structures on fixed effects coefficient vector &alpha; (see description of input variables for more details).}}{The sequence of panel data models implied by \code{lambdas} vector is fit by block coordinate-descent. The objective function is \deqn{RSS(\alpha,\beta)/NT + 2\lambda * \Omega_\gamma(\beta),} where \eqn{RSS(\alpha,\beta)} is either random or fixed effects model fit. The penalty function \eqn{\Omega_\gamma(.)} is applied on coefficients of time-varying covariates \eqn{\beta} and is \deqn{\Omega_\gamma(\beta) = \gamma |\beta|_1 + (1-\gamma)||\beta||_{2,1},} a convex combination of LASSO and group LASSO penalty functions. There are additional options to apply sg-LASSO structures on fixed effects coefficient vector \eqn{\alpha} (see description of input variables for more details).}     
 #' @usage 
@@ -13,7 +13,7 @@
 #'   num_cores = NULL, verbose = FALSE, thresh = NULL, 
 #'   outer_thresh = NULL, inner_iter = NULL, outer_iter = NULL)
 #' @param X NT by p data matrix, where n, t and p respectively denote the number of individuals, sample size and the number of regressors.
-#' @param Z dummies matrix for random effects or fixed effects panel data model. If left unspecified, it is computed based on \code{regress_choice} choice.
+#' @param Z dummies matrix for pooled or fixed effects panel data model. If left unspecified, it is computed based on \code{regress_choice} choice.
 #' @param y NT by 1 vector of outcome.
 #' @param index p by 1 vector indicating group membership of each covariate.
 #' @param entity_indices  NT by 1 vector of individual indices.
@@ -22,7 +22,7 @@
 #' @param l21_factor \ifelse{html}{\out{&#8467;<sub>2,1</sub> norm penalty factor for random or fixed effects (default value is zero which means &alpha; is left unpenalized in &#8467;<sub>2,1</sub> norm).}}{\eqn{\ell_1} norm penalty factor for random or fixed effects (default value is zero which means \eqn{\alpha} is left unpenalized in \eqn{\ell_1} norm).}     
 #' @param dummies_index vector indicating group membership of \eqn{\alpha} (default - no grouping).
 #' @param full_est pre-estimated parameters based on full sample and \code{regress_choice} for a sequence of \eqn{\lambda}'s.
-#' @param regress_choice choose between `re` and `fe`. `re` computes random effects regression with sg-LASSO penalty (default). `fe` computes fixed effects regression with sg-LASSO penalty.
+#' @param regress_choice choose between `re` and `fe`. `re` computes pooled regression with sg-LASSO penalty (default). `fe` computes fixed effects regression with sg-LASSO penalty.
 #' @param method_choice choose between `initial`, `ic` and `cv`. `initial` pre-computes initial estimates. `ic` comptes solution based on information criteria (BIC, AIC or AICc). `cv` computes solution based on cross-validation (cv). 
 #' @param nlam number of \eqn{\lambda}'s to use in the regularization path.
 #' @param lambdas user specified sequence of \eqn{\lambda} values for fitting. We recommend leaving this to NULL and letting function to self-select values.
@@ -98,7 +98,7 @@ panel_sgl <- function(X, Z=NULL, y, index, entity_indices, gamma_w=NULL, l1_fact
   # check Z
   if (reg=="re"){
     if (dim(Z)[2]>1)
-      stop("wrong dummy matrix was inputed for Random Effects regression. Please check and re-run.")
+      stop("wrong dummy matrix was inputed for pooled regression. Please check and re-run.")
   }
   if (reg=="fe"){
     if (dim(Z)[2]!=n)
@@ -711,7 +711,7 @@ path_calc <- function(X, Z, y, index, gamma_w=NULL, l1_factor=0, l21_factor=0, d
 #' Computes a sequence of lambda parameters for the sg-LASSO panel regression
 #' 
 #' @param X nT by p data matrix, where n, t and p respectively denote the number of individuals, sample size and the number of regressors.
-#' @param Z dummies matrix for random effects or fixed effects panel data model. If left unspecified, it is computed based on \code{regress_choice} choice.
+#' @param Z dummies matrix for pooled or fixed effects panel data model. If left unspecified, it is computed based on \code{regress_choice} choice.
 #' @param y nT by 1 vector of outcome.
 #' @param index p by 1 vector indicating group membership of each covariate.
 #' @param gamma_w sg-LASSO mixing parameter. \code{gamma_w = 1} is LASSO and \code{gamma_w = 0} group LASSO.
