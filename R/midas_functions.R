@@ -44,7 +44,7 @@
 #'          scheme = "fixed", loss = "mse", midas_gen = "from_hf")
 #' @export midas_dl
 midas_dl <- function(data.x, data.xdate, data.y, data.ydate, x.lag, est.start, est.end, horizon = 1,
-                     polynomial = c("legendre_w","beta_w","rbeta_w","expalmon_w","umidas_w","step_fun"), 
+                     polynomial = c("gegenbauer_w","legendre_w","beta_w","rbeta_w","expalmon_w","umidas_w","step_fun"), 
                      scheme = c("fixed","rolling","expand"),
                      loss = c("mse","rq","als"),...){
   polynomial <- match.arg(polynomial)
@@ -62,7 +62,7 @@ midas_dl <- function(data.x, data.xdate, data.y, data.ydate, x.lag, est.start, e
   } else {
     disp.flag <- options$disp.flag
   }
-  info <- tau <- legendre_degree <- step_idx <- num.evals <- num.coef <- seed <- profiling <- NULL
+  info <- tau <- legendre_degree <- gegenbauer_degree <- gegenbauer_alpha <- step_idx <- num.evals <- num.coef <- seed <- profiling <- NULL
   if(polynomial%in%c("beta_w","rbeta_w","expalmon_w")){
     if(is.null(options$num.evals)) {
       num.evals <- 1e4
@@ -97,6 +97,12 @@ midas_dl <- function(data.x, data.xdate, data.y, data.ydate, x.lag, est.start, e
   if(polynomial%in%"legendre_w"){
     legendre_degree <- options$legendre_degree
     info$legendre_degree <- legendre_degree   
+  }
+  if(polynomial%in%"gegenbauer_w"){
+    gegenbauer_degree <- options$gegenbauer_degree
+    info$gegenbauer_degree <- gegenbauer_degree
+    gegenbauer_alpha <- options$gegenbauer_alpha
+    info$gegenbauer_alpha <- gegenbauer_alpha
   }
   if(loss=="als"){
     if(is.null(options$tau))
@@ -159,8 +165,7 @@ midas_dl <- function(data.x, data.xdate, data.y, data.ydate, x.lag, est.start, e
   }
   
   # estimate: 
-  
-  params <- midas_estimate(est.y, est.x, NULL, est.xdate, polynomial, loss = loss, num.evals = num.evals, num.coef = num.coef, seed = seed, tau = tau, step_idx = step_idx, legendre_degree = legendre_degree, profiling = profiling)
+  params <- midas_estimate(est.y, est.x, NULL, est.xdate, polynomial, loss = loss, num.evals = num.evals, num.coef = num.coef, seed = seed, tau = tau, step_idx = step_idx, profiling = profiling, legendre_degree = legendre_degree, gegenbauer_degree = gegenbauer_degree, gegenbauer_alpha = gegenbauer_alpha)
   pred_in <- midas_forecast(params, est.x, NULL, polynomial, loss = loss, step_idx = step_idx, legendre_degree = legendre_degree)
   if(loss=="mse"){
     fit <- sqrt(mean((est.y - pred_in)^2))
@@ -206,10 +211,10 @@ midas_dl <- function(data.x, data.xdate, data.y, data.ydate, x.lag, est.start, e
         out.x.roll <- x.big[nobs+t,]
         out.y.dateroll <- y.date.big[nobs+t]
         if (t == 1){
-          tmp_params <- midas_estimate(est.y.roll,est.x.roll,NULL,est.x.date.roll,polynomial,loss = loss,num.evals = num.evals,num.coef = num.coef, seed = seed, tau = tau, step_idx = step_idx, legendre_degree = legendre_degree)
+          tmp_params <- midas_estimate(est.y.roll, est.x.roll, NULL,est.x.date.roll, polynomial, loss = loss, num.evals = num.evals, num.coef = num.coef, seed = seed, tau = tau, step_idx = step_idx, profiling = profiling, legendre_degree = legendre_degree, gegenbauer_degree = gegenbauer_degree, gegenbauer_alpha = gegenbauer_alpha)
         } else  {
           startx_all <- as.numeric(tmp_params)
-          tmp_params <- midas_estimate(est.y.roll, est.x.roll, NULL, est.x.date.roll, polynomial, loss = loss, num.evals = num.evals, num.coef = num.coef, startx_all = startx_all, seed = seed, tau = tau, step_idx = step_idx, legendre_degree = legendre_degree)
+          tmp_params <- midas_estimate(est.y.roll, est.x.roll, NULL, est.x.date.roll, polynomial, loss = loss, num.evals = num.evals, num.coef = num.coef, startx_all = startx_all, seed = seed, tau = tau, step_idx = step_idx, profiling = profiling, legendre_degree = legendre_degree, gegenbauer_degree = gegenbauer_degree, gegenbauer_alpha = gegenbauer_alpha)
         }
         tmp <- midas_forecast(tmp_params,t(as.matrix(out.x.roll)),NULL,polynomial)
         pred[t] <- tmp
@@ -291,7 +296,7 @@ midas_dl <- function(data.x, data.xdate, data.y, data.ydate, x.lag, est.start, e
 #'    polynomial = "legendre_w", legendre_degree = 3)
 #' @export midas_ardl
 midas_ardl <- function(data.y, data.ydate, data.x, data.xdate, x.lag, y.lag, est.start, est.end, horizon = 1,
-                       polynomial = c("legendre_w","beta_w","expalmon_w","umidas_w","step_fun"), 
+                       polynomial = c("gegenbauer_w","legendre_w","beta_w","expalmon_w","umidas_w","step_fun"), 
                        scheme = c("fixed","rolling","expand"),
                        loss = c("mse","rq","als"),...){
   polynomial <- match.arg(polynomial)
@@ -309,7 +314,7 @@ midas_ardl <- function(data.y, data.ydate, data.x, data.xdate, x.lag, y.lag, est
   } else {
     disp.flag <- options$disp.flag
   }
-  info <- tau <- legendre_degree <- step_idx <- num.evals <- num.coef <- seed <- profiling <- poly_spec <- NULL
+  info <- tau <- legendre_degree <- gegenbauer_degree <- gegenbauer_alpha <- step_idx <- num.evals <- num.coef <- seed <- profiling <- poly_spec <- NULL
   if(polynomial%in%c("beta_w","expalmon_w")){
     if(is.null(options$num.evals)) {
       num.evals <- 1e4
@@ -352,6 +357,12 @@ midas_ardl <- function(data.y, data.ydate, data.x, data.xdate, x.lag, y.lag, est
     legendre_degree <- options$legendre_degree
     info$legendre_degree <- legendre_degree   
   }
+  if(polynomial%in%"gegenbauer_w"){
+    gegenbauer_degree <- options$gegenbauer_degree
+    info$gegenbauer_degree <- gegenbauer_degree
+    gegenbauer_alpha <- options$gegenbauer_alpha
+    info$gegenbauer_alpha <- gegenbauer_alpha
+  } 
   if(loss=="als"){
     if(is.null(options$tau))
       stop("set quantile level tau in options")
@@ -398,8 +409,7 @@ midas_ardl <- function(data.y, data.ydate, data.x, data.xdate, x.lag, y.lag, est
   }
   
   # estimate: 
-  
-  params <- midas_estimate(est.y, est.x, est.lag.y, est.xdate, polynomial, loss = loss, num.evals = num.evals, num.coef = num.coef, seed = seed, tau = tau, step_idx = step_idx, legendre_degree = legendre_degree, profiling = profiling, poly_spec = poly_spec)
+  params <- midas_estimate(est.y, est.x, est.lag.y, est.xdate, polynomial, loss = loss, num.evals = num.evals, num.coef = num.coef, seed = seed, tau = tau, poly_spec = poly_spec, step_idx = step_idx, profiling = profiling, legendre_degree = legendre_degree, gegenbauer_degree = gegenbauer_degree, gegenbauer_alpha = gegenbauer_alpha)
   pred_in <- midas_forecast(params, est.x, est.lag.y, polynomial, loss = loss, step_idx = step_idx, legendre_degree = legendre_degree, poly_spec = poly_spec)
   if (loss=="mse"){
     fit <- sqrt(mean((est.y - pred_in)^2))
@@ -609,7 +619,7 @@ midas_estimate <- function(est.y,est.x,est.lag.y,est.xdate,polynomial,loss,num.e
           }
           # exponential Almon weight function
           if (polynomial == "expalmon_w") {
-            #coef <- optim_logit_exp(y = est.y, z = est.lag.y, x = est.x, fix_flag, num.coef)
+            coef <- optim_logit_expalmon(y = est.y, z = est.lag.y, x = est.x, num.coef)
           }
         }
         
@@ -803,7 +813,7 @@ midas_estimate <- function(est.y,est.x,est.lag.y,est.xdate,polynomial,loss,num.e
     legendre_degree <- options$legendre_degree
     if (is.null(legendre_degree)) {
       legendre_degree <- 3
-      message("Legendre polynomials are used without specifying the degree. default was set (degree=3).  set 'legendre_degree' in options if this is not a good choice")
+      message("Legendre polynomials are used without specifying the degree. default was set (degree=3).  Alternatively, set a different value in options by specifying 'legendre_degree'")
     }
     w <- lb(legendre_degree, a = 0, b = 1, jmax = dim(est.x)[2])
     xw <- est.x%*%w
@@ -853,6 +863,64 @@ midas_estimate <- function(est.y,est.x,est.lag.y,est.xdate,polynomial,loss,num.e
     rownames(coef) <- ""
     colnames(coef) <- c("(Intercept)",ar_lags,x_names)
     
+  } else if (polynomial=="gegenbauer_w") {
+    gegenbauer_degree <- options$gegenbauer_degree
+    gegenbauer_alpha <- options$gegenbauer_alpha
+    if (is.null(gegenbauer_degree)) {
+      gegenbauer_degree <- 3
+      message("Gegenbauer polynomials are used without specifying the degree. default value was set (degree=3).  Alternatively, set a different value in options by specifying 'gegenbauer_degree'")
+    }
+    if (is.null(gegenbauer_alpha)) {
+      gegenbauer_alpha <- 3
+      message("Gegenbauer polynomials are used without specifying the alpha default value was set (alpha=1/2). Alternatively, set a different value in options by specifying 'gegenbauer_alpha'.")
+    }
+    w <- gb(gegenbauer_degree, gegenbauer_alpha, a = 0, b = 1, jmax = dim(est.x)[2])
+    xw <- est.x%*%w
+    
+    if (loss=="mse"){
+      if(is.null(est.lag.y)){
+        est <- lm(est.y~xw)
+      } else {
+        est <- lm(est.y~est.lag.y+xw)
+      }
+      coef <- as.numeric(est$coefficients)
+    } 
+    if (loss=="als"){
+      if(is.null(est.lag.y)){
+        est <- fastals(est.y,xw,as.double(1),as.double(tau),as.double(1e3),as.double(1e-7))
+      } else {
+        est <- fastals(est.y,cbind(est.lag.y,xw),as.double(1),as.double(tau),as.double(1e3),as.double(1e-7))
+      }
+      coef <- as.numeric(est)
+    }
+    if (loss=="rq"){
+      if(is.null(est.lag.y)){
+        est <- quantreg::rq(est.y~xw,tau = tau)
+      } else {
+        est <- quantreg::rq(est.y~est.lag.y+xw,tau = tau)
+      }
+      coef <- as.numeric(est$coefficients)
+    }
+    if (loss=="logit"){
+      if(is.null(est.lag.y)){
+        est <- stats::glm(est.y~xw, family = "binomial")
+      } else {
+        est <- stats::glm(est.y~est.lag.y+xw, family = "binomial")
+      }
+      coef <- as.numeric(est$coefficients)
+    }
+    ar_lags <- NULL
+    if(!is.null(est.lag.y)){
+      for (i in 1:dim(est.lag.y)[2]) 
+        ar_lags <- c(ar_lags, paste0("AR-",i))
+    }
+    x_names <- NULL
+    for (i in 1:(legendre_degree+1))
+      x_names <- c(x_names, paste0("Legendre poly-",i-1))
+    
+    coef <- data.frame(matrix(coef,nrow=1))
+    rownames(coef) <- ""
+    colnames(coef) <- c("(Intercept)",ar_lags,x_names)
   }
   return(coef)
 }

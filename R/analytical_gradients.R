@@ -341,7 +341,7 @@ hessian_ardl_beta <- function(args, dataList) {
 # - Kostrov A. and Tetereva A. (2018) Forecasting realized correlations: a MIDAS approach. Working paper. 
 # - https://www.researchgate.net/publication/331498346_Forecasting_realized_correlations_a_MIDAS_approach
 # Optimizer: "nlminb" with constraints. 
-optim_ardl_expalmon <- function(y, z, x, poly_spec, num.coef){
+optim_ardl_expalmon <- function(y, z, x, num.coef){
   n <- length(y)
   k <- dim(z)[2]
   # append a vector of ones:
@@ -402,6 +402,9 @@ get_constr_expalmon <- function(k){
 }
 
 estimate_ardl_expalmon <- function(args, dataList) {
+  y <- dataList$y
+  z <- dataList$z
+  x <- dataList$x
   
   p <- dim(x)[2]
   xi <- matrix(1:p, p,1)
@@ -421,7 +424,6 @@ estimate_ardl_expalmon <- function(args, dataList) {
 }
 
 gradient_ardl_expalmon <- function(args, dataList) {
-  
   y <- dataList$y
   z <- dataList$z
   x <- dataList$x
@@ -459,8 +461,6 @@ gradient_ardl_expalmon <- function(args, dataList) {
 }
 
 hessian_ardl_expalmon <- function(args, dataList) {
-  
-  
   y <- dataList$y
   z <- dataList$z
   x <- dataList$x
