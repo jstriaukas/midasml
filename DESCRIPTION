@@ -2,18 +2,17 @@ Package: midasml
 Type: Package
 Title: Estimation and Prediction Methods for High-Dimensional Mixed Frequency Time Series Data
 Version: 0.0.6
-Authors@R: person("Jonas", "Striaukas", email = "jonas.striaukas@gmail.com", role = c("aut", "cre"))
-Authors@R: c(
-  person("Jonas", "Striaukas",  role = c("cre","aut"), email =  "jonas.striaukas@gmail.com"),
+Authors@R: c(person("Jonas", "Striaukas",  role = c("cre","aut"), email =  "jonas.striaukas@gmail.com"),
   person("Alex", "Kostrov",  role = c("ctb"), comment = "Contributions to analytical gradients for NLS MIDAS estimation", email = "alexander.kostrov@unisg.ch"),
   person("Andrii", "Babii",  role = c("aut"), email =  "andrii@email.unc.edu"),
   person("Eric", "Ghysels",  role = c("aut"), email =  "eghysels@unc.edu"))
+Author: Jonas Striaukas [aut, cre] 
 Maintainer: Jonas Striaukas <jonas.striaukas@gmail.com>
 Description: The 'midasml' estimation and prediction methods for high dimensional time series regression models under mixed data sampling data structures using structured-sparsity penalties and orthogonal polynomials. For more information on the 'midasml' approach see Babii, Ghysels, and Striaukas (2020) <arXiv:2005.14057>. Functions that compute MIDAS data structures were inspired by MIDAS 'Matlab' toolbox (v2.3) written by Eric Ghysels. 
 BugReports: https://github.com/jstriaukas/midasml/issues
 License: GPL (>= 2)
 Depends: foreach (>= 1.4.4)
-Imports:	
+Imports: 
 	Rcpp (>= 1.0.3),
 	lubridate (>= 1.7.4), 
 	parallel (>= 3.5.2),
@@ -25,3 +24,4 @@ LinkingTo:
 	Rcpp, 
 	RcppArmadillo
 Encoding: UTF-8
+RoxygenNote: 7.1.0
