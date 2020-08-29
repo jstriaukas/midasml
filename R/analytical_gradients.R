@@ -528,3 +528,210 @@ hessian_ardl_expalmon <- function(args, dataList) {
   #browser()
   return(Hess)  
 }
+# Model: MIDAS Logit regression 
+# Estimation: MIDAS-NLS based on analytic derivatives (gradient and Hessian)
+# Polynomial: Exponential Almon parametrized by theta1 and theta 2
+# Paper, analytic derivatives: based on  
+# - 	F. Audrino, A. Kostrov, and J.-P. Ortega (2019) Predicting U.S. Bank Failures with MIDAS Logit Models, JFQA, 54(6), 2575-2603. 
+# - https://doi.org/10.1017/S0022109018001308
+# Optimizer: "multiStartoptim", with constraints.
+optim_logit_expalmon <- function(y, z, x, num.coef){
+  if (!all(unique(y)%in%c(0,1))){
+    stop("response variable must be binary for MIDAS Logit model.")
+  }
+  n <- length(y)
+  k <- dim(z)[2]
+  # append a vector of ones:
+  iota <- matrix(1, nrow = n, ncol = 1)
+  z <- cbind(iota, z)
+  # store data into a list:
+  dataList <- list (y=y, z=z, x=x)
+  # get parameter constraints:
+  constr <- get_constr_logit_expalmon(k)
+  
+  #-------------------- main optimization --------------------#
+  opt <- mcGlobaloptim::multiStartoptim(objectivefn = estimate_logit_expalmon,
+                                        gradient = gradient_logit_expalmon,
+                                        data = dataList,
+                                        hessian = hessian_logit_expalmon,
+                                        lower = constr$lw_b, upper = constr$up_b, 
+                                        method = "nlminb",
+                                        nbtrials = num.coef,
+                                        typerunif = "runifbase",
+                                        control = list(eval.max=1000, iter.max=1000,
+                                                       rel.tol=1e-12, x.tol=1.5e-10))
+  #-------------------- xxxxxxxxxxxxxxxx --------------------#
+  # back-out parameters:
+  k1 <- opt$par[1]
+  k2 <- opt$par[2]
+  beta <- opt$par[3]
+  c <- opt$par[4]
+  rho <- opt$par[5:length(opt$par)]
+  
+  # sort the output:
+  ar_lags <- NULL
+  for (i in 1:k)
+    ar_lags <- c(ar_lags, paste0("AR-",i))
+  
+  coef <- matrix(c(c, rho, beta, k1, k2), nrow = 1, ncol = k + 4)
+  rownames(coef) <- ""
+  colnames(coef) <- c("(Intercept)",ar_lags,"beta","k1","k2")
+  
+  return(coef)
+}
+
+get_constr_logit_expalmon <- function(k){
+  # define upper and lower constraints
+  up_beta <- 3
+  up_rho <- 10   
+  up_theta1 <- 0.2   
+  up_theta2 <- 0   
+  
+  low_beta <- -3
+  low_rho <- -10     
+  low_theta1 <-  0   
+  low_theta2 <- -0.3   
+  
+  up_b <- c(up_theta1 , up_theta2, up_beta,  rep(up_rho, k+1))
+  lw_b <- c(low_theta1, low_theta2, low_beta, rep(low_rho, k+1))  
+  
+  return(list(up_b = up_b, lw_b = lw_b)) 
+}
+
+estimate_logit_expalmon <- function(args, dataList) {
+  y <- dataList$y
+  z <- dataList$z
+  x <- dataList$x
+  
+  iota <- matrix(1, dim(y) )
+  p <- dim(x)[2]
+  xi <- matrix(1:p, p,1)
+  xi_sq <- xi^2  
+  
+  theta1 <- args[1]  
+  theta2 <- args[2]
+  beta <- args[3]
+  rho <- args[4:length(args)] 
+  
+  weights <- exp(theta1 * xi + theta2 * xi_sq)
+  
+  
+  LogLM <- -( t(y) %*% (z %*% rho  + beta * x %*% weights) - 
+                t(iota) %*% log(iota+exp(z %*% rho  + beta * x %*% weights))  )
+  
+  LogLM <- LogLM[1,1]
+  
+  if (is.na(LogLM)==TRUE || is.nan(LogLM)==TRUE || is.infinite(LogLM)==TRUE) {
+    LogLM = Inf
+  }
+  return(as.numeric(LogLM))
+}
+
+gradient_logit_expalmon <- function(args, dataList) {
+  
+  y <- dataList$y
+  z <- dataList$z
+  x <- dataList$x
+  
+  p <- dim(x)[2]
+  xi <- matrix(1:p, p,1)
+  xi_sq <- xi^2  
+  
+  theta1 <- args[1]  
+  theta2 <- args[2]
+  beta <- args[3]
+  rho <- args[4:length(args)] 
+  
+  weights <- exp(theta1 * xi + theta2 * xi_sq) 
+  
+  nabla_G <- - (y- exp(beta * x %*%  weights + z%*%rho) *
+                  1 / (1 + exp(beta * x %*%  weights + z%*%rho)))
+  
+  T_star_w_C <- beta * t(x)
+  T_star_beta_C <- t(weights) %*% t(x)
+  T_star_rho_C <- t(z)
+  
+  T_star_theta1_W <- t(weights * xi)
+  T_star_theta2_W <- t(weights * xi_sq)
+  
+  part1 <- T_star_theta1_W %*% T_star_w_C %*% nabla_G   # theta1
+  part2 <- T_star_theta2_W %*% T_star_w_C %*% nabla_G   # theta2
+  part3 <- T_star_beta_C  %*% nabla_G   # beta
+  part4 <- T_star_rho_C  %*% nabla_G    # rho
+  grad <-  c(part1, part2, part3, part4)
+  
+  return(grad)   
+}
+
+hessian_logit_expalmon <- function(args, dataList) {
+  y <- dataList$y
+  z <- dataList$z
+  x <- dataList$x
+  
+  p <- dim(x)[2]
+  xi <- matrix(1:p, p,1)
+  xi_sq <- xi^2  
+  
+  theta1 <- args[1]  
+  theta2 <- args[2]
+  beta <- args[3]
+  rho <- args[4:length(args)] 
+  
+  weights <- exp(theta1 * xi + theta2 * xi_sq) 
+  lincomb <- beta * x %*%  weights + z%*%rho 
+  
+  ## line 1
+  A1_1 <- t(weights * xi)
+  A1_2 <- beta * t(x)
+  A1 <- A1_1 %*% A1_2 
+  B1 <- -(y- exp(lincomb) * 1 / (1 + exp(lincomb)))
+  dB1_lincomb <- exp(lincomb)*(1+exp(lincomb))^(-1) - exp(lincomb)^(2) *  (1+exp(lincomb))^(-2)
+  
+  ### element 1
+  dA1_theta1 <- t(weights * xi_sq) %*%   A1_2
+  dB1_theta1 <- dB1_lincomb * (beta * x) %*% (weights * xi)       
+  ### element 2
+  dA1_theta2 <- t(weights * xi^3) %*%   A1_2
+  dB1_theta2 <- dB1_lincomb * (beta * x) %*% (weights * xi_sq) 
+  ### element 3
+  dA1_beta <- t(weights * xi)%*%t(x)
+  dB1_beta <- dB1_lincomb * (x%*%weights)
+  ### element 4
+  dB1_rho <- diag( as.vector(dB1_lincomb)  ) %*% z
+  H11 <- dA1_theta1 %*% B1 + A1 %*% dB1_theta1 
+  H12 <- dA1_theta2 %*% B1 + A1 %*% dB1_theta2 
+  H13 <- dA1_beta %*% B1 + A1 %*% dB1_beta 
+  H14 <- A1 %*% dB1_rho
+  
+  ## line 2
+  A2_1 <- t(weights * xi_sq)
+  A2 <- A2_1 %*% A1_2 
+  ### element 2
+  dA2_theta2 <- t(weights * xi^4) %*%   A1_2
+  ### element 3
+  dA2_beta <- A2_1 %*% t(x)
+  ### element 4
+  H22 <- dA2_theta2 %*% B1 +  A2 %*% dB1_theta2 
+  H23 <- dA2_beta %*% B1 + A2 %*% dB1_beta 
+  H24 <- A2 %*% dB1_rho
+  
+  ## line 3
+  A3 <- t(weights) %*% t(x)
+  ### element 3
+  ### element 4
+  ### element 5
+  H33 <- A3 %*% dB1_beta
+  H34 <- A3 %*% dB1_rho 
+  
+  ## line 4
+  H44 <- t(z) %*% dB1_rho 
+  
+  Hess <- rbind( c(H11, H12, H13, H14),
+                 c(H12, H22, H23, H24),
+                 c(H13, H23, H33, H34),
+                 cbind(t(H14), t(H24), t(H34), H44)) 
+  #browser()
+  return(Hess)  
+}
+
+
