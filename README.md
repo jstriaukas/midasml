@@ -1,6 +1,6 @@
 [![CRAN_Status_Badge](https://www.r-pkg.org/badges/version/midasml)](https://cran.r-project.org/package=midasml)
-[![Downloads](http://cranlogs.r-pkg.org/badges/grand-total/midasml)](https://cran.rstudio.com/web/packages/midasml/index.html) 
-[![Downloads](http://cranlogs.r-pkg.org/badges/midasml)](http://www.r-pkg.org/pkg/midasml)
+[comment]: [![Downloads](http://cranlogs.r-pkg.org/badges/grand-total/midasml)](https://cran.rstudio.com/web/packages/midasml/index.html) 
+[comment]: [![Downloads](http://cranlogs.r-pkg.org/badges/midasml)](http://www.r-pkg.org/pkg/midasml)
 
 # midasML
 
