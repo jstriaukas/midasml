@@ -5,7 +5,7 @@
 -->
 # midasML
 
-midasML - estimation and prediction for high-dimensional mixed frequency time series data.
+midasML - estimation and prediction for high-dimensional mixed frequency time series data. An initial Julia implmentation of the midasml method is available [here](https://github.com/ababii/Pythia.jl).
 
 ## About
 
