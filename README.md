@@ -11,11 +11,11 @@ midasML - estimation and prediction for high-dimensional mixed frequency time se
 
 The midasML package implements estimation and prediction methods for high dimensional time series regression models under mixed data sampling data structures using structured-sparsity penalties and orthogonal polynomials. For more information on the midasML approach see [1]. The package also allows to estimate and predict using single-variate MIDAS regressions. Note that such regressions are also implemented in ```midasr``` package. Functions implemented in this package allows to directly compare low-dimensional and high-dimensional MIDAS regression models.
 
-The core of the midasML method is the sparse-group LASSO (sg-LASSO) estimator proposed by [2], and studied for high-dimensional time series data by [1, 3]. The sg-LASSO consists of group structures that are present in high-dimensional ARDL-MIDAS model, hence it is a natural estimator for such model. 
+The core of the midasML method is the sparse-group LASSO (sg-LASSO) estimator proposed by [4], and studied for high-dimensional time series data by [1, 2, 3]. The sg-LASSO consists of group structures that are present in high-dimensional ARDL-MIDAS model, hence it is a natural estimator for such model. 
 
-The main algorithm for solving sg-LASSO estimator is taken from [2]. 
+The main algorithm for solving sg-LASSO estimator is taken from [4] (soon to be updated to proximal gradient method).
 
-Functions that compute MIDAS data structures were inspired by MIDAS Matlab toolbox (v2.3) written by Eric Ghysels, see [4].
+Functions that compute MIDAS data structures were inspired by MIDAS Matlab toolbox (v2.3) written by Eric Ghysels, see [5].
 
 ## Whats new
 
@@ -48,12 +48,14 @@ install_github("jstriaukas/midasml")
 
 ## References
 
-[1] Babii, A., Ghysels, E., & Striaukas, J. (2020). Machine learning time series regressions with an application to nowcasting. <https://arxiv.org/abs/2005.14057>
+[1] Babii, A., Ghysels, E., & Striaukas, J. (2021). Machine learning time series regressions with an application to nowcasting. Forthcoming at Journal of Business & Economic Statistics; <https://arxiv.org/abs/2005.14057>
 
-[2] Simon, N., Friedman, J., Hastie, T., & Tibshirani, R. (2013). A sparse-group lasso. Journal of computational and graphical statistics, 22(2), 231-245. Related CRAN R package. https://CRAN.R-project.org/package=SGL 
+[2] Babii, A., Ghysels, E., & Striaukas, J. (2021). High-dimensional granger causality tests with an application to VIX and news. <https://arxiv.org/abs/1912.06307>.
 
-[3] Babii, A., Ghysels, E., & Striaukas, J. (2020). Inference for high-dimensional regressions with heteroskedasticity and autocorrelation. <https://arxiv.org/abs/1912.06307>.
+[3] Babii, A., Ghysels, E., & Striaukas, J. (2020). Machine larning panel data regressions with an application to nowcasting price earnings ratios. <https://arxiv.org/abs/2005.14057>
 
-[4] Ghysels, E. et. al. Mathworks Matlab toolbox. https://www.mathworks.com/matlabcentral/fileexchange/45150-midas-matlab-toolbox
+[4] Simon, N., Friedman, J., Hastie, T., & Tibshirani, R. (2013). A sparse-group lasso. Journal of computational and graphical statistics, 22(2), 231-245. Related CRAN R package. https://CRAN.R-project.org/package=SGL 
 
-[5] Kostrov (2020) Estimating MIDAS regressions via MIDAS-NLS with revised optimization. Working paper. 
+[5] Ghysels, E. et. al. Mathworks Matlab toolbox. https://www.mathworks.com/matlabcentral/fileexchange/45150-midas-matlab-toolbox
+
+[6] Kostrov (2020) Estimating MIDAS regressions via MIDAS-NLS with revised optimization. Working paper. 
