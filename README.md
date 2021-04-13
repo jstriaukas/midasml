@@ -12,6 +12,10 @@ The *midasml* package implements *estimation* and *prediction* methods for high-
 
 The package is equipped with the fast implementation of the sparse-group LASSO estimator by means of proximal block coordinate descent. High-dimensional mixed frequency time-series data can also be easily manipulated with functions provided in the package.
 
+## Software in other languages
+
+- Julia implmentation of the midasml method is available [here](https://github.com/ababii/Pythia.jl).
+
 ## Run to install the package
 
 ```{r }
