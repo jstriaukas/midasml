@@ -1,27 +1,21 @@
 Package: midasml
 Type: Package
 Title: Estimation and Prediction Methods for High-Dimensional Mixed Frequency Time Series Data
-Version: 0.0.6
-Authors@R: c(person("Jonas", "Striaukas",  role = c("cre","aut"), email =  "jonas.striaukas@gmail.com"),
-  person("Alex", "Kostrov",  role = c("ctb"), comment = "Contributions to analytical gradients for NLS MIDAS estimation", email = "alexander.kostrov@unisg.ch"),
-  person("Andrii", "Babii",  role = c("aut"), email =  "andrii@email.unc.edu"),
-  person("Eric", "Ghysels",  role = c("aut"), email =  "eghysels@unc.edu"))
+Version: 0.1.0
+Authors@R: c(
+    person("Jonas", "Striaukas",  role = c("cre","aut"), email =  "jonas.striaukas@gmail.com"),
+    person("Andrii", "Babii",  role = c("aut"), 
+	email =  "andrii@email.unc.edu"),
+    person(c("Eric", "Ghysels"), role = c("aut"), 
+	email =  "eghysels@unc.edu"),
+    person("Alex", "Kostrov",  role = c("ctb"), 
+	comment = "Contributions to analytical gradients for non-linear low-dimensional MIDAS estimation code", email =  "alexander.kostrov@unisg.ch"))
 Author: Jonas Striaukas [aut, cre] 
 Maintainer: Jonas Striaukas <jonas.striaukas@gmail.com>
-Description: The 'midasml' estimation and prediction methods for high dimensional time series regression models under mixed data sampling data structures using structured-sparsity penalties and orthogonal polynomials. For more information on the 'midasml' approach see Babii, Ghysels, and Striaukas (2020) <arXiv:2005.14057>. Functions that compute MIDAS data structures were inspired by MIDAS 'Matlab' toolbox (v2.3) written by Eric Ghysels. 
+Description: The 'midasml' package implements estimation and prediction methods for high-dimensional mixed-frequency (MIDAS) time-series and panel data regression models. The regularized MIDAS models are estimated using orthogonal (e.g. Legendre) polynomials and sparse-group LASSO (sg-LASSO) estimator. For more information on the `midasml' approach see Babii, Ghysels, and Striaukas (2021, JBES forthcoming) <doi:10.1080/07350015.2021.1899933>. The package is equipped with the fast implementation of the sg-LASSO estimator by means of proximal block coordinate descent. High-dimensional mixed frequency time-series data can also be easily manipulated with functions provided in the package.
 BugReports: https://github.com/jstriaukas/midasml/issues
 License: GPL (>= 2)
-Depends: foreach (>= 1.4.4)
-Imports: 
-	Rcpp (>= 1.0.3),
-	lubridate (>= 1.7.4), 
-	parallel (>= 3.5.2),
-	doSNOW (>= 1.0.18),
-	stats (>= 3.5.2),
-	optimx (>= 2020-4.2),
- 	quantreg (>= 5.34)
-LinkingTo: 
-	Rcpp, 
-	RcppArmadillo
+Depends: Matrix, R (>= 2.10)
+Imports: graphics, stats, mcGlobaloptim, methods, lubridate	
 Encoding: UTF-8
 RoxygenNote: 7.1.0

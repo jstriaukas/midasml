@@ -31,7 +31,7 @@
 #'   as.Date(payems[,1]), x.lag = 9, y.lag = 4, horizon = 1, 
 #'   est.start, est.end, disp.flag = FALSE)
 #' @export mixed_freq_data
-mixed_freq_data <- function (data.y, data.ydate, data.x, data.xdate, x.lag, y.lag, horizon, est.start, est.end, disp.flag = TRUE){
+mixed_freq_data <- function(data.y, data.ydate, data.x, data.xdate, x.lag, y.lag, horizon, est.start, est.end, disp.flag = TRUE){
   mask.na <- !is.na(data.y)
   data.y <- data.y[mask.na]
   data.ydate <- data.ydate[mask.na]
@@ -427,136 +427,6 @@ mixed_freq_data_single <- function(data.refdate,data.x,data.xdate,x.lag,horizon,
   return(output)
 }
 
-#' MIDAS data structure 
-#' @description 
-#' Creates a MIDAS data structure for a single high-frequency covariate and a single low-frequency dependent variable computed from high-frequency covariate (e.g. stock returns).
-#' @usage 
-#' mixed_freq_data_mhorizon(data.x, data.xdate, x.lag, est.start, est.end,
-#'   horizon, disp.flag = TRUE, ...)
-#' @param data.x nm by 1 high-frequency time series data vector.
-#' @param data.xdate nm by 1 high-frequency time series date vector.
-#' @param x.lag number of high-frequency lags to construct in high-frequency time units.
-#' @param est.start estimation start date, taken as the first ... .
-#' @param est.end estimation end date, taken as the last ... . Remaining data after this date is dropped to out-of-sample evaluation data. 
-#' @param horizon forecast horizon relative to \code{data.ydate} date in high-frequency time units.
-#' @param disp.flag display flag to indicate whether or not to display obtained MIDAS data structure in console.
-#' @param ... an optional parameter \code{aggregation} specifying the aggregation method of high-frequency data to get low-frequency target (non-overlapping) 
-#'    \code{sum} - sum of high-frequency lags \cr
-#'    \code{sum&abs} - sum of high-frequency lags which after aggregation are taken in absolute value \cr
-#'    \code{sum&sq} - sum of high-frequency lags which after aggregation are taken in squares \cr
-#'    \code{mean} - average of high-frequency lags \cr
-#'    \code{first_val} - the most recent lag value of high-frequency lags.
-#' @return a list of midas data structure. 
-#' @examples 
-#' data(market_ret)
-#' data.x <- market_ret$snp500ret
-#' data.xdate <- market_ret$DATE
-#' est.start <- as.Date("2005-01-01")
-#' est.end <- as.Date("2017-12-31")
-#' mixed_freq_data_mhorizon(data.x, data.xdate, x.lag = 5, est.start, est.end,
-#'                          horizon = 1, disp.flag = FALSE, aggregation = "sum")
-#' @author Jonas Striaukas
-#' @export mixed_freq_data
-mixed_freq_data_mhorizon <- function(data.x,data.xdate,x.lag,est.start,est.end,horizon,disp.flag = TRUE,...) {
-  options <- list(...)
-  if(is.null(options$aggregation)){
-    aggregation <- "sum"
-  } else {
-    aggregation <- options$aggregation
-  }
-  
-  data.x <- as.numeric(data.x)
-  data.xother <- options$xother
-  if(!is.null(data.xother))
-    data.xother <- matrix(data.xother,nrow = length(data.x))
-  
-  if(!is.null(data.xother))
-    if(length(data.x)!=dim(data.xother)[1])
-      stop("x variable and additional covariates in 'data.xother' have different sample sizes. check and re-run.")
-  
-  mask.na <- !is.na(data.x)
-  data.x <- data.x[mask.na]
-  data.xdate <- data.xdate[mask.na]
-  if(!is.null(data.xother))
-    data.xother <- matrix(data.xother[mask.na,],nrow = length(data.x))
-  
-  
-  nobs <- length(data.x)
-  maxy <- floor((nobs-x.lag)/horizon)
-  
-  # generate y
-  y_tmp <- t(matrix(data.x[(nobs-maxy*horizon+1):nobs],nrow=horizon,ncol=maxy,byrow=F))
-  if (aggregation=="sum") 
-    y <- rowSums(y_tmp)
-  if (aggregation=="sum&abs")
-    y <- rowSums(y_tmp)
-  if (aggregation=="sum&sq")
-    y <- rowSums(y_tmp)
-  if (aggregation=="mean")
-    y <- rowSums(y_tmp)/horizon
-  if (aggregation=="first_val")
-    y <- y_tmp[,1]
-  
-  y.date <- as.Date(t(matrix(data.xdate[(nobs-maxy*horizon+1):nobs],nrow=horizon,ncol=maxy,byrow=F))[,1],origin=lubridate::origin)
-  
-  # generate X
-  indy <- seq((nobs-maxy*horizon),(nobs-horizon),by=horizon)
-  x <- x.date <- matrix(NA, nrow=length(indy),ncol=x.lag)
-  
-  for (i in 1:length(indy)) {
-    x[i,] <- t(data.x[seq(indy[i],indy[i]-x.lag+1,by=-1)])
-    x.date[i,] <- t(data.xdate[seq(indy[i],indy[i]-x.lag+1,by=-1)])
-  }
-  # generate other high-frequency covariates of the same variable (e.g. returns)
-  out.xother <- est.xother <- x.other <- NULL
-  if (!is.null(data.xother)){
-    x.other <- array(NA, c(length(indy),x.lag, dim(data.xother)[2]))
-    for (j in 1:dim(data.xother)[2]){
-      tmp_vec <- as.numeric(data.xother[,j])
-      for (i in 1:length(indy)) {
-        x.other[i,,j] <- t(tmp_vec[seq(indy[i],indy[i]-x.lag+1,by=-1)])
-      }
-    }
-  }
-  # trim data above est.start date
-  idx.start <- y.date>=as.Date(est.start)
-  est.y <- y[idx.start]
-  est.x <- x[idx.start,]
-  est.ydate <- y.date[idx.start]
-  est.xdate <- x.date[idx.start, ]
-  if (!is.null(x.other))
-    est.xother <- array(x.other[idx.start,,],c(length(indy),x.lag, dim(data.xother)[2]))
-  
-  # trim data below est.end date
-  idx.end <- est.ydate<=as.Date(est.end)
-  idx.out <- est.ydate>as.Date(est.end)
-  out.y <- est.y[idx.out]
-  out.x <- est.x[idx.out,]
-  out.ydate <- est.ydate[idx.out]
-  out.xdate <- est.xdate[idx.out,]
-  
-  if (!is.null(x.other))
-    out.xother <- array(est.xother[idx.out,,],c(sum(idx.out),x.lag, dim(data.xother)[2]))
-  
-  est.y <- est.y[idx.end]
-  est.x <- est.x[idx.end,]
-  est.ydate <- est.ydate[idx.end]
-  est.xdate <- est.xdate[idx.end,]
-  if (!is.null(x.other))
-    est.xother <- array(est.xother[idx.end,,],c(sum(idx.end),x.lag, dim(data.xother)[2]))
-  
-  if (aggregation=="sum&abs"){
-    est.x <- abs(est.x)
-    out.x <- abs(out.x)
-  }
-  if (aggregation=="sum&sq"){
-    est.x <- (est.x)^2
-    out.x <- (out.x)^2
-  }
-  return(list(est.y = est.y, est.x = est.x, est.ydate = est.ydate, est.xdate = est.xdate, est.xother = est.xother,
-              out.y = out.y, out.x = out.x, out.ydate = out.ydate, out.xdate = out.xdate, out.xother = out.xother))
-}
-
 #' End of the month date
 #' 
 #' @description 
@@ -626,76 +496,6 @@ dateMatch <- function(x,y){
     }
   }
   x.out
-}
-
-#' Time series vector transformation
-#' 
-#' @description 
-#' Transform time series a vector based on transformation code.
-#' @param x time series vector. 
-#' @param tcode transformation code. 1 - not transformed, 2 - first difference, 3 - second difference, 4 - natural log, 5 - first difference of natural log, 6 - second difference of natural log, 7 - first difference of percent change. 
-#' @return transformed time series vector.
-#' @examples 
-#' x <- rnorm(100,1)
-#' transform_dt(x, tcode = 1)
-#' @export transform_dt
-transform_dt <- function(x,tcode){
-  t <- length(x)
-  small <- 1e-9
-  y <- rep(NA, t) 
-  if(tcode==1) { # Level (i.e. no transformation): x(t)
-    y = x
-  }
-  if(tcode==2){ # First difference: x(t)-x(t-1)
-    y[-1] <- x[-1] - x[-t]
-  }
-  if(tcode==3){ # Second difference: (x(t)-x(t-1))-(x(t-1)-x(t-2))
-    y[-c(1,2)] <- x[-c(1,2)] - 2*x[-c(1,t)] + x[-c(t-1,t)]
-  } 
-  if(tcode==4){ # Natural log: ln(x)
-    x[abs(x)<small] <- NA
-    y <- log(x)
-  }  
-  if(tcode==5){ # First difference of natural log: ln(x)-ln(x-1)
-    x[abs(x)<small] <- NA
-    x <- log(x)
-    y[-1] <- x[-1] - x[-t]
-  }   
-  if(tcode==6){ # Second difference of natural log: ln(x)-2*ln(x-1)+ln(x-2)
-    x[abs(x)<small] <- NA
-    x <- log(x)
-    y[-c(1,2)] <- x[-c(1,2)] - 2*x[-c(1,t)] + x[-c(t-1,t)]
-  }    
-  if(tcode==7){ # First difference of percent change: (x(t)/x(t-1)-1)-(x(t-1)/x(t-2)-1)
-    x[abs(x)<small] <- NA
-    y.tmp <- y
-    y.tmp[-1] <- (x[-1]-x[-t])/x[-t]
-    y[-c(1,2)] <- y.tmp[-c(1,2)] - y.tmp[-c(1,t)] 
-  } 
-  return(y)
-}
-
-#' Time series matrix transformation
-#' 
-#' @description 
-#' Transform time series a matrix based on transformation code.
-#' @param data.in time series matrix. 
-#' @param tcode.all transformation code vector. 1 - not transformed, 2 - first difference, 3 - second difference, 4 - natural log, 5 - first difference of natural log, 6 - second difference of natural log, 7 - first difference of percent change. 
-#' @return transformed time series matrix.
-#' @examples 
-#' data.in <- matrix(rnorm(100*2,1),nrow = 100, ncol = 2)
-#' apply_transform(data.in, tcode = rep(1,times=2))
-#' @export apply_transform
-apply_transform <- function(data.in,tcode.all){
-  data.in <- as.matrix(data.in)
-  data.out <- matrix(data=NA, nrow = nrow(data.in), ncol = ncol(data.in))
-  colnames(data.out) <- colnames(data.in)
-  n <- dim(data.in)[2]
-  for (i in 1:n){
-    tmp <-  transform_dt(data.in[,i],tcode.all[i])
-    data.out[,i] <- tmp
-  }
-  return(data.out)
 }
 
 #' Identify data frequency
@@ -887,7 +687,7 @@ lag_num <- function(x.lag,period,unit){
   return(x.lag)
 }
 
-#' Compute difference in two dates.
+#' Computes the difference between two dates.
 #' 
 #' @param time1 date 1.
 #' @param time2 date 2.

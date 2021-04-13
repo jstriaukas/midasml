@@ -14,11 +14,6 @@
 #' lb(degree = degree, a = 0, b = 1, jmax = jmax)
 #' @export lb
 lb <- function(degree,a=0,b=1,jmax=NULL,X=NULL){
-  # Notes:
-  #   References:
-  #   H. J. Weber, G. B. Arfken, Essential Mathematical Methods for Physicists,
-  #   Elsevier Academic Press, San Diego, USA, 2004.
-  #   Translated from matlab function lb to R. 2019-03-01, Jonas Striaukas (jonas.striaukas@gmail.com)
   if (!is.null(jmax)){
     X <- seq(0,1,length.out=jmax)
   }
@@ -35,6 +30,18 @@ lb <- function(degree,a=0,b=1,jmax=NULL,X=NULL){
       Psi[, i+1] <- sqrt((2*i + 1) / (b-a)) %*% P[, i+1]
     }
   }
+  col.name <- NULL
+  for (i in 0:degree)
+    col.name <- c(col.name, paste0("poly-degree-",i))
+    
+  row.name <- NULL
+  for (i in 1:n)
+    row.name <- c(row.name, paste0("lag-",n))
+  
+  colnames(Psi) <- col.name
+  rownames(Psi) <- row.name
+  class(Psi) <- "midasml"
+  Psi
   return(Psi)
 }
 
@@ -75,64 +82,17 @@ gb <- function(degree,alpha,a=0,b=1,jmax=NULL,X=NULL){
       Psi[, i+1] <- sqrt((2*i + 1) / (b-a)) %*% P[, i+1]
     }
   }
+  col.name <- NULL
+  for (i in 0:degree)
+    col.name <- c(col.name, paste0("poly-degree-",i))
+  
+  row.name <- NULL
+  for (i in 1:n)
+    row.name <- c(row.name, paste0("lag-",n))
+  
+  colnames(Psi) <- col.name
+  rownames(Psi) <- row.name
+  class(Psi) <- "midasml"
+  Psi
   return(Psi)
-}
-
-#' Exponential Almon polynomial weights 
-#' 
-#' @param param two-dimensional parameter vector \eqn{\theta}.
-#' @param dayLag number of high-frequency lags.
-#' @return (normalized) weights vector.
-#' @author Jonas Striaukas
-#' @description For a given set of parameters \eqn{\theta} and the number of high-frequency lags, returns weights implied by exponential Almon functional form.
-#' @examples 
-#' param <- c(0.02,-0.2)
-#' dayLag <- 22
-#' expalmon_w(param, dayLag)
-#' @export expalmon_w
-expalmon_w <- function(param,dayLag){
-  grid <- seq(1,dayLag,length.out = dayLag)
-  w <- exp(param[1]*grid+param[2]*grid^2)/sum(exp(param[1]*grid+param[2]*grid^2))
-  w <- w/sum(w)
-  w
-}
-
-#' Beta density polynomial weights 
-#' 
-#' @param param two-dimensional parameter vector \eqn{\theta}.
-#' @param dayLag number of high-frequency lags.
-#' @return (normalized) weights vector.
-#' @author Jonas Striaukas
-#' @description For a given set of parameters \eqn{\theta} and the number of high-frequency lags, returns weights implied by Beta density functional form.
-#' @examples 
-#' param <- c(2,2)
-#' dayLag <- 22
-#' beta_w(param, dayLag)
-#' @export beta_w
-beta_w <- function(param,dayLag){
-  eps <- .Machine$double.eps
-  u <- seq(eps,1-eps,length.out = dayLag)
-  w <- u^(param[1]-1)*(1-u)^(param[2]-1)
-  w <- w/sum(w)
-  w
-}
-
-#' Restricted Beta density polynomial weights 
-#' 
-#' @param param one-dimensional parameter vector \eqn{\theta}.
-#' @param dayLag number of high-frequency lags.
-#' @return (normalized) weights vector.
-#' @author Jonas Striaukas
-#' @description For a given set of parameters \eqn{\theta} and the number of high-frequency lags, returns weights implied by Restricted Beta density functional form.
-#' @examples 
-#' param <- 3
-#' dayLag <- 22
-#' rbeta_w(param, dayLag)
-#' @export rbeta_w
-rbeta_w <- function(param,dayLag){
-  eps <- .Machine$double.eps
-  u <- seq(eps,1-eps,length.out = dayLag)
-  w <- (1-u)^(param[1]-1)
-  w <- w/sum(w)
-  w
 }

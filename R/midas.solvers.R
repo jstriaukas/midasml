@@ -1,31 +1,35 @@
 # Model: ADL-MIDAS (FADL-MIDAS) regression 
 # Estimation: MIDAS-NLS based on analytic derivatives (gradient and Hessian)
-# Polynomial: Beta, 4 parametrizations, refer to "poly_spec"
+# Polynomial: Beta, 3 parametrizations, refer to "poly_spec"
 # Paper, analytic derivatives:  
 # - Kostrov (2020) Estimating MIDAS regressions via MIDAS-NLS with revised optimization. Working paper. 
 # Optimizer: "nlminb", with constraints. 
-optim_ardl_beta <- function(y, z, x, poly_spec, num.coef){
+optim_ardl_beta <- function(y, z, x, poly_spec = 0, nbtrials = 100){
   n <- length(y)
   k <- dim(z)[2]
+  if (is.null(k)){
+    z <- matrix(z, nrow=length(z))
+    k <- 1
+  }
   # append a vector of ones:
   iota <- matrix(1, nrow = n, ncol = 1)
   z <- cbind(iota, z)
+
   # store data into a list:
   dataList <- list (y=y, z=z, x=x, poly_spec=poly_spec)
   # get parameter constraints:
   constr <- get_constr_beta(poly_spec, k)
-  
   #-------------------- main optimization --------------------#
-  opt <- mcGlobaloptim::multiStartoptim(objectivefn = estimate_ardl_beta, 
+  invisible(capture.output(opt <- mcGlobaloptim::multiStartoptim(objectivefn = estimate_ardl_beta, 
                                         gradient = gradient_ardl_beta,
                                         data = dataList,
                                         hessian = hessian_ardl_beta, 
                                         lower = constr$lw_b, upper = constr$up_b, 
                                         method = "nlminb", 
-                                        nbtrials = num.coef,
+                                        nbtrials = nbtrials,
                                         typerunif = "runifbase",
                                         control = list(eval.max=1000, iter.max=1000,
-                                                       rel.tol=1e-12, x.tol=1.5e-10))
+                                        rel.tol=1e-12, x.tol=1.5e-10))))
   #-------------------- xxxxxxxxxxxxxxxx --------------------#
   # back-out parameters:
   k1 <- opt$par[1]
@@ -34,43 +38,44 @@ optim_ardl_beta <- function(y, z, x, poly_spec, num.coef){
   beta <- opt$par[4]
   c <- opt$par[5]
   rho <- opt$par[6:length(opt$par)]
+
   
   # sort the output:
-  ar_lags <- NULL
+  other_x <- NULL
   for (i in 1:k) 
-    ar_lags <- c(ar_lags, paste0("AR-",i))
+    other_x <- c(other_x, paste0("other-",i))
   
+  int <- "(Intercept)"
   if (poly_spec == 0) {
     coef <- matrix(c(c, rho, beta, k1, k2, k3), nrow = 1, ncol = k + 5)
     rownames(coef) <- ""
-    colnames(coef) <- c("(Intercept)",ar_lags,"beta","k1","k2", "k3")
+    colnames(coef) <- c(int,other_x,"beta","k1","k2", "k3")
   } else if (poly_spec == 1) {
     coef <- matrix(c(c, rho, beta, k2, k3), nrow = 1, ncol = k + 4)
     rownames(coef) <- ""
-    colnames(coef) <- c("(Intercept)",ar_lags,"beta","k2", "k3")
+    colnames(coef) <- c(int,other_x,"beta","k2", "k3")
   } else if (poly_spec == 2) {
     coef <- matrix(c(c, rho, beta, k1, k2), nrow = 1, ncol = k + 4)
     rownames(coef) <- ""
-    colnames(coef) <- c("(Intercept)",ar_lags,"beta","k1", "k2")
+    colnames(coef) <- c(int,other_x,"beta","k1", "k2")
   }
+  class(coef) <- "midas.beta"
   return(coef)
 }
 
-
-
 get_constr_beta <- function(poly_spec, k){
   # define upper and lower constraints
-  up_theta1 <- 2
-  up_theta2 <- 20
-  up_theta3 <- 0.7
-  up_beta <- 5
-  up_rho <- 7
+  up_theta1 <- 70
+  up_theta2 <- 70
+  up_theta3 <- 70
+  up_beta <- 40
+  up_rho <- 40
   
-  low_theta1 <- 0.1
-  low_theta2 <- 1.2
+  low_theta1 <- 0
+  low_theta2 <- 0
   low_theta3 <- 0
-  low_beta <- -5
-  low_rho <- -7 
+  low_beta <- -40
+  low_rho <- -40
   
   # based on beta specification, construct vectors of constraints
   if (poly_spec==0){
@@ -334,6 +339,7 @@ hessian_ardl_beta <- function(args, dataList) {
   #browser()
   return(Hess)   
 }
+
 # Model: ADL-MIDAS (FADL-MIDAS) regression 
 # Estimation: MIDAS-NLS based on analytic derivatives (gradient and Hessian)
 # Polynomial: Exponential Almon parametrized by theta1 and theta 2.
@@ -341,28 +347,33 @@ hessian_ardl_beta <- function(args, dataList) {
 # - Kostrov A. and Tetereva A. (2018) Forecasting realized correlations: a MIDAS approach. Working paper. 
 # - https://www.researchgate.net/publication/331498346_Forecasting_realized_correlations_a_MIDAS_approach
 # Optimizer: "nlminb" with constraints. 
-optim_ardl_expalmon <- function(y, z, x, num.coef){
+optim_ardl_expalmon <- function(y, z, x, nbtrials = 100){
   n <- length(y)
   k <- dim(z)[2]
+  if (is.null(k)){
+    z <- matrix(z, nrow=length(z))
+    k <- 1
+  }
   # append a vector of ones:
   iota <- matrix(1, nrow = n, ncol = 1)
   z <- cbind(iota, z)
+  
   # store data into a list:
   dataList <- list (y=y, z=z, x=x)
   # get parameter constraints:
   constr <- get_constr_expalmon(k)
   
   #-------------------- main optimization --------------------#
-  opt <- mcGlobaloptim::multiStartoptim(objectivefn = estimate_ardl_expalmon,
+  invisible(capture.output(opt <- mcGlobaloptim::multiStartoptim(objectivefn = estimate_ardl_expalmon,
                                         gradient = gradient_ardl_expalmon,
                                         data = dataList,
                                         hessian = hessian_ardl_expalmon,
                                         lower = constr$lw_b, upper = constr$up_b, 
                                         method = "nlminb",
-                                        nbtrials = num.coef,
+                                        nbtrials = nbtrials,
                                         typerunif = "runifbase",
                                         control = list(eval.max=1000, iter.max=1000,
-                                                       rel.tol=1e-12, x.tol=1.5e-10))
+                                                       rel.tol=1e-12, x.tol=1.5e-10))))
   #-------------------- xxxxxxxxxxxxxxxx --------------------#
   # back-out parameters:
   k1 <- opt$par[1]
@@ -370,30 +381,33 @@ optim_ardl_expalmon <- function(y, z, x, num.coef){
   beta <- opt$par[3]
   c <- opt$par[4]
   rho <- opt$par[5:length(opt$par)]
+
+  
   
   # sort the output:
-  ar_lags <- NULL
+  other_x <- NULL
   for (i in 1:k)
-    ar_lags <- c(ar_lags, paste0("AR-",i))
+    other_x <- c(other_x, paste0("other-",i))
   
+  int <- "(Intercept)"
   coef <- matrix(c(c, rho, beta, k1, k2), nrow = 1, ncol = k + 4)
   rownames(coef) <- ""
-  colnames(coef) <- c("(Intercept)",ar_lags,"beta","k1","k2")
-  
+  colnames(coef) <- c(int,other_x,"beta","k1","k2")
+  class(coef) <- "midas.expalmon"
   return(coef)
 }
 
 get_constr_expalmon <- function(k){
   # define upper and lower constraints
-  up_beta <- 3
-  up_rho <- 10   
-  up_theta1 <- 0.2   
+  up_beta <- 20
+  up_rho <- 20   
+  up_theta1 <- 2   
   up_theta2 <- 0   
   
-  low_beta <- -3
-  low_rho <- -10     
+  low_beta <- -10
+  low_rho <- -20     
   low_theta1 <-  0   
-  low_theta2 <- -0.3 
+  low_theta2 <- -2 
   
   up_b <- c(up_theta1 , up_theta2, up_beta,  rep(up_rho, k+1))
   lw_b <- c(low_theta1, low_theta2, low_beta, rep(low_rho, k+1))  
@@ -528,210 +542,248 @@ hessian_ardl_expalmon <- function(args, dataList) {
   #browser()
   return(Hess)  
 }
+
 # Model: MIDAS Logit regression 
 # Estimation: MIDAS-NLS based on analytic derivatives (gradient and Hessian)
 # Polynomial: Exponential Almon parametrized by theta1 and theta 2
 # Paper, analytic derivatives: based on  
 # - 	F. Audrino, A. Kostrov, and J.-P. Ortega (2019) Predicting U.S. Bank Failures with MIDAS Logit Models, JFQA, 54(6), 2575-2603. 
 # - https://doi.org/10.1017/S0022109018001308
-# Optimizer: "multiStartoptim", with constraints.
-optim_logit_expalmon <- function(y, z, x, num.coef){
+# Optimizer: nlm.
+optim_logit_expalmon <- function(y, z, x){
   if (!all(unique(y)%in%c(0,1))){
     stop("response variable must be binary for MIDAS Logit model.")
   }
   n <- length(y)
   k <- dim(z)[2]
+  if (is.null(k)){
+    z <- matrix(z, nrow=length(z))
+    k <- 1
+  }
   # append a vector of ones:
   iota <- matrix(1, nrow = n, ncol = 1)
   z <- cbind(iota, z)
-  # store data into a list:
-  dataList <- list (y=y, z=z, x=x)
-  # get parameter constraints:
-  constr <- get_constr_logit_expalmon(k)
-  
+
+  # initial values
+  init = rep(0,3 + k+1) 
   #-------------------- main optimization --------------------#
-  opt <- mcGlobaloptim::multiStartoptim(objectivefn = estimate_logit_expalmon,
-                                        gradient = gradient_logit_expalmon,
-                                        data = dataList,
-                                        hessian = hessian_logit_expalmon,
-                                        lower = constr$lw_b, upper = constr$up_b, 
-                                        method = "nlminb",
-                                        nbtrials = num.coef,
-                                        typerunif = "runifbase",
-                                        control = list(eval.max=1000, iter.max=1000,
-                                                       rel.tol=1e-12, x.tol=1.5e-10))
+  opt <- suppressWarnings(stats::nlm(f = estimateLogit_expalm_nlm,
+             p = init,
+             y=y, V=z, Z=x,
+             hessian = TRUE,
+             check.analyticals = TRUE))
   #-------------------- xxxxxxxxxxxxxxxx --------------------#
   # back-out parameters:
-  k1 <- opt$par[1]
-  k2 <- opt$par[2]
-  beta <- opt$par[3]
-  c <- opt$par[4]
-  rho <- opt$par[5:length(opt$par)]
+  k1 <- opt$estimate[1]
+  k2 <- opt$estimate[2]
+  beta <- opt$estimate[3]
+  c <- opt$estimate[4]
+  rho <- opt$estimate[5:length(opt$estimate)]
+
   
   # sort the output:
-  ar_lags <- NULL
+  fn <- NULL
   for (i in 1:k)
-    ar_lags <- c(ar_lags, paste0("AR-",i))
-  
+    fn <- c(fn, paste0("factor-",i))
+
+  int <- "(Intercept)"
   coef <- matrix(c(c, rho, beta, k1, k2), nrow = 1, ncol = k + 4)
   rownames(coef) <- ""
-  colnames(coef) <- c("(Intercept)",ar_lags,"beta","k1","k2")
-  
+  colnames(coef) <- c(int,fn,"beta","k1","k2")
+  class(coef) <- "logit.expalmon"
   return(coef)
 }
 
-get_constr_logit_expalmon <- function(k){
-  # define upper and lower constraints
-  up_beta <- 3
-  up_rho <- 10   
-  up_theta1 <- 0.2   
-  up_theta2 <- 0   
+estimateLogit_expalm_nlm <- function(args, y, V, Z){
   
-  low_beta <- -3
-  low_rho <- -10     
-  low_theta1 <-  0   
-  low_theta2 <- -0.3   
+  iota = matrix(1, length(y) )
+  p = dim(Z)[2]
+  xi = matrix(1:p, p,1)
+  xi_sq = xi^2  
   
-  up_b <- c(up_theta1 , up_theta2, up_beta,  rep(up_rho, k+1))
-  lw_b <- c(low_theta1, low_theta2, low_beta, rep(low_rho, k+1))  
+  theta1 = args[1]  
+  theta2 = args[2]
+  beta = args[3]
+  rho = args[4:length(args)] 
   
-  return(list(up_b = up_b, lw_b = lw_b)) 
-}
-
-estimate_logit_expalmon <- function(args, dataList) {
-  y <- dataList$y
-  z <- dataList$z
-  x <- dataList$x
-  
-  iota <- matrix(1, dim(y) )
-  p <- dim(x)[2]
-  xi <- matrix(1:p, p,1)
-  xi_sq <- xi^2  
-  
-  theta1 <- args[1]  
-  theta2 <- args[2]
-  beta <- args[3]
-  rho <- args[4:length(args)] 
-  
-  weights <- exp(theta1 * xi + theta2 * xi_sq)
+  weights = exp(theta1 * xi + theta2 * xi_sq)
   
   
-  LogLM <- -( t(y) %*% (z %*% rho  + beta * x %*% weights) - 
-                t(iota) %*% log(iota+exp(z %*% rho  + beta * x %*% weights))  )
+  LogLM = -( t(y) %*% (V %*% rho  + beta * Z %*% weights) - 
+               t(iota) %*% log(iota+exp(V %*% rho  + beta * Z %*% weights))  )
   
-  LogLM <- LogLM[1,1]
   
-  if (is.na(LogLM)==TRUE || is.nan(LogLM)==TRUE || is.infinite(LogLM)==TRUE) {
-    LogLM = Inf
+  out = as.numeric(LogLM) 
+  if (is.na(out)==TRUE) {
+    out = Inf
   }
-  return(as.numeric(LogLM))
+  
+  attr(out, 'gradient') <-  gradLogit_expalm(args, y, V, Z) 
+  attr(out, 'hessian') <-   HessianLogit_expalm(args, y, V, Z)
+  
+  return(out)
 }
 
-gradient_logit_expalmon <- function(args, dataList) {
+gradLogit_expalm <- function(args, y, V, Z) {
   
-  y <- dataList$y
-  z <- dataList$z
-  x <- dataList$x
+  p = dim(Z)[2]
+  xi = matrix(1:p, p,1)
+  xi_sq = xi^2  
   
-  p <- dim(x)[2]
-  xi <- matrix(1:p, p,1)
-  xi_sq <- xi^2  
+  theta1 = args[1]  
+  theta2 = args[2]
+  beta = args[3]
+  rho = args[4:length(args)] 
   
-  theta1 <- args[1]  
-  theta2 <- args[2]
-  beta <- args[3]
-  rho <- args[4:length(args)] 
+  weights = exp(theta1 * xi + theta2 * xi_sq) 
   
-  weights <- exp(theta1 * xi + theta2 * xi_sq) 
+  nabla_G = - ( y- exp(beta * Z %*%  weights + V%*%rho) *
+                  1 / (1 + exp(beta * Z %*%  weights + V%*%rho)))
   
-  nabla_G <- - (y- exp(beta * x %*%  weights + z%*%rho) *
-                  1 / (1 + exp(beta * x %*%  weights + z%*%rho)))
+  T_star_w_C =  beta * t(Z)
+  T_star_beta_C =  t(weights) %*% t(Z)
+  T_star_rho_C =   t(V)
   
-  T_star_w_C <- beta * t(x)
-  T_star_beta_C <- t(weights) %*% t(x)
-  T_star_rho_C <- t(z)
+  T_star_theta1_W = t(weights * xi)
+  T_star_theta2_W = t(weights * xi_sq)
   
-  T_star_theta1_W <- t(weights * xi)
-  T_star_theta2_W <- t(weights * xi_sq)
+  part1 = T_star_theta1_W %*% T_star_w_C %*% nabla_G   # theta1
+  part2 = T_star_theta2_W %*% T_star_w_C %*% nabla_G   # theta2
+  part3 = T_star_beta_C  %*% nabla_G   # beta
+  part4 = T_star_rho_C  %*% nabla_G    # rho
+  grad =  c(part1, part2, part3, part4)
   
-  part1 <- T_star_theta1_W %*% T_star_w_C %*% nabla_G   # theta1
-  part2 <- T_star_theta2_W %*% T_star_w_C %*% nabla_G   # theta2
-  part3 <- T_star_beta_C  %*% nabla_G   # beta
-  part4 <- T_star_rho_C  %*% nabla_G    # rho
-  grad <-  c(part1, part2, part3, part4)
-  
-  return(grad)   
+  return(grad)  
 }
 
-hessian_logit_expalmon <- function(args, dataList) {
-  y <- dataList$y
-  z <- dataList$z
-  x <- dataList$x
+
+HessianLogit_expalm <- function(args, y, V, Z) {
   
-  p <- dim(x)[2]
-  xi <- matrix(1:p, p,1)
-  xi_sq <- xi^2  
+  p = dim(Z)[2]
+  xi = matrix(1:p, p,1)
+  xi_sq = xi^2  
   
-  theta1 <- args[1]  
-  theta2 <- args[2]
-  beta <- args[3]
-  rho <- args[4:length(args)] 
+  theta1 = args[1]  
+  theta2 = args[2]
+  beta = args[3]
+  rho = args[4:length(args)] 
   
-  weights <- exp(theta1 * xi + theta2 * xi_sq) 
-  lincomb <- beta * x %*%  weights + z%*%rho 
+  weights = exp(theta1 * xi + theta2 * xi_sq) 
+  lincomb =  beta * Z %*%  weights + V%*%rho 
   
   ## line 1
-  A1_1 <- t(weights * xi)
-  A1_2 <- beta * t(x)
-  A1 <- A1_1 %*% A1_2 
-  B1 <- -(y- exp(lincomb) * 1 / (1 + exp(lincomb)))
-  dB1_lincomb <- exp(lincomb)*(1+exp(lincomb))^(-1) - exp(lincomb)^(2) *  (1+exp(lincomb))^(-2)
+  A1_1 = t(weights * xi)
+  A1_2 = beta * t(Z)
+  A1 =  A1_1 %*% A1_2 
+  B1 = - ( y- exp(lincomb) * 1 / (1 + exp(lincomb)))
+  dB1_lincomb = exp(lincomb)*(1+exp(lincomb))^(-1) - exp(lincomb)^(2) *  (1+exp(lincomb))^(-2)
   
   ### element 1
-  dA1_theta1 <- t(weights * xi_sq) %*%   A1_2
-  dB1_theta1 <- dB1_lincomb * (beta * x) %*% (weights * xi)       
+  dA1_theta1 = t(weights * xi_sq) %*%   A1_2
+  dB1_theta1 =  dB1_lincomb * (beta * Z) %*% (weights * xi)       
   ### element 2
-  dA1_theta2 <- t(weights * xi^3) %*%   A1_2
-  dB1_theta2 <- dB1_lincomb * (beta * x) %*% (weights * xi_sq) 
+  dA1_theta2 = t(weights * xi^3) %*%   A1_2
+  dB1_theta2 = dB1_lincomb * (beta * Z) %*% (weights * xi_sq) 
   ### element 3
-  dA1_beta <- t(weights * xi)%*%t(x)
-  dB1_beta <- dB1_lincomb * (x%*%weights)
+  dA1_beta = t(weights * xi)%*%t(Z)
+  dB1_beta =   dB1_lincomb * (Z%*%weights)
   ### element 4
-  dB1_rho <- diag( as.vector(dB1_lincomb)  ) %*% z
-  H11 <- dA1_theta1 %*% B1 + A1 %*% dB1_theta1 
-  H12 <- dA1_theta2 %*% B1 + A1 %*% dB1_theta2 
-  H13 <- dA1_beta %*% B1 + A1 %*% dB1_beta 
-  H14 <- A1 %*% dB1_rho
+  dB1_rho =   diag( as.vector(dB1_lincomb)  ) %*% V
+  H11 = dA1_theta1 %*% B1 + A1 %*% dB1_theta1 
+  H12 = dA1_theta2 %*% B1 + A1 %*% dB1_theta2 
+  H13 = dA1_beta %*% B1 + A1 %*% dB1_beta 
+  H14 = A1 %*% dB1_rho
   
   ## line 2
-  A2_1 <- t(weights * xi_sq)
-  A2 <- A2_1 %*% A1_2 
+  A2_1 = t(weights * xi_sq)
+  A2 = A2_1 %*% A1_2 
   ### element 2
-  dA2_theta2 <- t(weights * xi^4) %*%   A1_2
+  dA2_theta2 = t(weights * xi^4) %*%   A1_2
   ### element 3
-  dA2_beta <- A2_1 %*% t(x)
+  dA2_beta = A2_1 %*% t(Z)
   ### element 4
-  H22 <- dA2_theta2 %*% B1 +  A2 %*% dB1_theta2 
-  H23 <- dA2_beta %*% B1 + A2 %*% dB1_beta 
-  H24 <- A2 %*% dB1_rho
+  H22 = dA2_theta2 %*% B1 +  A2 %*% dB1_theta2 
+  H23 = dA2_beta %*% B1 + A2 %*% dB1_beta 
+  H24 = A2 %*% dB1_rho
   
   ## line 3
-  A3 <- t(weights) %*% t(x)
+  A3 =  t(weights) %*% t(Z)
   ### element 3
   ### element 4
   ### element 5
-  H33 <- A3 %*% dB1_beta
-  H34 <- A3 %*% dB1_rho 
+  H33 = A3  %*% dB1_beta
+  H34 = A3  %*% dB1_rho 
   
   ## line 4
-  H44 <- t(z) %*% dB1_rho 
+  H44 = t(V) %*% dB1_rho 
   
-  Hess <- rbind( c(H11, H12, H13, H14),
-                 c(H12, H22, H23, H24),
-                 c(H13, H23, H33, H34),
-                 cbind(t(H14), t(H24), t(H34), H44)) 
+  Hess = rbind( c(H11, H12, H13, H14),
+                c(H12, H22, H23, H24),
+                c(H13, H23, H33, H34),
+                cbind(t(H14), t(H24), t(H34), H44)) 
   #browser()
   return(Hess)  
 }
 
 
+optim_ardl_legendre <- function(y, z, x, legendre_degree = 3){
+  n <- length(y)
+  k <- dim(z)[2]
+  if (is.null(k)){
+    z <- matrix(z, nrow=length(z))
+    k <- 1
+  }
+  # append a vector of ones:
+  iota <- matrix(1, nrow = n, ncol = 1)
+  z <- cbind(iota, z)
+  p <- lb(degree = legendre_degree, jmax = dim(x)[2])
+  x <- x%*%p
+  bigx <- cbind(z, x)
+  
+  coef <- t(solve(t(bigx)%*%bigx)%*%t(bigx)%*%y)
+  other_x <- NULL
+  for (i in 1:k) 
+    other_x <- c(other_x, paste0("other-",i))
+  
+  poly_n <- NULL
+  for (i in 0:legendre_degree) 
+    poly_n <- c(poly_n, paste0("Poly-",i))
+  
+  int <- "(Intercept)"
+  rownames(coef) <- ""
+  colnames(coef) <- c(int,other_x,poly_n)
+  class(coef) <- "midas.legendre"
+  return(coef)
+}
+
+
+optim_logit_legendre <- function(y, z, x, legendre_degree = 3){
+  n <- length(y)
+  k <- dim(z)[2]
+  if (is.null(k)){
+    z <- matrix(z, nrow=length(z))
+    k <- 1
+  }
+  # append a vector of ones:
+  iota <- matrix(1, nrow = n, ncol = 1)
+  z <- cbind(iota, z)
+  p <- lb(degree = legendre_degree, jmax = dim(x)[2])
+  x <- x%*%p
+  bigx <- cbind(z, x)
+  
+  coef <- stats::glm(y~-1+bigx)$coef
+  coef <- matrix(coef, ncol = length(coef))
+  fn <- NULL
+  for (i in 1:k)
+    fn <- c(fn, paste0("factor-",i))
+  
+  poly_n <- NULL
+  for (i in 0:legendre_degree) 
+    poly_n <- c(poly_n, paste0("Poly-",i))
+  
+  int <- "(Intercept)"
+  rownames(coef) <- ""
+  colnames(coef) <- c(int,fn,poly_n)
+  class(coef) <- "logit.legendre"
+  return(coef)
+}
