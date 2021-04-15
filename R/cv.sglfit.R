@@ -4,14 +4,10 @@
 #' Does k-fold cross-validation for sg-LASSO regression model.
 #' 
 #' The function runs \code{sglfit} \code{nfolds+1} times; the first to get the path solution in \ifelse{html}{\out{&lambda;}}{\eqn{\lambda}} sequence, the rest to compute the fit with each of the folds omitted. 
-#' The average error and standard deviation over the folds is computed, and the optimal regression coefficients are returned for \code{lam.min} and \code{lam.1se}. Solutions are computed for a fixed \ifelse{html}{\out{&alpha;}}{\eqn{\alpha}.}
+#' The average error and standard deviation over the folds is computed, and the optimal regression coefficients are returned for \code{lam.min} and \code{lam.1se}. Solutions are computed for a fixed \ifelse{html}{\out{&gamma;}}{\eqn{\gamma}.}
 #'
 #' @details
-#' The cross-validation is run for sg-LASSO linear model. The sequence of linear regression models implied by \ifelse{html}{\out{&lambda;}}{\eqn{\lambda}} vector is fit by block coordinate-descent. The objective function is
-#' \ifelse{html}{\out{<br><br> <center> RSS(&alpha;,&beta;)/T + 2&lambda;  &Omega;<sub>&gamma;</sub>(&beta;), </center> <br>}}{\deqn{RSS(\alpha,\beta)/T + 2\lambda * \Omega_\gamma(\beta),}} 
-#'  where \ifelse{html}{\out{RSS(&alpha;,&beta;)}}{\eqn{RSS(\alpha,\beta)}} is the least squares fit. The penalty function \ifelse{html}{\out{&Omega;<sub>&gamma;</sub>(.)}}{\eqn{\Omega_\gamma(.)}} is applied on  \ifelse{html}{\out{&beta;}}{\eqn{\beta}} coefficients with the following structure 
-#'  \ifelse{html}{\out{<br> <br> <center> &Omega;<sub>&gamma;</sub>(&beta;) = &gamma; |&beta;|<sub>1</sub> + (1-&gamma;)||&beta;||<sub>2,1</sub>. </center> <br>}}{\deqn{\Omega_\gamma(\beta) = \gamma |\beta|_1 + (1-\gamma)||\beta||_{2,1}.}} 
-#'  The penalty is a convex combination of LASSO and group LASSO penalty functions. Tuning parameter \ifelse{html}{\out{&lambda;}}{\eqn{\lambda}} is chosen based on k-fold cross-validation and optimal solutions are returned for the minimum cvm (lam.min) or within 1 standard error of the minimum (lam.1se).
+#' \ifelse{html}{\out{The cross-validation is run for sg-LASSO linear model. The sequence of linear regression models implied by &lambda; vector is fit by block coordinate-descent. The objective function is  <br><br> <center> ||y - &iota;&alpha; - x&beta;||<sup>2</sup><sub>T</sub> + 2&lambda;  &Omega;<sub>&gamma;</sub>(&beta;), </center> <br> where &iota;&#8712;R<sup>T</sup>enter> and ||u||<sup>2</sup><sub>T</sub>=&#60;u,u&#62;/T is the empirical inner product. The penalty function &Omega;<sub>&gamma;</sub>(.) is applied on  &beta; coefficients and is <br> <br> <center> &Omega;<sub>&gamma;</sub>(&beta;) = &gamma; |&beta;|<sub>1</sub> + (1-&gamma;)|&beta;|<sub>2,1</sub>, </center> <br> a convex combination of LASSO and group LASSO penalty functions.}}{The cross-validation is run for sg-LASSO linear model. The sequence of linear regression models implied by \eqn{\lambda} vector is fit by block coordinate-descent. The objective function is \deqn{\|y-\iota\alpha - x\beta\|^2_{T} + 2\lambda \Omega_\gamma(\beta),} where \eqn{\iota\in R^T} and \eqn{\|u\|^2_T = \langle u,u \rangle / T} is the empirical inner product. The penalty function \eqn{\Omega_\gamma(.)} is applied on \eqn{\beta} coefficients and is \deqn{\Omega_\gamma(\beta) = \gamma |\beta|_1 + (1-\gamma)|\beta|_{2,1},} a convex combination of LASSO and group LASSO penalty functions.}     
 #' @usage 
 #' cv.sglfit(x, y, lambda = NULL, gamma = 1.0, gindex = 1:p, nfolds = 10, foldid, ...)
 #' @param x T by p data matrix, where t and p respectively denote the sample size and the number of regressors.
@@ -31,7 +27,8 @@
 #' beta = c(5,4,3,2,1,rep(0, times = 15))
 #' y = x%*%beta + rnorm(100)
 #' gindex = sort(rep(1:4,times=5))
-#' cv.sglfit(x = x, y = y, gindex = gindex, gamma = 0.5)
+#' cv.sglfit(x = x, y = y, gindex = gindex, gamma = 0.5, 
+#'   standardize = FALSE, intercept = FALSE)
 #' }
 #' @export cv.sglfit
 cv.sglfit <- function(x, y, lambda = NULL, gamma = 1.0, gindex = 1:p, nfolds = 10, foldid, ...) {
@@ -62,12 +59,12 @@ cv.sglfit <- function(x, y, lambda = NULL, gamma = 1.0, gindex = 1:p, nfolds = 1
   lamin <- getmin(lambda, cvm, cvsd)
   idxmin <- which(lamin$lambda.min == lambda)
   idx1se <- which(lamin$lambda.1se == lambda)
-  cv.sglfit <- list(lam.min = list(b0 = sglfit.object$b0[idxmin], beta = sglfit.object$beta[,idxmin]), 
+  cv.fit <- list(lam.min = list(b0 = sglfit.object$b0[idxmin], beta = sglfit.object$beta[,idxmin]), 
                     lam.1se = list(b0 = sglfit.object$b0[idx1se], beta = sglfit.object$beta[,idx1se]))
   
   obj <- list(lambda = lambda, cvm = cvm, cvsd = cvsd, cvupper = cvm + 
               cvsd, cvlower = cvm - cvsd, nzero = nz, name = cvname, lamin = lamin, 
-              sgl.fit = sglfit.object, cv.sglfit = cv.sglfit)
+              sgl.fit = sglfit.object, cv.fit = cv.fit)
   class(obj) <- "cv.sglfit"
   obj
 } 
@@ -101,7 +98,7 @@ cv.sglpath <- function(outlist, lambda, x, y, foldid, ...) {
     predmat[whichfold, seq(nlami)] <- preds
     nlams[i] <- nlami
   }
-  cvraw <- y-predmat
+  cvraw <- (y-predmat)^2
   N <- length(y) - apply(is.na(predmat), 2, sum)
   cvm <- apply(cvraw, 2, mean, na.rm = TRUE)
   cvsd <- sqrt(apply(scale(cvraw, cvm, FALSE)^2, 2, mean, na.rm = TRUE)/(N - 1))

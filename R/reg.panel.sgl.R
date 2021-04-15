@@ -5,9 +5,12 @@
 #' 
 #' The function fits sg-LASSO regression based on chosen tuning parameter selection method_choice. Options include cross-validation and information criteria. 
 #' @details
-#' \ifelse{html}{\out{The sequence of linear regression models implied by &lambda; vector is fit by block coordinate-descent. The objective function is either (case <code>method='pooled'</code>) <br><br> <center> ||y - &iota;&alpha; - x&beta;||<sup>2</sup><sub>T</sub> + 2&lambda;  &Omega;<sub>&gamma;</sub>(&beta;), </center> <br> where &iota;&#8712;R<sup>NT</sup> and &alpha; is common intercept to all N items or (case <code>method='fe'</code>) <br><br> <center> ||y - B&alpha; - x&beta;||<sup>2</sup><sub>T</sub> + 2&lambda;  &Omega;<sub>&gamma;</sub>(&beta;), </center> <br> where B = I<sub>N</sub>&#8855;&iota; and ||u||<sup>2</sup><sub>T</sub>=&#60;u,u&#62;/T is the empirical inner product. The penalty function &Omega;<sub>&gamma;</sub>(.) is applied on  &beta; coefficients and is <br> <br> <center> &Omega;<sub>&gamma;</sub>(&beta;) = &gamma; |&beta;|<sub>1</sub> + (1-&gamma;)|&beta;|<sub>2,1</sub>, </center> <br> a convex combination of LASSO and group LASSO penalty functions.}}{The sequence of linear regression models implied by \eqn{\lambda} vector is fit by block coordinate-descent. The objective function is  either (case \code{method='pooled'})  \deqn{\|y-\iota\alpha - x\beta\|^2_T + 2\lambda * \Omega_\gamma(\beta),} where \eqn{\iota\in R^{NT}} and \eqn{\alpha} is common intercept to all N items or (case \code{method='fe'}) \deqn{\|y-B\alpha - x\beta\|^2_T + 2\lambda * \Omega_\gamma(\beta),} where \eqn{B=I_N \times \iota} and \eqn{\|u\|^2_T = \langle u,u \rangle / T} is the empirical inner product. The penalty function \eqn{\Omega_\gamma(.)} is applied on \eqn{\beta} coefficients and is \deqn{\Omega_\gamma(\beta) = \gamma |\beta|_1 + (1-\gamma)|\beta|_{2,1},} a convex combination of LASSO and group LASSO penalty functions.}     
+#' \ifelse{html}{\out{The sequence of linear regression models implied by &lambda; vector is fit by block coordinate-descent. The objective function is either (case <code>method='pooled'</code>) <br><br> <center> ||y - &iota;&alpha; - x&beta;||<sup>2</sup><sub>NT</sub> + 2&lambda;  &Omega;<sub>&gamma;</sub>(&beta;), </center> <br> where &iota;&#8712;R<sup>NT</sup> and &alpha; is common intercept to all N items or (case <code>method='fe'</code>) <br><br> <center> ||y - B&alpha; - x&beta;||<sup>2</sup><sub>NT</sub> + 2&lambda;  &Omega;<sub>&gamma;</sub>(&beta;), </center> <br> where B = I<sub>N</sub>&#8855;&iota; and ||u||<sup>2</sup><sub>NT</sub>=&#60;u,u&#62;/NT is the empirical inner product. The penalty function &Omega;<sub>&gamma;</sub>(.) is applied on  &beta; coefficients and is <br> <br> <center> &Omega;<sub>&gamma;</sub>(&beta;) = &gamma; |&beta;|<sub>1</sub> + (1-&gamma;)|&beta;|<sub>2,1</sub>, </center> <br> a convex combination of LASSO and group LASSO penalty functions.}}{The sequence of linear regression models implied by \eqn{\lambda} vector is fit by block coordinate-descent. The objective function is  either (case \code{method='pooled'})  \deqn{\|y-\iota\alpha - x\beta\|^2_T + 2\lambda \Omega_\gamma(\beta),} where \eqn{\iota\in R^{NT}} and \eqn{\alpha} is common intercept to all N items or (case \code{method='fe'}) \deqn{\|y-B\alpha - x\beta\|^2_T + 2\lambda \Omega_\gamma(\beta),} where \eqn{B=I_N \times \iota} and \eqn{\|u\|^2_{NT} = \langle u,u \rangle / {NT}} is the empirical inner product. The penalty function \eqn{\Omega_\gamma(.)} is applied on \eqn{\beta} coefficients and is \deqn{\Omega_\gamma(\beta) = \gamma |\beta|_1 + (1-\gamma)|\beta|_{2,1},} a convex combination of LASSO and group LASSO penalty functions.}     
 #' @usage 
-#' reg.panel.sgl(x, y, gamma = NULL, gindex, intercept = TRUE, method_choice = c("ic","cv"), nfolds = 10, method = c("pooled", "fe"), nf = NULL, verbose = FALSE, ...)
+#' reg.panel.sgl(x, y, gamma = NULL, gindex, intercept = TRUE, 
+#'               method_choice = c("ic","cv"), nfolds = 10, 
+#'               method = c("pooled", "fe"), nf = NULL, 
+#'               verbose = FALSE, ...)
 #' @param x T by p data matrix, where t and p respectively denote the sample size and the number of regressors.
 #' @param y T by 1 response variable.
 #' @param gamma sg-LASSO mixing parameter. \eqn{\gamma} = 1 gives LASSO solution and \eqn{\gamma} = 0 gives group LASSO solution.
@@ -28,7 +31,10 @@
 #' beta = c(5,4,3,2,1,rep(0, times = 15))
 #' y = x%*%beta + rnorm(100)
 #' gindex = sort(rep(1:4,times=5))
-#' reg.panel.sgl(x = x, y = y, gindex = gindex, gamma = 0.5, method = "fe", nf = 10)
+#' reg.panel.sgl(x = x, y = y, 
+#'   gindex = gindex, gamma = 0.5, 
+#'   method = "fe", nf = 10, 
+#'   standardize = FALSE, intercept = FALSE)
 #' }
 #' @export reg.panel.sgl
 reg.panel.sgl <- function(x, y, gamma = NULL, gindex, intercept = TRUE, method_choice = c("ic","cv"), nfolds = 10, method = c("pooled", "fe"), nf = NULL, verbose = FALSE, ...){

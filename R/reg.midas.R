@@ -7,7 +7,9 @@
 #' @details
 #' \ifelse{html}{\out{Several polynomial functional forms are available (<code>poly_choice</code>): <br><br> - <code>beta</code>: Beta polynomial</center> <br> - <code>expalmon</code>: exponential Almon polynomial <br> - <code>legendre</code>: Legendre polynomials. <br> <br> The ARDL-MIDAS model is: <br> <center> y<sub>t</sub> =  &mu; + &Sigma;<sub>p</sub> &rho;<sub>p</sub> y<sub>t-p</sub> + &beta;  &Sigma;<sub>j</sub> &omega;<sub>j</sub>(&theta;)x<sub>t-1</sub> </center> <br> where &mu;, &beta;, &theta; and  &rho;<sub>p</sub> are model parameters, p is the number of low-frequency lags and &omega; is the weight function.}}{Several polynomial functional forms are available (\code{poly_choice}): \cr  - \code{beta}: Beta polynomial  \cr - \code{expalmon}: Exp Almon polynomial \cr - \code{legendre}: Legendre polynomials. \cr\cr The ARDL-MIDAS model is: \cr \deqn{y_t =  \mu + \sum_p \rho_p y_{t-p} + \beta \sum_j \omega_j(\theta)x_{t-1}} \cr where \eqn{\mu}, \eqn{\beta}, \eqn{\theta}, \eqn{\rho_p}  are model parameters, p is number of low-frequency and \eqn{\omega} is the weight function.}     
 #' @usage 
-#' midas.ardl(y, x, z = NULL, loss_choice = c("mse","logit"), poly_choice = c("legendre","expalmon","beta"), poly_spec = 0, legendre_degree = 3, nbtrials = 500)
+#' midas.ardl(y, x, z = NULL, loss_choice = c("mse","logit"), 
+#'            poly_choice = c("legendre","expalmon","beta"), 
+#'            poly_spec = 0, legendre_degree = 3, nbtrials = 500)
 #' @param y response variable. Continuous for \code{loss_choice = "mse"}, binary for \code{loss_choice = "logit"}.
 #' @param x high-frequency covariate lags. 
 #' @param z other lower-frequency covariate(s) or AR lags (both can be supplied in an appended matrix). Either must be supplied. 

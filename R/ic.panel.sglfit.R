@@ -6,9 +6,10 @@
 #' The function runs \ifelse{html}{\out{<code>sglfit</code>}}{\code{sglfit}} 1 time; computes the path solution in \ifelse{html}{\out{<code>lambda</code>}}{\eqn{lambda}} sequence.
 #' Solutions for \code{BIC}, \code{AIC} and \code{AICc} information criteria are returned. 
 #' @details
-#' \ifelse{html}{\out{The sequence of linear regression models implied by <code>lambdas</code> vector is fit by block coordinate-descent. The objective function is <br><br> <center> RSS(&alpha;,&beta;)/T + 2&lambda;  &Omega;<sub>&gamma;</sub>(&beta;), </center> <br> where RSS(&alpha;,&beta;) is the least squares fit. The penalty function &Omega;<sub>&gamma;</sub>(.) is applied on  &beta; coefficients and is <br> <br> <center> &Omega;<sub>&gamma;</sub>(&beta;) = &gamma; |&beta;|<sub>1</sub> + (1-&gamma;)||&beta;||<sub>2,1</sub>, </center> <br> a convex combination of LASSO and group LASSO penalty functions. Tuning parameter &lambda; is chosen based on three information criteria (BIC, AIC, AICc) and optimal solutions are returned. }}{The sequence of linear regression models implied by \eqn{\lambda} vector is fit by block coordinate-descent. The objective function is \deqn{RSS(\alpha,\beta)/T + 2\lambda * \Omega_\gamma(\beta),} where \eqn{RSS(\alpha,\beta)} is the least squares fit. The penalty function \eqn{\Omega_\gamma(.)} is applied on \eqn{\beta} coefficients and is \deqn{\Omega_\gamma(\beta) = \gamma |\beta|_1 + (1-\gamma)||\beta||_{2,1},} a convex combination of LASSO and group LASSO penalty functions. Tuning parameter \eqn{\lambda} is chosen based on three information criteria (BIC, AIC, AICc) and optimal solutions are returned.}     
+#' \ifelse{html}{\out{The sequence of linear regression models implied by &lambda; vector is fit by block coordinate-descent. The objective function is (case <code>method='pooled'</code>) <br><br> <center> ||y - &iota;&alpha; - x&beta;||<sup>2</sup><sub>NT</sub> + 2&lambda;  &Omega;<sub>&gamma;</sub>(&beta;), </center> <br> where &iota;&#8712;R<sup>NT</sup> and &alpha; is common intercept to all N items or (case <code>method='fe'</code>) <br><br> <center> ||y - B&alpha; - x&beta;||<sup>2</sup><sub>NT</sub> + 2&lambda;  &Omega;<sub>&gamma;</sub>(&beta;), </center> <br> where B = I<sub>N</sub>&#8855;&iota; and ||u||<sup>2</sup><sub>NT</sub>=&#60;u,u&#62;/NT is the empirical inner product. The penalty function &Omega;<sub>&gamma;</sub>(.) is applied on  &beta; coefficients and is <br> <br> <center> &Omega;<sub>&gamma;</sub>(&beta;) = &gamma; |&beta;|<sub>1</sub> + (1-&gamma;)|&beta;|<sub>2,1</sub>, </center> <br> a convex combination of LASSO and group LASSO penalty functions.}}{The sequence of linear regression models implied by \eqn{\lambda} vector is fit by block coordinate-descent. The objective function is  either (case \code{method='pooled'})  \deqn{\|y-\iota\alpha - x\beta\|^2_{NT} + 2\lambda \Omega_\gamma(\beta),} where \eqn{\iota\in R^{NT}} and \eqn{\alpha} is common intercept to all N items or (case \code{method='fe'}) \deqn{\|y-B\alpha - x\beta\|^2_{NT} + 2\lambda \Omega_\gamma(\beta),} where \eqn{B=I_N \times \iota} and \eqn{\|u\|^2_{NT} = \langle u,u \rangle / NT} is the empirical inner product. The penalty function \eqn{\Omega_\gamma(.)} is applied on \eqn{\beta} coefficients and is \deqn{\Omega_\gamma(\beta) = \gamma |\beta|_1 + (1-\gamma)|\beta|_{2,1},} a convex combination of LASSO and group LASSO penalty functions.}     
 #' @usage 
-#' ic.panel.sglfit(x, y, lambda = NULL, gamma = 1.0, gindex = 1:p, method = c("pooled","fe"), nf = NULL, ...)
+#' ic.panel.sglfit(x, y, lambda = NULL, gamma = 1.0, gindex = 1:p, 
+#'                 method = c("pooled","fe"), nf = NULL, ...)
 #' @param x T by p data matrix, where t and p respectively denote the sample size and the number of regressors.
 #' @param y T by 1 response variable.
 #' @param lambda a user-supplied lambda sequence. By leaving this option unspecified (recommended), users can have the program compute its own \eqn{\lambda} sequence based on \code{nlambda} and \code{lambda.factor.} It is better to supply, if necessary, a decreasing sequence of lambda values than a single (small) value, as warm-starts are used in the optimization algorithm. The program will ensure that the user-supplied \eqn{\lambda} sequence is sorted in decreasing order before fitting the model.
@@ -26,7 +27,8 @@
 #' beta = c(5,4,3,2,1,rep(0, times = 15))
 #' y = x%*%beta + rnorm(100)
 #' gindex = sort(rep(1:4,times=5))
-#' ic.panel.sglfit(x = x, y = y, gindex = gindex, gamma = 0.5)
+#' ic.panel.sglfit(x = x, y = y, gindex = gindex, gamma = 0.5, 
+#'   standardize = FALSE, intercept = FALSE)
 #' }
 #' @export ic.panel.sglfit
 ic.panel.sglfit <- function(x, y, lambda = NULL, gamma = 1.0, gindex = 1:p, method = c("pooled","fe"), nf = NULL, ...){
@@ -66,18 +68,18 @@ ic.panel.sglfit <- function(x, y, lambda = NULL, gamma = 1.0, gindex = 1:p, meth
     idx[i] <- which(lamin==lambda)
   }
   if (method == "pooled"){
-    ic.panel.sglfit <- list(bic.fit = list(b0 = sglfit.object$b0[idx[1]], beta = sglfit.object$beta[,idx[1]]),
+    ic.panel.fit <- list(bic.fit = list(b0 = sglfit.object$b0[idx[1]], beta = sglfit.object$beta[,idx[1]]),
                       aic.fit = list(b0 = sglfit.object$b0[idx[2]], beta = sglfit.object$beta[,idx[2]]),
                       aicc.fit = list(b0 = sglfit.object$b0[idx[3]], beta = sglfit.object$beta[,idx[3]]))
   }
   if (method == "fe"){
-    ic.panel.sglfit <- list(bic.fit = list(a0 = sglfit.object$a0[,idx[1]], beta = sglfit.object$beta[,idx[1]]),
+    ic.panel.fit <- list(bic.fit = list(a0 = sglfit.object$a0[,idx[1]], beta = sglfit.object$beta[,idx[1]]),
                       aic.fit = list(a0 = sglfit.object$a0[,idx[2]], beta = sglfit.object$beta[,idx[2]]),
                       aicc.fit = list(a0 = sglfit.object$a0[,idx[3]], beta = sglfit.object$beta[,idx[3]]))
   }
   
   obj <- list(lambda = lambda, cvm = cvm, lamin = lamin, 
-              sgl.fit = sglfit.object, ic.panel.sglfit = ic.panel.sglfit)
+              fit = sglfit.object, ic.panel.fit = ic.panel.fit)
   class(obj) <- "ic.panel.sglfit"
   obj
 }

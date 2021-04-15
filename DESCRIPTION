@@ -1,7 +1,7 @@
 Package: midasml
 Type: Package
 Title: Estimation and Prediction Methods for High-Dimensional Mixed Frequency Time Series Data
-Version: 0.1.0
+Version: 0.1.1
 Authors@R: c(
     person("Jonas", "Striaukas",  role = c("cre","aut"), email =  "jonas.striaukas@gmail.com"),
     person("Andrii", "Babii",  role = c("aut"), 
@@ -17,3 +17,4 @@ License: GPL (>= 2)
 Depends: Matrix, R (>= 2.10)
 Imports: graphics, stats, mcGlobaloptim, methods, lubridate	
 Encoding: UTF-8
+RoxygenNote: 7.1.0

@@ -4,7 +4,8 @@
 \alias{cv.panel.sglfit}
 \title{Cross-validation fit for panel sg-LASSO}
 \usage{
-cv.panel.sglfit(x, y, lambda = NULL, gamma = 1.0, gindex = 1:p, nfolds = 10, foldid, method = c("pooled", "fe"), nf = NULL, ...)
+cv.panel.sglfit(x, y, lambda = NULL, gamma = 1.0, gindex = 1:p, 
+                nfolds = 10, foldid, method = c("pooled", "fe"), nf = NULL, ...)
 }
 \arguments{
 \item{x}{T by p data matrix, where t and p respectively denote the sample size and the number of regressors.}
@@ -34,14 +35,10 @@ cv.panel.sglfit object.
 Does k-fold cross-validation for panel data sg-LASSO regression model.
 
 The function runs \code{sglfit} \code{nfolds+1} times; the first to get the path solution in \ifelse{html}{\out{&lambda;}}{\eqn{\lambda}} sequence, the rest to compute the fit with each of the folds omitted. 
-The average error and standard deviation over the folds is computed, and the optimal regression coefficients are returned for \code{lam.min} and \code{lam.1se}. Solutions are computed for a fixed \ifelse{html}{\out{&alpha;}}{\eqn{\alpha}.}
+The average error and standard deviation over the folds is computed, and the optimal regression coefficients are returned for \code{lam.min} and \code{lam.1se}. Solutions are computed for a fixed \ifelse{html}{\out{&gamma;}}{\eqn{\gamma}.}
 }
 \details{
-The cross-validation is run for sg-LASSO linear model. The sequence of linear regression models implied by \ifelse{html}{\out{&lambda;}}{\eqn{\lambda}} vector is fit by block coordinate-descent. The objective function is
-\ifelse{html}{\out{<br><br> <center> RSS(&alpha;,&beta;)/T + 2&lambda;  &Omega;<sub>&gamma;</sub>(&beta;), </center> <br>}}{\deqn{RSS(\alpha,\beta)/T + 2\lambda * \Omega_\gamma(\beta),}} 
- where \ifelse{html}{\out{RSS(&alpha;,&beta;)}}{\eqn{RSS(\alpha,\beta)}} is the least squares fit. The penalty function \ifelse{html}{\out{&Omega;<sub>&gamma;</sub>(.)}}{\eqn{\Omega_\gamma(.)}} is applied on  \ifelse{html}{\out{&beta;}}{\eqn{\beta}} coefficients with the following structure 
- \ifelse{html}{\out{<br> <br> <center> &Omega;<sub>&gamma;</sub>(&beta;) = &gamma; |&beta;|<sub>1</sub> + (1-&gamma;)||&beta;||<sub>2,1</sub>. </center> <br>}}{\deqn{\Omega_\gamma(\beta) = \gamma |\beta|_1 + (1-\gamma)||\beta||_{2,1}.}} 
- The penalty is a convex combination of LASSO and group LASSO penalty functions. Tuning parameter \ifelse{html}{\out{&lambda;}}{\eqn{\lambda}} is chosen based on k-fold cross-validation and optimal solutions are returned for the minimum cvm (lam.min) or within 1 standard error of the minimum (lam.1se).
+\ifelse{html}{\out{The cross-validation is run for sg-LASSO linear model. The sequence of linear regression models implied by &lambda; vector is fit by block coordinate-descent. The objective function is (case <code>method='pooled'</code>) <br><br> <center> ||y - &iota;&alpha; - x&beta;||<sup>2</sup><sub>NT</sub> + 2&lambda;  &Omega;<sub>&gamma;</sub>(&beta;), </center> <br> where &iota;&#8712;R<sup>NT</sup> and &alpha; is common intercept to all N items or (case <code>method='fe'</code>) <br><br> <center> ||y - B&alpha; - x&beta;||<sup>2</sup><sub>NT</sub> + 2&lambda;  &Omega;<sub>&gamma;</sub>(&beta;), </center> <br> where B = I<sub>N</sub>&#8855;&iota; and ||u||<sup>2</sup><sub>NT</sub>=&#60;u,u&#62;/NT is the empirical inner product. The penalty function &Omega;<sub>&gamma;</sub>(.) is applied on  &beta; coefficients and is <br> <br> <center> &Omega;<sub>&gamma;</sub>(&beta;) = &gamma; |&beta;|<sub>1</sub> + (1-&gamma;)|&beta;|<sub>2,1</sub>, </center> <br> a convex combination of LASSO and group LASSO penalty functions.}}{The cross-validation is run for sg-LASSO linear model. The sequence of linear regression models implied by \eqn{\lambda} vector is fit by block coordinate-descent. The objective function is  either (case \code{method='pooled'})  \deqn{\|y-\iota\alpha - x\beta\|^2_{NT} + 2\lambda \Omega_\gamma(\beta),} where \eqn{\iota\in R^{NT}} and \eqn{\alpha} is common intercept to all N items or (case \code{method='fe'}) \deqn{\|y-B\alpha - x\beta\|^2_{NT} + 2\lambda \Omega_\gamma(\beta),} where \eqn{B=I_N \times \iota} and \eqn{\|u\|^2_{NT} = \langle u,u \rangle / NT} is the empirical inner product. The penalty function \eqn{\Omega_\gamma(.)} is applied on \eqn{\beta} coefficients and is \deqn{\Omega_\gamma(\beta) = \gamma |\beta|_1 + (1-\gamma)|\beta|_{2,1},} a convex combination of LASSO and group LASSO penalty functions.}
 }
 \examples{
 \donttest{ 
@@ -50,7 +47,8 @@ x = matrix(rnorm(100 * 20), 100, 20)
 beta = c(5,4,3,2,1,rep(0, times = 15))
 y = x\%*\%beta + rnorm(100)
 gindex = sort(rep(1:4,times=5))
-cv.panel.sglfit(x = x, y = y, gindex = gindex, gamma = 0.5, method = "fe", nf = 10)
+cv.panel.sglfit(x = x, y = y, gindex = gindex, gamma = 0.5, method = "fe", nf = 10, 
+  standardize = FALSE, intercept = FALSE)
 }
 }
 \author{

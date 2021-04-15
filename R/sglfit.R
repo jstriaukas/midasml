@@ -4,13 +4,13 @@
 #' Fits sg-LASSO regression model.
 #' The function fits sg-LASSO regression model for a sequence of \eqn{\lambda} tuning parameter and fixed \eqn{\gamma} tuning parameter. The optimization is based on block coordinate-descent. Optionally, fixed effects are fitted. 
 #' @details
-#' \ifelse{html}{\out{The sequence of linear regression models implied by &lambda; vector is fit by block coordinate-descent. The objective function is <br><br> <center> ||y - &iota;&alpha; - x&beta;||<sup>2</sup><sub>T</sub> + 2&lambda;  &Omega;<sub>&gamma;</sub>(&beta;), </center> <br> where ||u||<sup>2</sup><sub>T</sub>=&#60;u,u&#62;/T is the empirical inner product. The penalty function &Omega;<sub>&gamma;</sub>(.) is applied on  &beta; coefficients and is <br> <br> <center> &Omega;<sub>&gamma;</sub>(&beta;) = &gamma; |&beta;|<sub>1</sub> + (1-&gamma;)|&beta;|<sub>2,1</sub>, </center> <br> a convex combination of LASSO and group LASSO penalty functions.}}{The sequence of linear regression models implied by \eqn{\lambda} vector is fit by block coordinate-descent. The objective function is \deqn{\|y-\iota\alpha - x\beta\|^2_T + 2\lambda * \Omega_\gamma(\beta),} where \eqn{\|u\|^2_T = \langle u,u \rangle / T} is the empirical inner product. The penalty function \eqn{\Omega_\gamma(.)} is applied on \eqn{\beta} coefficients and is \deqn{\Omega_\gamma(\beta) = \gamma |\beta|_1 + (1-\gamma)|\beta|_{2,1},} a convex combination of LASSO and group LASSO penalty functions.}     
+#' \ifelse{html}{\out{The sequence of linear regression models implied by &lambda; vector is fit by block coordinate-descent. The objective function is  <br><br> <center> ||y - &iota;&alpha; - x&beta;||<sup>2</sup><sub>T</sub> + 2&lambda;  &Omega;<sub>&gamma;</sub>(&beta;), </center> <br> where &iota;&#8712;R<sup>T</sup>enter> and ||u||<sup>2</sup><sub>T</sub>=&#60;u,u&#62;/T is the empirical inner product. The penalty function &Omega;<sub>&gamma;</sub>(.) is applied on  &beta; coefficients and is <br> <br> <center> &Omega;<sub>&gamma;</sub>(&beta;) = &gamma; |&beta;|<sub>1</sub> + (1-&gamma;)|&beta;|<sub>2,1</sub>, </center> <br> a convex combination of LASSO and group LASSO penalty functions.}}{The sequence of linear regression models implied by \eqn{\lambda} vector is fit by block coordinate-descent. The objective function is \deqn{\|y-\iota\alpha - x\beta\|^2_{T} + 2\lambda \Omega_\gamma(\beta),} where \eqn{\iota\in R^T} and \eqn{\|u\|^2_T = \langle u,u \rangle / T} is the empirical inner product. The penalty function \eqn{\Omega_\gamma(.)} is applied on \eqn{\beta} coefficients and is \deqn{\Omega_\gamma(\beta) = \gamma |\beta|_1 + (1-\gamma)|\beta|_{2,1},} a convex combination of LASSO and group LASSO penalty functions.}     
 #' @usage 
 #' sglfit(x, y, gamma = 1.0, nlambda = 100L, method = c("single", "pooled", "fe"), 
 #'        nf = NULL, lambda.factor = ifelse(nobs < nvars, 1e-02, 1e-04), 
 #'        lambda = NULL, pf = rep(1, nvars), gindex = 1:nvars, 
-#'        dfmax = nvars + 1, pmax = min(dfmax * 1.2, nvars), standardize = TRUE, 
-#'        intercept = TRUE, eps = 1e-08, maxit = 1000000L, peps = 1e-08)
+#'        dfmax = nvars + 1, pmax = min(dfmax * 1.2, nvars), standardize = FALSE, 
+#'        intercept = FALSE, eps = 1e-08, maxit = 1000000L, peps = 1e-08)
 #' @param x T by p data matrix, where t and p respectively denote the sample size and the number of regressors.
 #' @param y T by 1 response variable.
 #' @param gamma sg-LASSO mixing parameter. \eqn{\gamma} = 1 gives LASSO solution and \eqn{\gamma} = 0 gives group LASSO solution.
@@ -23,8 +23,8 @@
 #' @param gindex p by 1 vector indicating group membership of each covariate.
 #' @param dfmax the maximum number of variables allowed in the model. Useful for very large \code{p} when a partial path is desired. Default is \code{p+1}. In case \code{method='fe'}, \code{dfmax} is ignored.
 #' @param pmax the maximum number of coefficients allowed ever to be nonzero. For example, once \ifelse{html}{\out{&beta;<sub>i</sub> &#8800; 0}}{\eqn{\beta_i \neq 0}}  for some \ifelse{html}{\out{i &#8712; [p]}}{\eqn{i\in[p]}}, no matter how many times it exits or re-enters the model through the path, it will be counted only once. Default is \code{min(dfmax*1.2, p)}.
-#' @param standardize logical flag for variable standardization, prior to fitting the model sequence. The coefficients are always returned to the original scale. It is recommended to keep \code{standardize=TRUE}. Default is \code{TRUE}.
-#' @param intercept whether intercept be fitted (\code{TRUE}) or set to zero (\code{FALSE}). Default is \code{TRUE}. In case \code{method='pooled'}, \code{intercept=TRUE} is forced. In case \code{method='fe'}, \code{intercept=FALSE} is forced and \code{entity} specific intercepts are fitted in a separate output variable \code{a0}.
+#' @param standardize logical flag for variable standardization, prior to fitting the model sequence. The coefficients are always returned to the original scale. It is recommended to keep \code{standardize=TRUE}. Default is \code{FALSE}.
+#' @param intercept whether intercept be fitted (\code{TRUE}) or set to zero (\code{FALSE}). Default is \code{FALSE}. In case \code{method='pooled'}, \code{intercept=TRUE} is forced. In case \code{method='fe'}, \code{intercept=FALSE} is forced and \code{entity} specific intercepts are fitted in a separate output variable \code{a0}.
 #' @param eps convergence threshold for block coordinate descent. Each inner block coordinate-descent loop continues until the maximum change in the objective after any coefficient update is less than thresh times the null deviance. Defaults value is \code{1e-8}.
 #' @param maxit maximum number of outer-loop iterations allowed at fixed lambda values. Default is \code{1e6}. If the algorithm does not converge, consider increasing \code{maxit}.
 #' @param peps convergence threshold for proximal map of sg-LASSO penalty. Each loop continues until G group difference sup-norm, \ifelse{html}{\out{|| &beta;<sup>k</sup><sub>G</sub> - &beta;<sup>k-1</sup><sub>G</sub> ||<sub>&#8734;</sub>}}{\eqn{\|\beta^{k}_{G} - \beta^{k-1}_{G} \|_\infty}}, is less than \code{peps}. Defaults value is \code{1e-8}.
@@ -44,8 +44,8 @@ sglfit <- function(x, y, gamma = 1.0, nlambda = 100L, method = c("single", "pool
                   lambda.factor = ifelse(nobs < nvars, 1e-02, 1e-04), 
                   lambda = NULL, pf = rep(1, nvars),
                   gindex = 1:nvars, dfmax = nvars + 1, 
-                  pmax = min(dfmax * 1.2, nvars), standardize = TRUE, 
-                  intercept = TRUE, eps = 1e-08, maxit = 1000000L, peps = 1e-08) {
+                  pmax = min(dfmax * 1.2, nvars), standardize = FALSE, 
+                  intercept = FALSE, eps = 1e-08, maxit = 1000000L, peps = 1e-08) {
     #################################################################################
     ## data setup
     method <- match.arg(method)

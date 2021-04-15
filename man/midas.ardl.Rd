@@ -4,7 +4,9 @@
 \alias{midas.ardl}
 \title{MIDAS regression}
 \usage{
-midas.ardl(y, x, z = NULL, loss_choice = c("mse","logit"), poly_choice = c("legendre","expalmon","beta"), poly_spec = 0, legendre_degree = 3, nbtrials = 500)
+midas.ardl(y, x, z = NULL, loss_choice = c("mse","logit"), 
+           poly_choice = c("legendre","expalmon","beta"), 
+           poly_spec = 0, legendre_degree = 3, nbtrials = 500)
 }
 \arguments{
 \item{y}{response variable. Continuous for \code{loss_choice = "mse"}, binary for \code{loss_choice = "logit"}.}

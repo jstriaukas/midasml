@@ -53,7 +53,8 @@ SUBROUTINE maxlambda(nvars, nobs, x, y, gamma, gindex, ngroups, pf, maxlam)
                 wmaxg(k) = 0.0D0
             ELSE
                 IF (gamma .EQ. 0.0D0) THEN
-                    rb = NORM2(xy(gstart:gend))
+                    !rb = NORM2(xy(gstart:gend))
+                    rb = SQRT(DOT_PRODUCT(xy(gstart:gend), xy(gstart:gend)))
                     wmaxg(k) = rb/gw
                 ELSE
                     lb = 0.0D0
