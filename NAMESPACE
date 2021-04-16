@@ -1,6 +1,8 @@
 useDynLib("midasml", .registration = TRUE)
 
 import("Matrix")
+importFrom("foreach","foreach")
+importFrom("foreach","%dopar%")
 importFrom("graphics", "segments")
 importFrom("stats", "approx", "coef", "glm", "nlm")
 importFrom("utils", "capture.output")
@@ -27,4 +29,7 @@ export(dateMatch)
 
 S3method("predict","sglpath")
 S3method("predict","cv.sglfit")
+S3method("predict","cv.panel.sglfit")
 S3method("predict","ic.sglfit")
+S3method("predict","ic.panel.sglfit")
+

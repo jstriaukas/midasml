@@ -9,7 +9,8 @@
 #' @details
 #' \ifelse{html}{\out{The cross-validation is run for sg-LASSO linear model. The sequence of linear regression models implied by &lambda; vector is fit by block coordinate-descent. The objective function is  <br><br> <center> ||y - &iota;&alpha; - x&beta;||<sup>2</sup><sub>T</sub> + 2&lambda;  &Omega;<sub>&gamma;</sub>(&beta;), </center> <br> where &iota;&#8712;R<sup>T</sup>enter> and ||u||<sup>2</sup><sub>T</sub>=&#60;u,u&#62;/T is the empirical inner product. The penalty function &Omega;<sub>&gamma;</sub>(.) is applied on  &beta; coefficients and is <br> <br> <center> &Omega;<sub>&gamma;</sub>(&beta;) = &gamma; |&beta;|<sub>1</sub> + (1-&gamma;)|&beta;|<sub>2,1</sub>, </center> <br> a convex combination of LASSO and group LASSO penalty functions.}}{The cross-validation is run for sg-LASSO linear model. The sequence of linear regression models implied by \eqn{\lambda} vector is fit by block coordinate-descent. The objective function is \deqn{\|y-\iota\alpha - x\beta\|^2_{T} + 2\lambda \Omega_\gamma(\beta),} where \eqn{\iota\in R^T} and \eqn{\|u\|^2_T = \langle u,u \rangle / T} is the empirical inner product. The penalty function \eqn{\Omega_\gamma(.)} is applied on \eqn{\beta} coefficients and is \deqn{\Omega_\gamma(\beta) = \gamma |\beta|_1 + (1-\gamma)|\beta|_{2,1},} a convex combination of LASSO and group LASSO penalty functions.}     
 #' @usage 
-#' cv.sglfit(x, y, lambda = NULL, gamma = 1.0, gindex = 1:p, nfolds = 10, foldid, ...)
+#' cv.sglfit(x, y, lambda = NULL, gamma = 1.0, gindex = 1:p, 
+#'   nfolds = 10, foldid, parallel = FALSE, ...)
 #' @param x T by p data matrix, where t and p respectively denote the sample size and the number of regressors.
 #' @param y T by 1 response variable.
 #' @param lambda a user-supplied lambda sequence. By leaving this option unspecified (recommended), users can have the program compute its own \ifelse{html}{\out{&lambda;}}{\eqn{\lambda}} sequence based on \ifelse{html}{\out{<code>nlambda</code>}}{\code{nlambda}} and \ifelse{html}{\out{&gamma;}}{\eqn{\gamma}} \code{lambda.factor.} It is better to supply, if necessary, a decreasing sequence of lambda values than a single (small) value, as warm-starts are used in the optimization algorithm. The program will ensure that the user-supplied \code{lambda} sequence is sorted in decreasing order before fitting the model.
@@ -17,6 +18,7 @@
 #' @param gindex p by 1 vector indicating group membership of each covariate.
 #' @param nfolds number of folds of the cv loop. Default set to \code{10}.
 #' @param foldid the fold assignments used.
+#' @param parallel if \code{TRUE}, use parallel foreach to fit each fold. Must register parallel before hand, such as doMC or others. See the example below.
 #' @param ... Other arguments that can be passed to \code{sglfit}.
 #' @return cv.sglfit object.
 #' @author Jonas Striaukas
@@ -29,9 +31,22 @@
 #' gindex = sort(rep(1:4,times=5))
 #' cv.sglfit(x = x, y = y, gindex = gindex, gamma = 0.5, 
 #'   standardize = FALSE, intercept = FALSE)
+#' \dontrun{ 
+#' # Parallel
+#' require(doMC)
+#' registerDoMC(cores = 2)
+#' x = matrix(rnorm(1000 * 20), 1000, 20)
+#' beta = c(5,4,3,2,1,rep(0, times = 15))
+#' y = x%*%beta + rnorm(1000)
+#' gindex = sort(rep(1:4,times=5))
+#' system.time(cv.sglfit(x = x, y = y, gindex = gindex, gamma = 0.5, 
+#'   standardize = FALSE, intercept = FALSE))
+#' system.time(cv.sglfit(x = x, y = y, gindex = gindex, gamma = 0.5, 
+#'   standardize = FALSE, intercept = FALSE))
+#' }
 #' }
 #' @export cv.sglfit
-cv.sglfit <- function(x, y, lambda = NULL, gamma = 1.0, gindex = 1:p, nfolds = 10, foldid, ...) {
+cv.sglfit <- function(x, y, lambda = NULL, gamma = 1.0, gindex = 1:p, nfolds = 10, foldid, parallel = FALSE, ...) {
   N <- nrow(x)
   p <- ncol(x)
   y <- drop(y)
@@ -46,11 +61,20 @@ cv.sglfit <- function(x, y, lambda = NULL, gamma = 1.0, gindex = 1:p, nfolds = 1
     stop("nfolds must be at least 3; nfolds=10 recommended")
   
   outlist <- vector("list", length = nfolds)
-  for (i in seq(nfolds)) {
-    whichfoldnot <- which(!foldid == i)
-    y_sub <- y[whichfoldnot]
-    outlist[[i]] <- sglfit(x = x[whichfoldnot, , drop = FALSE], 
-                          y = y_sub, lambda = lambda, gamma = gamma, gindex = gindex, method = "single", ...)
+  if (parallel){
+    outlist <- foreach(i = seq(nfolds), .packages = c("glmnet")) %dopar%{
+      whichfoldnot <- which(!foldid == i)
+      y_sub <- y[whichfoldnot]
+      sglfit(x = x[whichfoldnot, , drop = FALSE], y = y_sub, 
+             lambda = lambda, gamma = gamma, gindex = gindex, method = "single", ...)
+    }
+  } else {
+    for (i in seq(nfolds)) {
+      whichfoldnot <- which(!foldid == i)
+      y_sub <- y[whichfoldnot]
+      outlist[[i]] <- sglfit(x = x[whichfoldnot, , drop = FALSE], 
+                            y = y_sub, lambda = lambda, gamma = gamma, gindex = gindex, method = "single", ...)
+    }
   }
   cvstuff <- cv.sglpath(outlist, lambda = lambda, x = x, y = y, foldid = foldid, ...)
   cvm <- cvstuff$cvm
