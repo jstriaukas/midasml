@@ -75,8 +75,8 @@ cv.panel.sglfit <- function(x, y, lambda = NULL, gamma = 1.0, gindex = 1:p, nfol
   lamin <- getmin(lambda, cvm, cvsd)
   idxmin <- which(lamin$lambda.min == lambda)
   idx1se <- which(lamin$lambda.1se == lambda)
-  cv.panel.fit <- list(lam.min = list(b0 = sglfit.object$b0[idxmin], beta = sglfit.object$beta[,idxmin]), 
-                    lam.1se = list(b0 = sglfit.object$b0[idx1se], beta = sglfit.object$beta[,idx1se]))
+  cv.panel.fit <- list(lam.min = list(b0 = sglfit.object$b0[idxmin], a0 = sglfit.object$a0[,idxmin], beta = sglfit.object$beta[,idxmin]), 
+                    lam.1se = list(b0 = sglfit.object$b0[idx1se], a0 = sglfit.object$a0[,idx1se], beta = sglfit.object$beta[,idx1se]))
   
   obj <- list(lambda = lambda, cvm = cvm, cvsd = cvsd, cvupper = cvm + 
               cvsd, cvlower = cvm - cvsd, nzero = nz, name = cvname, lamin = lamin, 
@@ -115,7 +115,7 @@ cv.panel.sglpath <- function(outlist, lambda, x, y, foldid, method, ...) {
     predmat[whichfold, seq(nlami)] <- preds
     nlams[i] <- nlami
   }
-  cvraw <- y-predmat
+  cvraw <- (y-predmat)^2
   N <- length(y) - apply(is.na(predmat), 2, sum)
   cvm <- apply(cvraw, 2, mean, na.rm = TRUE)
   cvsd <- sqrt(apply(scale(cvraw, cvm, FALSE)^2, 2, mean, na.rm = TRUE)/(N - 1))

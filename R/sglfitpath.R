@@ -29,10 +29,14 @@ sglfitpath <- function(x, y, nlam, flmin, ulam, isd, intr, nf, eps, peps, dfmax,
                         beta = double(pmax * nlam), ibeta = integer(pmax), nbeta = integer(nlam), 
                         alam = double(nlam), npass = integer(1), jerr = integer(1), 
                         PACKAGE = "midasml")
-        fit$nf <- nf
+        
     }
     #################################################################################
     # output
+    if (nf == 0){
+        nf <- intr
+    }
+    fit$nf <- nf
     outlist <- getoutput(fit, maxit, pmax, nvars, vnames)
     outlist <- c(outlist, list(npasses = fit$npass, jerr = fit$jerr))
     outlist$dimx <- c(nobs, nvars)
