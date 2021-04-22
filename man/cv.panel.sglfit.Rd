@@ -4,8 +4,8 @@
 \alias{cv.panel.sglfit}
 \title{Cross-validation fit for panel sg-LASSO}
 \usage{
-cv.panel.sglfit(x, y, lambda = NULL, gamma = 1.0, gindex = 1:p, 
-                nfolds = 10, foldid, method = c("pooled", "fe"), nf = NULL, ...)
+cv.panel.sglfit(x, y, lambda = NULL, gamma = 1.0, gindex = 1:p, nfolds = 10, 
+  foldid, method = c("pooled", "fe"), nf = NULL, parallel = FALSE, ...)
 }
 \arguments{
 \item{x}{T by p data matrix, where t and p respectively denote the sample size and the number of regressors.}
@@ -25,6 +25,8 @@ cv.panel.sglfit(x, y, lambda = NULL, gamma = 1.0, gindex = 1:p,
 \item{method}{choose between 'pooled' and 'fe'; 'pooled' forces the intercept to be fitted in \link{sglfit}, 'fe' computes the fixed effects. User must input the number of fixed effects \code{nf} for \code{method = 'fe'}, and it is recommended to do so for \code{method = 'pooled'}. Program uses supplied \code{nf} to construct \code{foldsid}. Default is set to \code{method = 'pooled'}.}
 
 \item{nf}{number of fixed effects. Used only if \code{method = 'fe'}.}
+
+\item{parallel}{if \code{TRUE}, use parallel foreach to fit each fold. Must register parallel before hand, such as doMC or others. See the example below.}
 
 \item{...}{Other arguments that can be passed to \code{sglfit}.}
 }
@@ -49,6 +51,19 @@ y = x\%*\%beta + rnorm(100)
 gindex = sort(rep(1:4,times=5))
 cv.panel.sglfit(x = x, y = y, gindex = gindex, gamma = 0.5, method = "fe", nf = 10, 
   standardize = FALSE, intercept = FALSE)
+\dontrun{ 
+# Parallel
+require(doMC)
+registerDoMC(cores = 2)
+x = matrix(rnorm(1000 * 20), 1000, 20)
+beta = c(5,4,3,2,1,rep(0, times = 15))
+y = x\%*\%beta + rnorm(1000)
+gindex = sort(rep(1:4,times=5))
+system.time(cv.panel.sglfit(x = x, y = y, gindex = gindex, gamma = 0.5, method = "fe", nf = 10, 
+  standardize = FALSE, intercept = FALSE))
+system.time(cv.panel.sglfit(x = x, y = y, gindex = gindex, gamma = 0.5, method = "fe", nf = 10, 
+  standardize = FALSE, intercept = FALSE, parallel = TRUE))
+}  
 }
 }
 \author{

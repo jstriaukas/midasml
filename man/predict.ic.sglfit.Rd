@@ -4,14 +4,7 @@
 \alias{predict.ic.sglfit}
 \title{Computes prediction}
 \usage{
-\method{predict}{ic.sglfit}(
-  object,
-  newx,
-  s = c("bic", "aic", "aicc"),
-  type = c("response"),
-  method = c("single", "pooled", "fe"),
-  ...
-)
+\method{predict}{ic.sglfit}(object, newx, s = c("bic", "aic", "aicc"), type = c("response"), ...)
 }
 \arguments{
 \item{object}{fitted \code{\link{cv.sglfit}} model object.}
@@ -21,8 +14,6 @@
 \item{s}{choose between 'bic', 'aic', and 'aicc'.}
 
 \item{type}{type of prediction required. Only response is available. Gives predicted response for regression problems.}
-
-\item{method}{choose between 'single', 'pooled', and 'fe'.}
 
 \item{...}{Not used. Other arguments to predict.}
 }

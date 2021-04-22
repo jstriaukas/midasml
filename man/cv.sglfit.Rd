@@ -4,7 +4,8 @@
 \alias{cv.sglfit}
 \title{Cross-validation fit for sg-LASSO}
 \usage{
-cv.sglfit(x, y, lambda = NULL, gamma = 1.0, gindex = 1:p, nfolds = 10, foldid, ...)
+cv.sglfit(x, y, lambda = NULL, gamma = 1.0, gindex = 1:p, 
+  nfolds = 10, foldid, parallel = FALSE, ...)
 }
 \arguments{
 \item{x}{T by p data matrix, where t and p respectively denote the sample size and the number of regressors.}
@@ -20,6 +21,8 @@ cv.sglfit(x, y, lambda = NULL, gamma = 1.0, gindex = 1:p, nfolds = 10, foldid, .
 \item{nfolds}{number of folds of the cv loop. Default set to \code{10}.}
 
 \item{foldid}{the fold assignments used.}
+
+\item{parallel}{if \code{TRUE}, use parallel foreach to fit each fold. Must register parallel before hand, such as doMC or others. See the example below.}
 
 \item{...}{Other arguments that can be passed to \code{sglfit}.}
 }
@@ -44,6 +47,19 @@ y = x\%*\%beta + rnorm(100)
 gindex = sort(rep(1:4,times=5))
 cv.sglfit(x = x, y = y, gindex = gindex, gamma = 0.5, 
   standardize = FALSE, intercept = FALSE)
+\dontrun{ 
+# Parallel
+require(doMC)
+registerDoMC(cores = 2)
+x = matrix(rnorm(1000 * 20), 1000, 20)
+beta = c(5,4,3,2,1,rep(0, times = 15))
+y = x\%*\%beta + rnorm(1000)
+gindex = sort(rep(1:4,times=5))
+system.time(cv.sglfit(x = x, y = y, gindex = gindex, gamma = 0.5, 
+  standardize = FALSE, intercept = FALSE))
+system.time(cv.sglfit(x = x, y = y, gindex = gindex, gamma = 0.5, 
+  standardize = FALSE, intercept = FALSE))
+}
 }
 }
 \author{
