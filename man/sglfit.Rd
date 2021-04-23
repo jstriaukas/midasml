@@ -27,7 +27,7 @@ sglfit(x, y, gamma = 1.0, nlambda = 100L, method = c("single", "pooled", "fe"),
 
 \item{lambda}{a user-supplied lambda sequence. By leaving this option unspecified (recommended), users can have the program compute its own \code{lambda} sequence based on \code{nlambda} and \code{lambda.factor.} It is better to supply, if necessary, a decreasing sequence of lambda values than a single (small) value, as warm-starts are used in the optimization algorithm. The program will ensure that the user-supplied \eqn{\lambda} sequence is sorted in decreasing order before fitting the model.}
 
-\item{pf}{\ifelse{html}{\out{&#8467;<sub>1</sub>}}{\eqn{\ell_1}}penalty factor of length \code{p} used for the adaptive sg-LASSO. Separate L1 penalty weights can be applied to each coefficient to allow different \ifelse{html}{\out{&#8467;<sub>1</sub>}}{\eqn{\ell_1}} + \ifelse{html}{\out{&#8467;<sub>2,1</sub>}}{\eqn{\ell_{2,1}}} shrinkage. Can be 0 for some variables, which imposes no shrinkage, and results in that variable always be included in the model. Default is 1 for all variables.}
+\item{pf}{the \ifelse{html}{\out{&#8467;<sub>1</sub>}}{\eqn{\ell_1}} penalty factor of length \code{p} used for the adaptive sg-LASSO. Separate \ifelse{html}{\out{&#8467;<sub>1</sub>}}{\eqn{\ell_1}} penalty weights can be applied to each coefficient to allow different \ifelse{html}{\out{&#8467;<sub>1</sub>}}{\eqn{\ell_1}} + \ifelse{html}{\out{&#8467;<sub>2,1</sub>}}{\eqn{\ell_{2,1}}} shrinkage. Can be 0 for some variables, which imposes no shrinkage, and results in that variable always be included in the model. Default is 1 for all variables.}
 
 \item{gindex}{p by 1 vector indicating group membership of each covariate.}
 
