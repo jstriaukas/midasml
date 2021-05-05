@@ -37,7 +37,7 @@ ic.sglfit <- function(x, y, lambda = NULL, gamma = 1.0, gindex = 1:p, ...){
   nlam <- length(lambda)
   cvm <- matrix(NA, nrow = nlam, ncol = 3)
   yhats <- predict.sglpath(sglfit.object, newx = x)
-  df <- sglfit.object$df
+  df <- sglfit.object$df+sglfit.object$nf
   sigsqhat <- sum((y-mean(y))^2)/t
   mse <- colSums((replicate(nlam, as.numeric(y))-yhats)^2)/t
   cvm[,1] <- mse/sigsqhat + ic.pen("bic", df, t) 
