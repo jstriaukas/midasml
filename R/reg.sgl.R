@@ -10,7 +10,7 @@
 #' reg.sgl(x, y, gamma = NULL, gindex, intercept = TRUE, 
 #'         method_choice = c("ic","cv"), nfolds = 10, 
 #'         verbose = FALSE, ...)
-#' @param x T by p data matrix, where t and p respectively denote the sample size and the number of regressors.
+#' @param x T by p data matrix, where T and p respectively denote the sample size and the number of regressors.
 #' @param y T by 1 response variable.
 #' @param gamma sg-LASSO mixing parameter. \eqn{\gamma} = 1 gives LASSO solution and \eqn{\gamma} = 0 gives group LASSO solution.
 #' @param gindex p by 1 vector indicating group membership of each covariate.

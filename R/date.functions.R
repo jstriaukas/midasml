@@ -7,8 +7,8 @@
 #'   horizon, est.start, est.end, disp.flag = TRUE)
 #' @param data.y n by 1 low-frequency time series data vector.
 #' @param data.ydate n by 1 low-frequency time series date vector.
-#' @param data.x nm by 1 high-frequency time series data vector.
-#' @param data.xdate nm by 1 high-frequency time series date vector.
+#' @param data.x m by 1 high-frequency time series data vector.
+#' @param data.xdate m by 1 high-frequency time series date vector.
 #' @param x.lag number of high-frequency lags to construct in high-frequency time units.
 #' @param y.lag number of low-frequency lags to construct in low-frequency time units.
 #' @param horizon forecast horizon relative to \code{data.ydate} date in high-frequency time units.
@@ -240,8 +240,8 @@ mixed_freq_data <- function(data.y, data.ydate, data.x, data.xdate, x.lag, y.lag
 #' mixed_freq_data_single(data.refdate, data.x, data.xdate, x.lag, horizon,
 #'   est.start, est.end, disp.flag = TRUE)
 #' @param data.refdate n by 1 date vector.
-#' @param data.x nm by 1 high-frequency time series data vector.
-#' @param data.xdate nm by 1 high-frequency time series date vector.
+#' @param data.x m by 1 high-frequency time series data vector.
+#' @param data.xdate m by 1 high-frequency time series date vector.
 #' @param x.lag number of high-frequency lags to construct in high-frequency time units.
 #' @param horizon forecast horizon relative to \code{data.refdate} date in high-frequency time units.
 #' @param est.start estimation start date, taken as the first ... .

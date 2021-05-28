@@ -11,8 +11,8 @@
 #'               method_choice = c("ic","cv"), nfolds = 10, 
 #'               method = c("pooled", "fe"), nf = NULL, 
 #'               verbose = FALSE, ...)
-#' @param x T by p data matrix, where t and p respectively denote the sample size and the number of regressors.
-#' @param y T by 1 response variable.
+#' @param x NT by p data matrix, where NT and p respectively denote the sample size of pooled data and the number of regressors.
+#' @param y NT by 1 response variable.
 #' @param gamma sg-LASSO mixing parameter. \eqn{\gamma} = 1 gives LASSO solution and \eqn{\gamma} = 0 gives group LASSO solution.
 #' @param gindex p by 1 vector indicating group membership of each covariate.
 #' @param intercept whether intercept be fitted (\code{TRUE}) or set to zero (\code{FALSE}). Default is \code{TRUE}.
