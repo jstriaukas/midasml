@@ -35,3 +35,7 @@ install_github("jstriaukas/midasml")
 
 [2] Babii, A., Ball, R., Ghysels, E., & Striaukas, J. (2021). Machine learning panel data regressions with an
 application to nowcasting price-earnings ratios. <https://arxiv.org/abs/2008.03600>.
+
+# Acknowledgements
+
+Jonas Striaukas acknowledges that this material is based upon work supported by the Fund for Scientific Research-FNRS (Belgian National Fund for Scientific Research) under Grant #FC21388.
