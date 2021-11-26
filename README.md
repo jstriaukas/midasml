@@ -16,6 +16,7 @@ The package is equipped with the fast implementation of the sparse-group LASSO e
 ## Software in other languages
 
 - Julia implmentation of the midasml method is available [here](https://github.com/ababii/Pythia.jl).
+- MATLAB implmentation of the midasml method is available [here](https://github.com/jstriaukas/midasml_mat).
 
 ## Run to install the package
 
