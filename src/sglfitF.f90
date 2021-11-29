@@ -134,14 +134,6 @@ SUBROUTINE sglfitpathF(maj, gamma, ngroups, gindex, nobs, nvars, x, y, ju, pf, d
         al = ulam(l)
         ctr = 0
         pln = 0
-        IF (intr == 1) THEN
-            IF (l == 1) THEN
-                b(0) = SUM(y)/nobs
-            ELSE
-                b(0) = b0(l-1)
-            END IF
-
-        END IF
         ! ------------------ OUTER LOOP -------------------- !
         DO
             IF (intr == 1) oldbeta(0) = b(0)
