@@ -19,7 +19,7 @@ The package is equipped with the fast implementation of the sparse-group LASSO e
 ## Run to install the package
 
 ```{r }
-# CRAN version - 0.1.5-1
+# CRAN version - 0.1.6
 install.packages("midasml") 
 
 # Development version - 0.1.6
