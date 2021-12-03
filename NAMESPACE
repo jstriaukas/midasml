@@ -10,6 +10,7 @@ importFrom("methods", "new")
 importFrom("Matrix", "Diagonal")
 importFrom("mcGlobaloptim", "multiStartoptim")
 
+export(tscv.sglfit)
 export(cv.sglfit)
 export(cv.panel.sglfit)
 export(ic.sglfit) 
