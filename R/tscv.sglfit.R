@@ -3,21 +3,21 @@
 #' @description 
 #' Does k-fold time series cross-validation for sg-LASSO regression model.
 #' 
-#' The function runs \link{sglfit} \code{K+1} times; the first to get the path solution in \ifelse{html}{\out{&lambda;}}{\code{lambda}} sequence, the rest to compute the fit with each of the folds omitted. 
-#' The average error and standard deviation over the folds is computed, and the optimal regression coefficients are returned for \code{lam.min} and \code{lam.1se}. Solutions are computed for a fixed \ifelse{html}{\out{&gamma;}}{\eqn{\gamma}. Note that \code{[T/K]*K\leq T} observations are used in the procedure and \code{T-[T/K]*K\geq 0} are dropped.}
+#' The function runs \link{sglfit} \code{nfolds+1} times; the first to get the path solution in \ifelse{html}{\out{&lambda;}}{\code{lambda}} sequence, the rest to compute the fit with each of the folds omitted. 
+#' The average error and standard deviation over the folds is computed, and the optimal regression coefficients are returned for \code{lam.min} and \code{lam.1se}. Solutions are computed for a fixed \ifelse{html}{\out{&gamma;}}{\eqn{\gamma}.}
 #'
 #' @details
 #' \ifelse{html}{\out{The cross-validation is run for sg-LASSO linear model. The sequence of linear regression models implied by &lambda; vector is fit by block coordinate-descent. The objective function is  <br><br> <center> ||y - &iota;&alpha; - x&beta;||<sup>2</sup><sub>T</sub> + 2&lambda;  &Omega;<sub>&gamma;</sub>(&beta;), </center> <br> where &iota;&#8712;R<sup>T</sup>enter> and ||u||<sup>2</sup><sub>T</sub>=&#60;u,u&#62;/T is the empirical inner product. The penalty function &Omega;<sub>&gamma;</sub>(.) is applied on  &beta; coefficients and is <br> <br> <center> &Omega;<sub>&gamma;</sub>(&beta;) = &gamma; |&beta;|<sub>1</sub> + (1-&gamma;)|&beta;|<sub>2,1</sub>, </center> <br> a convex combination of LASSO and group LASSO penalty functions.}}{The cross-validation is run for sg-LASSO linear model. The sequence of linear regression models implied by \eqn{\lambda} vector is fit by block coordinate-descent. The objective function is \deqn{\|y-\iota\alpha - x\beta\|^2_{T} + 2\lambda \Omega_\gamma(\beta),} where \eqn{\iota\in R^T} and \eqn{\|u\|^2_T = \langle u,u \rangle / T} is the empirical inner product. The penalty function \eqn{\Omega_\gamma(.)} is applied on \eqn{\beta} coefficients and is \deqn{\Omega_\gamma(\beta) = \gamma |\beta|_1 + (1-\gamma)|\beta|_{2,1},} a convex combination of LASSO and group LASSO penalty functions.}     
 #' @usage 
 #' tscv.sglfit(x, y, lambda = NULL, gamma = 1.0, gindex = 1:p, 
-#'   K = 20, l = 5, parallel = FALSE, ...)
+#'   K = 20, l = 5, parallel = FALSE, seed = NULL, ...)
 #' @param x T by p data matrix, where T and p respectively denote the sample size and the number of regressors.
 #' @param y T by 1 response variable.
 #' @param lambda a user-supplied lambda sequence. By leaving this option unspecified (recommended), users can have the program compute its own \ifelse{html}{\out{&lambda;}}{\eqn{\lambda}} sequence based on \ifelse{html}{\out{<code>nlambda</code>}}{\code{nlambda}} and \ifelse{html}{\out{&gamma;}}{\eqn{\gamma}} \code{lambda.factor.} It is better to supply, if necessary, a decreasing sequence of lambda values than a single (small) value, as warm-starts are used in the optimization algorithm. The program will ensure that the user-supplied \code{lambda} sequence is sorted in decreasing order before fitting the model.
 #' @param gamma sg-LASSO mixing parameter. \ifelse{html}{\out{&gamma;}}{\eqn{\gamma}} = 1 gives LASSO solution and \ifelse{html}{\out{&gamma;}}{\eqn{\gamma}} = 0 gives group LASSO solution.
 #' @param gindex p by 1 vector indicating group membership of each covariate.
 #' @param K number of folds of the cv loop. Default set to \code{20}.
-#' @param l the gap used to drop observations round test set data. For each test observation (in total K), we drop 2l observations such that the test observation and time t is separated by l observations. Default set to \code{5}.
+#' @param l the gap used to drop observations round test set data. For each test observation (in total K), we drop 2l observations such that the test observation at time t is separated by \code{l} observations. Default set to \code{5}.
 #' @param parallel if \code{TRUE}, use parallel foreach to fit each fold. Must register parallel before hand, such as doMC or others. See the example below.
 #' @param seed set a value for seed to control results replication, i.e. \code{set.seed(seed)} is used. \code{seed} is stored in the output list. Default set to \code{as.numeric(Sys.Date())}.
 #' @param ... Other arguments that can be passed to \link{sglfit}.
@@ -47,7 +47,7 @@
 #' }
 #' }
 #' @export tscv.sglfit
-tscv.sglfit <- function(x, y, lambda = NULL, gamma = 1.0, gindex = 1:p, K = 5, l = 5, parallel = FALSE, seed = NULL, ...) {
+tscv.sglfit <- function(x, y, lambda = NULL, gamma = 1.0, gindex = 1:p, K = 20, l = 5, parallel = FALSE, seed = NULL, ...) {
   N <- nrow(x)
   p <- ncol(x)
   y <- drop(y)
@@ -67,7 +67,7 @@ tscv.sglfit <- function(x, y, lambda = NULL, gamma = 1.0, gindex = 1:p, K = 5, l
   }
   set.seed(seed)
   nk <- floor(N/K)
-  foldid <- matrix(sample(1:N)[1:(nk*K)], ncol = nk)
+  foldid <- matrix(sample(1:N)[1:(nk*K)], nrow = nk)
   outlist <- vector("list", length = K)
   if (parallel){
     outlist <- foreach(i = seq(K), .packages = c("midasml")) %dopar%{
@@ -106,7 +106,7 @@ tscv.sglfit <- function(x, y, lambda = NULL, gamma = 1.0, gindex = 1:p, K = 5, l
 #' Sorts time series cross-validation output
 #' 
 #' @description 
-#' Computes \code{cvm} and \code{cvsd} based on times series cross-validation fit. Note that \code{[T/K]*K\leq T} observations are used in the procedure and \code{T-[T/K]*K\geq 0} are dropped. 
+#' Computes \code{cvm} and \code{cvsd} based on times series cross-validation fit. 
 #' @usage 
 #' tscv.sglpath(outlist, lambda, x, y, foldid, ...)
 #' @param outlist list of cross-validation fits.
