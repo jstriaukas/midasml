@@ -8,9 +8,9 @@ ic.panel.sglfit(x, y, lambda = NULL, gamma = 1.0, gindex = 1:p,
                 method = c("pooled","fe"), nf = NULL, ...)
 }
 \arguments{
-\item{x}{T by p data matrix, where t and p respectively denote the sample size and the number of regressors.}
+\item{x}{NT by p data matrix, where NT and p respectively denote the sample size of pooled data and the number of regressors.}
 
-\item{y}{T by 1 response variable.}
+\item{y}{NT by 1 response variable.}
 
 \item{lambda}{a user-supplied lambda sequence. By leaving this option unspecified (recommended), users can have the program compute its own \eqn{\lambda} sequence based on \code{nlambda} and \code{lambda.factor.} It is better to supply, if necessary, a decreasing sequence of lambda values than a single (small) value, as warm-starts are used in the optimization algorithm. The program will ensure that the user-supplied \eqn{\lambda} sequence is sorted in decreasing order before fitting the model.}
 
@@ -22,7 +22,7 @@ ic.panel.sglfit(x, y, lambda = NULL, gamma = 1.0, gindex = 1:p,
 
 \item{nf}{number of fixed effects. Used only if \code{method = 'fe'}.}
 
-\item{...}{Other arguments that can be passed to \code{sglfit}.}
+\item{...}{Other arguments that can be passed to \link{sglfit}.}
 }
 \value{
 ic.panel.sglfit object.
@@ -30,7 +30,7 @@ ic.panel.sglfit object.
 \description{
 Does information criteria for panel data sg-LASSO regression model.
 
-The function runs \ifelse{html}{\out{<code>sglfit</code>}}{\code{sglfit}} 1 time; computes the path solution in \ifelse{html}{\out{<code>lambda</code>}}{\eqn{lambda}} sequence.
+The function runs \link{sglfit} 1 time; computes the path solution in \ifelse{html}{\out{<code>lambda</code>}}{\code{lambda}} sequence.
 Solutions for \code{BIC}, \code{AIC} and \code{AICc} information criteria are returned.
 }
 \details{

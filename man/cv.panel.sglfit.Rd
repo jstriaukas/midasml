@@ -8,9 +8,9 @@ cv.panel.sglfit(x, y, lambda = NULL, gamma = 1.0, gindex = 1:p, nfolds = 10,
   foldid, method = c("pooled", "fe"), nf = NULL, parallel = FALSE, ...)
 }
 \arguments{
-\item{x}{T by p data matrix, where t and p respectively denote the sample size and the number of regressors.}
+\item{x}{NT by p data matrix, where NT and p respectively denote the sample size of pooled data and the number of regressors.}
 
-\item{y}{T by 1 response variable.}
+\item{y}{NT by 1 response variable.}
 
 \item{lambda}{a user-supplied lambda sequence. By leaving this option unspecified (recommended), users can have the program compute its own \ifelse{html}{\out{&lambda;}}{\eqn{\lambda}} sequence based on \ifelse{html}{\out{<code>nlambda</code>}}{\code{nlambda}} and \ifelse{html}{\out{&gamma;}}{\eqn{\gamma}} \code{lambda.factor.} It is better to supply, if necessary, a decreasing sequence of lambda values than a single (small) value, as warm-starts are used in the optimization algorithm. The program will ensure that the user-supplied \code{lambda} sequence is sorted in decreasing order before fitting the model.}
 
@@ -28,7 +28,7 @@ cv.panel.sglfit(x, y, lambda = NULL, gamma = 1.0, gindex = 1:p, nfolds = 10,
 
 \item{parallel}{if \code{TRUE}, use parallel foreach to fit each fold. Must register parallel before hand, such as doMC or others. See the example below.}
 
-\item{...}{Other arguments that can be passed to \code{sglfit}.}
+\item{...}{Other arguments that can be passed to \link{sglfit}.}
 }
 \value{
 cv.panel.sglfit object.
@@ -36,7 +36,7 @@ cv.panel.sglfit object.
 \description{
 Does k-fold cross-validation for panel data sg-LASSO regression model.
 
-The function runs \code{sglfit} \code{nfolds+1} times; the first to get the path solution in \ifelse{html}{\out{&lambda;}}{\eqn{\lambda}} sequence, the rest to compute the fit with each of the folds omitted. 
+The function runs \link{sglfit} \code{nfolds+1} times; the first to get the path solution in \ifelse{html}{\out{&lambda;}}{\code{lambda}} sequence, the rest to compute the fit with each of the folds omitted. 
 The average error and standard deviation over the folds is computed, and the optimal regression coefficients are returned for \code{lam.min} and \code{lam.1se}. Solutions are computed for a fixed \ifelse{html}{\out{&gamma;}}{\eqn{\gamma}.}
 }
 \details{

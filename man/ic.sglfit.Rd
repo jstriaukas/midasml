@@ -7,7 +7,7 @@
 ic.sglfit(x, y, lambda = NULL, gamma = 1.0, gindex = 1:p,  ...)
 }
 \arguments{
-\item{x}{T by p data matrix, where t and p respectively denote the sample size and the number of regressors.}
+\item{x}{T by p data matrix, where T and p respectively denote the sample size and the number of regressors.}
 
 \item{y}{T by 1 response variable.}
 
@@ -17,7 +17,7 @@ ic.sglfit(x, y, lambda = NULL, gamma = 1.0, gindex = 1:p,  ...)
 
 \item{gindex}{p by 1 vector indicating group membership of each covariate.}
 
-\item{...}{Other arguments that can be passed to \code{sglfit}.}
+\item{...}{Other arguments that can be passed to \link{sglfit}.}
 }
 \value{
 ic.sglfit object.
@@ -25,7 +25,7 @@ ic.sglfit object.
 \description{
 Does information criteria for sg-LASSO regression model.
 
-The function runs \ifelse{html}{\out{<code>sglfit</code>}}{\code{sglfit}} 1 time; computes the path solution in \ifelse{html}{\out{<code>lambda</code>}}{\eqn{lambda}} sequence.
+The function runs \link{sglfit} 1 time; computes the path solution in \ifelse{html}{\out{<code>lambda</code>}}{\code{lambda}} sequence.
 Solutions for \code{BIC}, \code{AIC} and \code{AICc} information criteria are returned.
 }
 \details{

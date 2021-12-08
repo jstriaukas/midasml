@@ -11,7 +11,7 @@ sglfit(x, y, gamma = 1.0, nlambda = 100L, method = c("single", "pooled", "fe"),
        intercept = FALSE, eps = 1e-08, maxit = 1000000L, peps = 1e-08)
 }
 \arguments{
-\item{x}{T by p data matrix, where t and p respectively denote the sample size and the number of regressors.}
+\item{x}{T by p data matrix, where T and p respectively denote the sample size and the number of regressors.}
 
 \item{y}{T by 1 response variable.}
 
@@ -23,7 +23,7 @@ sglfit(x, y, gamma = 1.0, nlambda = 100L, method = c("single", "pooled", "fe"),
 
 \item{nf}{number of fixed effects. Used only if \code{method = 'fe'}.}
 
-\item{lambda.factor}{The factor for getting the minimal \eqn{\lambda} in the \eqn{\lambda} sequence, where \code{min(lambda) = lambda.factor * max(lambda)}. max(lambda) is the smallest value of lambda for which all coefficients are zero. \eqn{\lambda_{max}} is determined for each \eqn{\gamma} tuning parameter separately. The default depends on the relationship between \code{T} (the sample size) and \code{p} (the number of predictors). If \code{T < p}, the default is \code{0.01}. If \code{T > p}, the default is \code{0.0001}, closer to zero. The smaller the value of \code{lambda.factor} is, the denser is the fit for \ifelse{html}{\out{&lambda;<sub>min</sub>}}{\eqn{\lambda_{min}}}. Used only if \code{lambda = NULL}.}
+\item{lambda.factor}{The factor for getting the minimal \eqn{\lambda} in the \eqn{\lambda} sequence, where \code{min(lambda) = lambda.factor * max(lambda)}. max(lambda) is the smallest value of lambda for which all coefficients are zero. \ifelse{html}{\out{&lambda; <sub>max</sub>}}{\eqn{\lambda_{max}}} is determined for each \eqn{\gamma} tuning parameter separately. The default depends on the relationship between \code{T} (the sample size) and \code{p} (the number of predictors). If \code{T < p}, the default is \code{0.01}. If \code{T > p}, the default is \code{0.0001}, closer to zero. The smaller the value of \code{lambda.factor} is, the denser is the fit for \ifelse{html}{\out{&lambda;<sub>min</sub>}}{\eqn{\lambda_{min}}}. Used only if \code{lambda = NULL}.}
 
 \item{lambda}{a user-supplied lambda sequence. By leaving this option unspecified (recommended), users can have the program compute its own \code{lambda} sequence based on \code{nlambda} and \code{lambda.factor.} It is better to supply, if necessary, a decreasing sequence of lambda values than a single (small) value, as warm-starts are used in the optimization algorithm. The program will ensure that the user-supplied \eqn{\lambda} sequence is sorted in decreasing order before fitting the model.}
 

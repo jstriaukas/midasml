@@ -8,15 +8,13 @@
 #' \ifelse{html}{\out{The sequence of linear regression models implied by &lambda; vector is fit by block coordinate-descent. The objective function is  <br><br> <center> ||y - &iota;&alpha; - x&beta;||<sup>2</sup><sub>T</sub> + 2&lambda;  &Omega;<sub>&gamma;</sub>(&beta;), </center> <br> where &iota;&#8712;R<sup>T</sup>enter> and ||u||<sup>2</sup><sub>T</sub>=&#60;u,u&#62;/T is the empirical inner product. The penalty function &Omega;<sub>&gamma;</sub>(.) is applied on  &beta; coefficients and is <br> <br> <center> &Omega;<sub>&gamma;</sub>(&beta;) = &gamma; |&beta;|<sub>1</sub> + (1-&gamma;)|&beta;|<sub>2,1</sub>, </center> <br> a convex combination of LASSO and group LASSO penalty functions.}}{The sequence of linear regression models implied by \eqn{\lambda} vector is fit by block coordinate-descent. The objective function is \deqn{\|y-\iota\alpha - x\beta\|^2_{T} + 2\lambda \Omega_\gamma(\beta),} where \eqn{\iota\in R^T} and \eqn{\|u\|^2_T = \langle u,u \rangle / T} is the empirical inner product. The penalty function \eqn{\Omega_\gamma(.)} is applied on \eqn{\beta} coefficients and is \deqn{\Omega_\gamma(\beta) = \gamma |\beta|_1 + (1-\gamma)|\beta|_{2,1},} a convex combination of LASSO and group LASSO penalty functions.}     
 #' @usage 
 #' reg.sgl(x, y, gamma = NULL, gindex, intercept = TRUE, 
-#'         method_choice = c("ic","cv"), nfolds = 10, 
-#'         verbose = FALSE, ...)
+#'         method_choice = c("tscv","ic","cv"), verbose = FALSE, ...)
 #' @param x T by p data matrix, where T and p respectively denote the sample size and the number of regressors.
 #' @param y T by 1 response variable.
 #' @param gamma sg-LASSO mixing parameter. \eqn{\gamma} = 1 gives LASSO solution and \eqn{\gamma} = 0 gives group LASSO solution.
 #' @param gindex p by 1 vector indicating group membership of each covariate.
 #' @param intercept whether intercept be fitted (\code{TRUE}) or set to zero (\code{FALSE}). Default is \code{TRUE}.
-#' @param method_choice choose between \code{ic} and \code{cv}. \code{ic} gives fit based on information criteria (BIC, AIC or AICc) by running \code{ic.fit}, while \code{cv} gives fit based on cross-validation by running \code{cv.sglfit}. If \code{cv} is chosen, optional number of folds \code{nfolds} can be supplied. 
-#' @param nfolds number of folds of the cv loop. Default set to \code{10}.
+#' @param method_choice choose between \code{tscv} \code{ic} and \code{cv}. \code{tscv} fits sg-LASSO based on time series cross-validation (see \link{tscv.sglfit}), \code{ic} fits sg-LASSO based on information criteria (BIC, AIC or AICc, see \link{ic.sglfit}), \code{cv} fits sg-LASSO based on cross-validation (see \link{cv.sglfit}). Additional arguments for each method choice are passed on to the relevant functions. 
 #' @param verbose flag to print information.
 #' @param ... Other arguments that can be passed to \code{sglfit}.
 #' @return reg.sgl object.
@@ -32,7 +30,7 @@
 #'   standardize = FALSE, intercept = FALSE)
 #' }
 #' @export reg.sgl
-reg.sgl <- function(x, y, gamma = NULL, gindex, intercept = TRUE, method_choice = c("ic","cv"), nfolds = 10, verbose = FALSE, ...){
+reg.sgl <- function(x, y, gamma = NULL, gindex, intercept = TRUE, method_choice = c("tscv","ic","cv"), verbose = FALSE, ...){
   if(any(is.na(y)))
     stop("y has NA entries, check and rerun")
   if(any(is.na(x)))
@@ -57,9 +55,15 @@ reg.sgl <- function(x, y, gamma = NULL, gindex, intercept = TRUE, method_choice 
   }
   if (method_choice=="cv") {
     if(verbose)
-      message(paste0("computing ", nfolds, "-fold cross-validation"))
+      message(paste0("computing cross-validation fit"))
     
-    fit <- cv.sglfit(x, y, gamma = gamma, gindex = gindex, nfolds = nfolds, intercept = intercept, method = "single", ...)
+    fit <- cv.sglfit(x, y, gamma = gamma, gindex = gindex, intercept = intercept, method = "single", ...)
+  }
+  if (method_choice=="tscv") {
+    if(verbose)
+      message(paste0("computing time series cross-validation fit"))
+    
+    fit <- tscv.sglfit(x, y, gamma = gamma, gindex = gindex, intercept = intercept, method = "single", ...)
   }
   class(fit) <- c("reg.sgl", class(fit))
   fit

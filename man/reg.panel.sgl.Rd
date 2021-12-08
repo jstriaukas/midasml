@@ -10,9 +10,9 @@ reg.panel.sgl(x, y, gamma = NULL, gindex, intercept = TRUE,
               verbose = FALSE, ...)
 }
 \arguments{
-\item{x}{T by p data matrix, where t and p respectively denote the sample size and the number of regressors.}
+\item{x}{NT by p data matrix, where NT and p respectively denote the sample size of pooled data and the number of regressors.}
 
-\item{y}{T by 1 response variable.}
+\item{y}{NT by 1 response variable.}
 
 \item{gamma}{sg-LASSO mixing parameter. \eqn{\gamma} = 1 gives LASSO solution and \eqn{\gamma} = 0 gives group LASSO solution.}
 

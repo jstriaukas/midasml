@@ -23,7 +23,11 @@ predict.cv.sglfit <- function(object, newx, s = c("lam.min","lam.1se"), type = c
   b0 <- t(as.matrix(object$b0))
   rownames(b0) <- "(Intercept)"
   nbeta <- c(b0, object$beta)
-  nfit <- c(1, newx) %*% nbeta
+  if (is.null(dim(newx)[1])){
+    nfit <- c(1, newx) %*% nbeta
+  } else {
+    nfit <- cbind(rep(1, times = dim(newx)[1]), newx) %*% nbeta
+  }
   nfit
 } 
 

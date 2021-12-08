@@ -5,11 +5,10 @@
 \title{Fit for sg-LASSO regression}
 \usage{
 reg.sgl(x, y, gamma = NULL, gindex, intercept = TRUE, 
-        method_choice = c("ic","cv"), nfolds = 10, 
-        verbose = FALSE, ...)
+        method_choice = c("tscv","ic","cv"), verbose = FALSE, ...)
 }
 \arguments{
-\item{x}{T by p data matrix, where t and p respectively denote the sample size and the number of regressors.}
+\item{x}{T by p data matrix, where T and p respectively denote the sample size and the number of regressors.}
 
 \item{y}{T by 1 response variable.}
 
@@ -19,9 +18,7 @@ reg.sgl(x, y, gamma = NULL, gindex, intercept = TRUE,
 
 \item{intercept}{whether intercept be fitted (\code{TRUE}) or set to zero (\code{FALSE}). Default is \code{TRUE}.}
 
-\item{method_choice}{choose between \code{ic} and \code{cv}. \code{ic} gives fit based on information criteria (BIC, AIC or AICc) by running \code{ic.fit}, while \code{cv} gives fit based on cross-validation by running \code{cv.sglfit}. If \code{cv} is chosen, optional number of folds \code{nfolds} can be supplied.}
-
-\item{nfolds}{number of folds of the cv loop. Default set to \code{10}.}
+\item{method_choice}{choose between \code{tscv} \code{ic} and \code{cv}. \code{tscv} fits sg-LASSO based on time series cross-validation (see \link{tscv.sglfit}), \code{ic} fits sg-LASSO based on information criteria (BIC, AIC or AICc, see \link{ic.sglfit}), \code{cv} fits sg-LASSO based on cross-validation (see \link{cv.sglfit}). Additional arguments for each method choice are passed on to the relevant functions.}
 
 \item{verbose}{flag to print information.}
 

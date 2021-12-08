@@ -12,9 +12,9 @@ mixed_freq_data(data.y, data.ydate, data.x, data.xdate, x.lag, y.lag,
 
 \item{data.ydate}{n by 1 low-frequency time series date vector.}
 
-\item{data.x}{nm by 1 high-frequency time series data vector.}
+\item{data.x}{m by 1 high-frequency time series data vector.}
 
-\item{data.xdate}{nm by 1 high-frequency time series date vector.}
+\item{data.xdate}{m by 1 high-frequency time series date vector.}
 
 \item{x.lag}{number of high-frequency lags to construct in high-frequency time units.}
 

@@ -15,5 +15,6 @@ Description: The 'midasml' package implements estimation and prediction methods 
 BugReports: https://github.com/jstriaukas/midasml/issues
 License: GPL (>= 2)
 Depends: Matrix, R (>= 3.5.0)
-Imports: foreach, graphics, mcGlobaloptim, methods, lubridate, stats	
+Imports: doRNG, doParallel, foreach, graphics, mcGlobaloptim, methods, lubridate, stats	
 Encoding: UTF-8
+RoxygenNote: 7.1.2
