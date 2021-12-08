@@ -22,11 +22,9 @@
 #' @return thetafit object.
 #' @author Jonas Striaukas
 #' @examples
-#' \donttest{ 
 #' set.seed(1)
 #' x = matrix(rnorm(100 * 20), 100, 20)
 #' thetafit(x = x, parallel = FALSE)
-#' }
 #' @export thetafit
 thetafit <- function(x, parallel = FALSE, ncores = getOption("mc.cores", NULL), intercept = FALSE, K = 20, l = 5, seed = NULL, verbose = FALSE, registerpar = TRUE, ...){
   np <- dim(x)

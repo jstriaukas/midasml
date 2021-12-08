@@ -25,7 +25,6 @@
 #' @return reg.panel.sgl object.
 #' @author Jonas Striaukas
 #' @examples
-#' \donttest{ 
 #' set.seed(1)
 #' x = matrix(rnorm(100 * 20), 100, 20)
 #' beta = c(5,4,3,2,1,rep(0, times = 15))
@@ -35,7 +34,6 @@
 #'   gindex = gindex, gamma = 0.5, 
 #'   method = "fe", nf = 10, 
 #'   standardize = FALSE, intercept = FALSE)
-#' }
 #' @export reg.panel.sgl
 reg.panel.sgl <- function(x, y, gamma = NULL, gindex, intercept = TRUE, method_choice = c("ic","cv"), nfolds = 10, method = c("pooled", "fe"), nf = NULL, verbose = FALSE, ...){
   if(any(is.na(y)))

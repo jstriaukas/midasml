@@ -23,7 +23,6 @@
 #' @return cv.sglfit object.
 #' @author Jonas Striaukas
 #' @examples
-#' \donttest{ 
 #' set.seed(1)
 #' x = matrix(rnorm(100 * 20), 100, 20)
 #' beta = c(5,4,3,2,1,rep(0, times = 15))
@@ -43,7 +42,6 @@
 #'   standardize = FALSE, intercept = FALSE))
 #' system.time(cv.sglfit(x = x, y = y, gindex = gindex, gamma = 0.5, 
 #'   standardize = FALSE, intercept = FALSE, parallel = TRUE))
-#' }
 #' }
 #' @export cv.sglfit
 cv.sglfit <- function(x, y, lambda = NULL, gamma = 1.0, gindex = 1:p, nfolds = 10, foldid, parallel = FALSE, ...) {

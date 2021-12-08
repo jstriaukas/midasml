@@ -20,15 +20,12 @@
 #' @return reg.sgl object.
 #' @author Jonas Striaukas
 #' @examples
-#' \donttest{ 
 #' set.seed(1)
 #' x = matrix(rnorm(100 * 20), 100, 20)
 #' beta = c(5,4,3,2,1,rep(0, times = 15))
 #' y = x%*%beta + rnorm(100)
 #' gindex = sort(rep(1:4,times=5))
-#' reg.sgl(x = x, y = y, gindex = gindex, gamma = 0.5,
-#'   standardize = FALSE, intercept = FALSE)
-#' }
+#' reg.sgl(x = x, y = y, gamma = 0.5, gindex = gindex)
 #' @export reg.sgl
 reg.sgl <- function(x, y, gamma = NULL, gindex, intercept = TRUE, method_choice = c("tscv","ic","cv"), verbose = FALSE, ...){
   if(any(is.na(y)))
@@ -36,7 +33,7 @@ reg.sgl <- function(x, y, gamma = NULL, gindex, intercept = TRUE, method_choice 
   if(any(is.na(x)))
     stop("X has NA entries, check and rerun")
   # get settings
-  method_choice <- match.arg(method_choice)
+  method_choice <- match.arg(arg = method_choice, choices = c("tscv","ic","cv"))
   
   tp <- dim(x)
   t <- tp[1]
@@ -51,19 +48,19 @@ reg.sgl <- function(x, y, gamma = NULL, gindex, intercept = TRUE, method_choice 
     if(verbose)
       message(paste0("computing solution using information criteria"))
     
-    fit <- ic.sglfit(x, y, gamma = gamma, gindex = gindex, intercept = intercept, method = "single", ...)
+    fit <- ic.sglfit(x, y, gamma = gamma, gindex = gindex, intercept = intercept, ...)
   }
   if (method_choice=="cv") {
     if(verbose)
       message(paste0("computing cross-validation fit"))
     
-    fit <- cv.sglfit(x, y, gamma = gamma, gindex = gindex, intercept = intercept, method = "single", ...)
+    fit <- cv.sglfit(x, y, gamma = gamma, gindex = gindex, intercept = intercept, ...)
   }
   if (method_choice=="tscv") {
     if(verbose)
       message(paste0("computing time series cross-validation fit"))
     
-    fit <- tscv.sglfit(x, y, gamma = gamma, gindex = gindex, intercept = intercept, method = "single", ...)
+    fit <- tscv.sglfit(x, y, gamma = gamma, gindex = gindex, intercept = intercept, ...)
   }
   class(fit) <- c("reg.sgl", class(fit))
   fit

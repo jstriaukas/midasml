@@ -31,14 +31,12 @@
 #' @return sglfit object.
 #' @author Jonas Striaukas
 #' @examples
-#' \donttest{ 
 #' set.seed(1)
 #' x = matrix(rnorm(100 * 20), 100, 20)
 #' beta = c(5,4,3,2,1,rep(0, times = 15))
 #' y = x%*%beta + rnorm(100)
 #' gindex = sort(rep(1:4,times=5))
 #' sglfit(x = x, y = y, gindex = gindex, gamma = 0.5)
-#' }
 #' @export sglfit 
 sglfit <- function(x, y, gamma = 1.0, nlambda = 100L, method = c("single", "pooled", "fe"), nf = NULL,
                   lambda.factor = ifelse(nobs < nvars, 1e-02, 1e-04), 

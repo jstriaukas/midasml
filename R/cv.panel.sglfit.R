@@ -25,7 +25,6 @@
 #' @return cv.panel.sglfit object.
 #' @author Jonas Striaukas
 #' @examples
-#' \donttest{ 
 #' set.seed(1)
 #' x = matrix(rnorm(100 * 20), 100, 20)
 #' beta = c(5,4,3,2,1,rep(0, times = 15))
@@ -46,7 +45,6 @@
 #' system.time(cv.panel.sglfit(x = x, y = y, gindex = gindex, gamma = 0.5, method = "fe", nf = 10, 
 #'   standardize = FALSE, intercept = FALSE, parallel = TRUE))
 #' }  
-#' }
 #' @export cv.panel.sglfit
 cv.panel.sglfit <- function(x, y, lambda = NULL, gamma = 1.0, gindex = 1:p, nfolds = 10, foldid, method = c("pooled", "fe"), nf = NULL, parallel = FALSE, ...) {
   method <- match.arg(method)

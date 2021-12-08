@@ -21,13 +21,11 @@
 #' @return midas.ardl object.
 #' @author Jonas Striaukas
 #' @examples
-#' \donttest{ 
 #' set.seed(1)
 #' x = matrix(rnorm(100 * 20), 100, 20)
 #' z = rnorm(100)
 #' y = rnorm(100)
 #' midas.ardl(y = y, x = x, z = z)
-#' }
 #' @export midas.ardl
 midas.ardl <- function(y, x, z = NULL, loss_choice = c("mse","logit"), poly_choice = c("legendre","expalmon","beta"), poly_spec = 0, legendre_degree = 3, nbtrials = 500){
   loss <- match.arg(loss_choice)

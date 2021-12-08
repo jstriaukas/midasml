@@ -18,7 +18,6 @@
 #' @return ic.sglfit object.
 #' @author Jonas Striaukas
 #' @examples
-#' \donttest{ 
 #' set.seed(1)
 #' x = matrix(rnorm(100 * 20), 100, 20)
 #' beta = c(5,4,3,2,1,rep(0, times = 15))
@@ -26,7 +25,6 @@
 #' gindex = sort(rep(1:4,times=5))
 #' ic.sglfit(x = x, y = y, gindex = gindex, gamma = 0.5, 
 #'   standardize = FALSE, intercept = FALSE)
-#' }
 #' @export ic.sglfit
 ic.sglfit <- function(x, y, lambda = NULL, gamma = 1.0, gindex = 1:p, ...){
   sglfit.object <- sglfit(x, y, gamma = gamma, gindex = gindex, ...)
