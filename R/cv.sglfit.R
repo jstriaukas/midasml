@@ -84,7 +84,7 @@ cv.sglfit <- function(x, y, lambda = NULL, gamma = 1.0, gindex = 1:p, nfolds = 1
   cv.fit <- list(lam.min = list(b0 = sglfit.object$b0[idxmin], beta = sglfit.object$beta[,idxmin]), 
                     lam.1se = list(b0 = sglfit.object$b0[idx1se], beta = sglfit.object$beta[,idx1se]))
   
-  obj <- list(lambda = lambda, cvm = cvm, cvsd = cvsd, cvupper = cvm + 
+  obj <- list(lambda = lambda, gamma = gamma, cvm = cvm, cvsd = cvsd, cvupper = cvm + 
               cvsd, cvlower = cvm - cvsd, nzero = nz, name = cvname, lamin = lamin, 
               sgl.fit = sglfit.object, cv.fit = cv.fit)
   class(obj) <- "cv.sglfit"

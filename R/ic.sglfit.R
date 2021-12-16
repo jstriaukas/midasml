@@ -54,7 +54,7 @@ ic.sglfit <- function(x, y, lambda = NULL, gamma = 1.0, gindex = 1:p, ...){
                     aic.fit = list(b0 = sglfit.object$b0[idx[2]], beta = sglfit.object$beta[,idx[2]]),
                     aicc.fit = list(b0 = sglfit.object$b0[idx[3]], beta = sglfit.object$beta[,idx[3]]))
   
-  obj <- list(lambda = lambda, cvm = cvm, lamin = lamin,
+  obj <- list(lambda = lambda, gamma = gamma, cvm = cvm, lamin = lamin,
               fit = sglfit.object, ic.fit = ic.fit)
   class(obj) <- "ic.sglfit"
   obj

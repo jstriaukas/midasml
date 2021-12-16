@@ -3,7 +3,7 @@
 #' @description 
 #' Does k-fold time series cross-validation for sg-LASSO regression model.
 #' 
-#' The function runs \link{sglfit} \code{nfolds+1} times; the first to get the path solution in \ifelse{html}{\out{&lambda;}}{\code{lambda}} sequence, the rest to compute the fit with each of the folds omitted. 
+#' The function runs \link{sglfit} \code{K+1} times; the first to get the path solution in \ifelse{html}{\out{&lambda;}}{\code{lambda}} sequence, the rest to compute the fit with each of the test observation \ifelse{html}{\out{k &isin; K}}{\eqn{k \in K}.} 
 #' The average error and standard deviation over the folds is computed, and the optimal regression coefficients are returned for \code{lam.min} and \code{lam.1se}. Solutions are computed for a fixed \ifelse{html}{\out{&gamma;}}{\eqn{\gamma}.}
 #'
 #' @details
@@ -16,8 +16,8 @@
 #' @param lambda a user-supplied lambda sequence. By leaving this option unspecified (recommended), users can have the program compute its own \ifelse{html}{\out{&lambda;}}{\eqn{\lambda}} sequence based on \ifelse{html}{\out{<code>nlambda</code>}}{\code{nlambda}} and \ifelse{html}{\out{&gamma;}}{\eqn{\gamma}} \code{lambda.factor.} It is better to supply, if necessary, a decreasing sequence of lambda values than a single (small) value, as warm-starts are used in the optimization algorithm. The program will ensure that the user-supplied \code{lambda} sequence is sorted in decreasing order before fitting the model.
 #' @param gamma sg-LASSO mixing parameter. \ifelse{html}{\out{&gamma;}}{\eqn{\gamma}} = 1 gives LASSO solution and \ifelse{html}{\out{&gamma;}}{\eqn{\gamma}} = 0 gives group LASSO solution.
 #' @param gindex p by 1 vector indicating group membership of each covariate.
-#' @param K number of folds of the cv loop. Default set to \code{20}.
-#' @param l the gap used to drop observations round test set data. For each test observation (in total K), we drop 2l observations such that the test observation at time t is separated by \code{l} observations. Default set to \code{5}.
+#' @param K number of observations drawn for the test set. Default set to \code{20}.
+#' @param l the gap used to drop observations round the test set data point. Default set to \code{5}.
 #' @param parallel if \code{TRUE}, use parallel foreach to fit each fold. Must register parallel before hand, such as doMC or others. See the example below.
 #' @param seed set a value for seed to control results replication, i.e. \code{set.seed(seed)} is used. \code{seed} is stored in the output list. Default set to \code{as.numeric(Sys.Date())}.
 #' @param ... Other arguments that can be passed to \link{sglfit}.
@@ -57,19 +57,19 @@ tscv.sglfit <- function(x, y, lambda = NULL, gamma = 1.0, gindex = 1:p, K = 20, 
     stop("l must be at least 2; l=5 recommended")
   } 
   if (K < 1) 
-    stop("K must be at least 1; K=5 recommended")
+    stop("K must be at least 1; K=20 recommended")
   if (K >= N) 
-    stop("K must be at most T-1; K=5 recommended")
+    stop("K must be at most T-1; K=20 recommended")
+  
   if (is.null(seed)){
     seed <- as.numeric(Sys.Date())
   }
   set.seed(seed)
-  nk <- floor(N/K)
-  foldid <- matrix(sample(1:N)[1:(nk*K)], nrow = nk)
+  foldid <- sample(1:N, K, replace = FALSE)
   outlist <- vector("list", length = K)
   if (parallel){
     outlist <- foreach(i = seq(K), .packages = c("midasml")) %dopar%{
-      whichfoldnot <- foldid[,i]
+      whichfoldnot <- foldid[i]
       whichgaptrain <- computegapobs(whichfoldnot, N, l)
       y_sub <- y[whichgaptrain]
       outlist[[i]] <- sglfit(x = x[whichgaptrain, , drop = FALSE], 
@@ -77,7 +77,7 @@ tscv.sglfit <- function(x, y, lambda = NULL, gamma = 1.0, gindex = 1:p, K = 20, 
     }
   } else {
     for (i in seq(K)) {
-      whichfoldnot <- foldid[,i]
+      whichfoldnot <- foldid[i]
       whichgaptrain <- computegapobs(whichfoldnot, N, l)
       y_sub <- y[whichgaptrain]
       outlist[[i]] <- sglfit(x = x[whichgaptrain, , drop = FALSE], 
@@ -94,7 +94,7 @@ tscv.sglfit <- function(x, y, lambda = NULL, gamma = 1.0, gindex = 1:p, K = 20, 
   cv.fit <- list(lam.min = list(b0 = sglfit.object$b0[idxmin], beta = sglfit.object$beta[,idxmin]), 
                  lam.1se = list(b0 = sglfit.object$b0[idx1se], beta = sglfit.object$beta[,idx1se]))
   
-  obj <- list(lambda = lambda, cvm = cvm, cvsd = cvsd, cvupper = cvm + 
+  obj <- list(lambda = lambda, gamma = gamma, cvm = cvm, cvsd = cvsd, cvupper = cvm + 
                 cvsd, cvlower = cvm - cvsd, nzero = nz, name = cvname, lamin = lamin, set.seed = set.seed,
               sgl.fit = sglfit.object, cv.fit = cv.fit)
   class(obj) <- "tscv.sglfit"
@@ -119,11 +119,11 @@ tscv.sglfit <- function(x, y, lambda = NULL, gamma = 1.0, gindex = 1:p, K = 20, 
 tscv.sglpath <- function(outlist, lambda, x, y, foldid, ...) {
   typenames <- "Single outcome sg-LASSO"
   y <- as.double(y)
-  K <- dim(foldid)[2]
+  K <- length(foldid)
   predmat <- matrix(NA, length(y), length(lambda))
   nlams <- double(K)
   for (i in seq(K)) {
-    whichfold <- foldid[,i]
+    whichfold <- foldid[i]
     fitobj <- outlist[[i]]
     preds <- predict.sglpath(fitobj, x[whichfold, , drop = FALSE], ...)
     nlami <- length(outlist[[i]]$lambda)

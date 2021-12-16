@@ -43,24 +43,53 @@ reg.sgl <- function(x, y, gamma = NULL, gindex, intercept = TRUE, method_choice 
     gamma <- 0.8 
     warning("gamma parameter is set to 0.8 as it is un-supplied.")
   }
-  
   if (method_choice=="ic"){
     if(verbose)
       message(paste0("computing solution using information criteria"))
-    
-    fit <- ic.sglfit(x, y, gamma = gamma, gindex = gindex, intercept = intercept, ...)
+    if (length(gamma) == 1){
+      fit <- ic.sglfit(x, y, gamma = gamma, gindex = gindex, intercept = intercept, ...)
+    } else {
+      cvms <- matrix(0, nrow = numeric(length(gamma)), ncol = 3)
+      for (j in seq(length(gamma))){
+        cvms[j, ] <- apply(ic.sglfit(x, y, gamma = gamma[j], gindex = gindex, intercept = intercept, ...)$cvm, 2, min)
+      }
+      mins <- apply(cvms, 2, min)
+      fit <- NULL
+      for (i in seq(3)){
+        idx <- which(cvms == mins[i], arr.ind = T)[1]
+        fit[[i]] <- ic.sglfit(x, y, gamma = gamma[idx], gindex = gindex, intercept = intercept, ...)
+      }
+    }
   }
   if (method_choice=="cv") {
     if(verbose)
       message(paste0("computing cross-validation fit"))
     
-    fit <- cv.sglfit(x, y, gamma = gamma, gindex = gindex, intercept = intercept, ...)
+    if (length(gamma) == 1){
+      fit <- cv.sglfit(x, y, gamma = gamma, gindex = gindex, intercept = intercept, ...)
+    } else {
+      cvms <- numeric(length(gamma))
+      for (j in seq(length(gamma))){
+        cvms[j] <- min(cv.sglfit(x, y, gamma = gamma[j], gindex = gindex, intercept = intercept, ...)$cvm)
+      }
+      idx <- which(cvms == min(cvms))
+      fit <- cv.sglfit(x, y, gamma = gamma[idx], gindex = gindex, intercept = intercept, ...)
+    }
   }
   if (method_choice=="tscv") {
     if(verbose)
       message(paste0("computing time series cross-validation fit"))
     
-    fit <- tscv.sglfit(x, y, gamma = gamma, gindex = gindex, intercept = intercept, ...)
+    if (length(gamma) == 1){
+      fit <- cv.sglfit(x, y, gamma = gamma, gindex = gindex, intercept = intercept, ...)
+    } else {
+      cvms <- numeric(length(gamma))
+      for (j in seq(length(gamma))){
+        cvms[j] <- min(tscv.sglfit(x, y, gamma = gamma[j], gindex = gindex, intercept = intercept, ...)$cvm)
+      }
+      idx <- which(cvms == min(cvms))
+      fit <- tscv.sglfit(x, y, gamma = gamma[idx], gindex = gindex, intercept = intercept, ...)
+    }
   }
   class(fit) <- c("reg.sgl", class(fit))
   fit
