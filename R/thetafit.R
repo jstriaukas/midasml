@@ -1,4 +1,4 @@
-#' Nodewise LASSO regressions to fit the precision matrix \ifelse{html}{\out{&Theta;}}{\eqn{\Theta}}.
+#' Nodewise LASSO regressions to fit the precision matrix \ifelse{html}{\out{&Theta;}}{\eqn{\Theta}}
 #' 
 #' @description 
 #' Fits the precision matrix \ifelse{html}{\out{&Theta;}}{\eqn{\Theta}} by running nodewise LASSO regressions. 
@@ -50,7 +50,7 @@ thetafit <- function(x, parallel = FALSE, ncores = getOption("mc.cores", NULL), 
     }
     i <- 1
     output <- foreach(i = 1:p, .packages = c("midasml"), .options.RNG=seed, .options.snow=opts) %dorng% {
-      fit <- tscv.sglfit(x[,-i], x[,i], gamma = 1.0, K = K, l = l, seed = NULL, intercept = FALSE, standardize = FALSE, ...)
+      fit <- tscv.sglfit(x[,-i], x[,i], gamma = 1.0, K = K, l = l, seed = seed, intercept = intercept,  ...)
       coeffs <- as.vector(fit$cv.fit$lam.min$beta) 
       # get lambda.min
       lambda <- fit$lambda.min
@@ -67,7 +67,7 @@ thetafit <- function(x, parallel = FALSE, ncores = getOption("mc.cores", NULL), 
   } else {
     i <- 1
     output <- foreach(i = 1:p, .packages = c("midasml")) %do% {
-      fit <- tscv.sglfit(x[,-i], x[,i], gamma = 1.0, K = K, l = l, seed = seed, intercept = intercept, standardize = FALSE)
+      fit <- tscv.sglfit(x[,-i], x[,i], gamma = 1.0, K = K, l = l, seed = seed, intercept = intercept, ...)
       coeffs <- as.vector(fit$cv.fit$lam.min$beta) 
       # get lambda.min
       lambda <- fit$lambda.min

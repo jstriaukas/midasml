@@ -81,7 +81,7 @@ reg.sgl <- function(x, y, gamma = NULL, gindex, intercept = TRUE, method_choice 
       message(paste0("computing time series cross-validation fit"))
     
     if (length(gamma) == 1){
-      fit <- cv.sglfit(x, y, gamma = gamma, gindex = gindex, intercept = intercept, ...)
+      fit <- tscv.sglfit(x, y, gamma = gamma, gindex = gindex, intercept = intercept, ...)
     } else {
       cvms <- numeric(length(gamma))
       for (j in seq(length(gamma))){

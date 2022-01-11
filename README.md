@@ -19,10 +19,10 @@ The package is equipped with the fast implementation of the sparse-group LASSO e
 ## Run to install the package
 
 ```{r }
-# CRAN version - 0.1.8
+# CRAN version - 0.1.9
 install.packages("midasml") 
 
-# Development version - 0.1.8
+# Development version - 0.1.9
 # install.packages("devtools")
 library(devtools)
 install_github("jstriaukas/midasml")
