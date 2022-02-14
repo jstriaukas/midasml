@@ -27,11 +27,10 @@ install.packages("midasml")
 library(devtools)
 install_github("jstriaukas/midasml")
 ```
+## Acknowledgements
+
+Jonas Striaukas acknowledges that this material is based upon work supported by the Fund for Scientific Research-FNRS (Belgian National Fund for Scientific Research) under Grant #FC21388.
 
 ## References
 
 [^1]: Babii, A., Ghysels, E., & Striaukas, J. (2021). Machine learning time series regressions with an application to nowcasting. forthcoming at *Journal of Business & Economic Statistics*, https://doi.org/10.1080/07350015.2021.1899933. 
-
-## Acknowledgements
-
-Jonas Striaukas acknowledges that this material is based upon work supported by the Fund for Scientific Research-FNRS (Belgian National Fund for Scientific Research) under Grant #FC21388.
