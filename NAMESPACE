@@ -12,7 +12,6 @@ importFrom("stats", "approx", "coef", "glm", "nlm")
 importFrom("utils", "capture.output")
 importFrom("methods", "new")
 importFrom("Matrix", "Diagonal")
-importFrom("mcGlobaloptim", "multiStartoptim")
 
 export(thetafit)
 export(tscv.sglfit)
