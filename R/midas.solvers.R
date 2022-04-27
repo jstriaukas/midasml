@@ -20,7 +20,8 @@ optim_ardl_beta <- function(y, z, x, poly_spec = 0, nbtrials = 100){
   # get parameter constraints:
   constr <- get_constr_beta(poly_spec, k)
   #-------------------- main optimization --------------------#
-  invisible(capture.output(opt <- mcGlobaloptim::multiStartoptim(objectivefn = estimate_ardl_beta, 
+  # multiStartoptim is defined in R/multistartoptim.R
+  invisible(capture.output(opt <- multiStartoptim(objectivefn = estimate_ardl_beta, 
                                         gradient = gradient_ardl_beta,
                                         data = dataList,
                                         hessian = hessian_ardl_beta, 
