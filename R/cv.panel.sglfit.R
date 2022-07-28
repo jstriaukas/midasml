@@ -75,7 +75,7 @@ cv.panel.sglfit <- function(x, y, lambda = NULL, gamma = 1.0, gindex = 1:p, nfol
   
   outlist <- vector("list", length = nfolds)
   if (parallel){
-    outlist <- foreach(i = seq(nfolds), .packages = c("midsaml")) %dopar%{
+    outlist <- foreach(i = seq(nfolds), .packages = c("midasml")) %dopar%{
       whichfoldnot <- which(!foldid == i)
       y_sub <- y[whichfoldnot]
       sglfit(x = x[whichfoldnot, , drop = FALSE], y = y_sub, 
