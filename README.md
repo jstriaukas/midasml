@@ -7,7 +7,7 @@ midasml - Estimation and Prediction Methods for High-Dimensional Mixed Frequency
 
 ## About
 
-The *midasml* package implements *estimation* and *prediction* methods for high-dimensional mixed-frequency (MIDAS) time-series and panel data regression models. The regularized MIDAS models are estimated using orthogonal (e.g. Legendre) polynomials and sparse-group LASSO estimator. For more information on the *midasml* approach see [^1][^2]. 
+The *midasml* package implements *estimation* and *prediction* methods for high-dimensional mixed-frequency (MIDAS) time-series and panel data regression models. The regularized MIDAS models are estimated using orthogonal (e.g. Legendre) polynomials and sparse-group LASSO estimator. For more information on the *midasml* approach see [^1][^2][^3]. 
 
 The package is equipped with the fast implementation of the sparse-group LASSO estimator by means of proximal block coordinate descent. High-dimensional mixed frequency time-series data can also be easily manipulated with functions provided in the package.
 
@@ -37,3 +37,5 @@ Jonas Striaukas acknowledges that this material is based upon work supported by 
 [^1]: Babii, A., Ghysels, E., & Striaukas, J. Machine learning time series regressions with an application to nowcasting, (2022) *Journal of Business & Economic Statistics*, Volume 40, Issue 3, 1094-1106. https://doi.org/10.1080/07350015.2021.1899933. 
 
 [^2]: Babii, A., Ghysels, E., & Striaukas, J. High-dimensional Granger causality tests with an application to VIX and news, (2022) *Journal of Financial Econometrics*, Forthcoming.
+
+[^2]: Babii, A., R. Ball, Ghysels, E., & Striaukas, J. Machine learning panel data regressions with heavy-tailed dependent data: Theory and application, (2022) *Journal of Econometrics*, Forthcoming.
