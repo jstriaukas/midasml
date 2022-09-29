@@ -3,7 +3,7 @@
 [![Downloads](http://cranlogs.r-pkg.org/badges/midasml)](http://www.r-pkg.org/pkg/midasml)
 # midasml
 
-midasml - Estimation and Prediction Methods for High-Dimensional Mixed Frequency Time Series Data
+midasml - Estimation and Prediction Methods for High-Dimensional Mixed Frequency Time Series and Panel Data
 
 ## About
 
@@ -38,4 +38,4 @@ Jonas Striaukas acknowledges that this material is based upon work supported by 
 
 [^2]: Babii, A., Ghysels, E., & Striaukas, J. High-dimensional Granger causality tests with an application to VIX and news, (2022) *Journal of Financial Econometrics*, Forthcoming.
 
-[^2]: Babii, A., R. Ball, Ghysels, E., & Striaukas, J. Machine learning panel data regressions with heavy-tailed dependent data: Theory and application, (2022) *Journal of Econometrics*, Forthcoming.
+[^3]: Babii, A., R. Ball, Ghysels, E., & Striaukas, J. Machine learning panel data regressions with heavy-tailed dependent data: Theory and application, (2022) *Journal of Econometrics*, Forthcoming.
