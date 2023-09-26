@@ -261,7 +261,7 @@ SUBROUTINE lassofitpathF(maj, nobs, nvars, x, y, ju, pf, dfmax, &
     DOUBLE PRECISION :: tmp, d, dif, oldb, u, v, al, flmin
     DOUBLE PRECISION,  DIMENSION(:),  ALLOCATABLE :: b, oldbeta, r
 
-    INTEGER :: k, j, l, vrg, ctr, ierr, ni, me, pln
+    INTEGER :: k, j, l, vrg, ctr, ierr, ni, me, pln, iter
     INTEGER,  DIMENSION(:),  ALLOCATABLE :: mm
     ! -------- ALLOCATE VARIABLES -------- !
     ALLOCATE(b(0:nvars), STAT=jerr)
@@ -299,6 +299,7 @@ SUBROUTINE lassofitpathF(maj, nobs, nvars, x, y, ju, pf, dfmax, &
                 DO k = 1, nvars
                     IF (pln == 1) THEN
                         oldb = b(k)
+                        iter = 1
                         DO ! BEGIN PROXIMAL COORDINATE DESCENT
                             !u = 0.0D0
                             u = maj(k) * b(k) + DOT_PRODUCT(r,x(:,k))/nobs
@@ -310,8 +311,10 @@ SUBROUTINE lassofitpathF(maj, nobs, nvars, x, y, ju, pf, dfmax, &
                             END IF
                             d = tmp - b(k)
                             IF (d**2 < eps) EXIT
+                            IF (iter > maxit) EXIT
                             b(k) = tmp
                             r = r - x(:,k) * d
+                            iter = iter + 1
                         END DO ! END PROXIMAL GRADIENT DESCENT
                         d = b(k) - oldb
                         IF (ABS(d) > 0.0D0) THEN
@@ -352,11 +355,14 @@ SUBROUTINE lassofitpathF(maj, nobs, nvars, x, y, ju, pf, dfmax, &
                 IF (ni > pmax) EXIT
                 IF (intr == 1) THEN
                     oldb = b(0)
+                    iter = 1
                     DO ! BEGIN GRADIENT DESCENT
                         d = SUM(r)/nobs
                         IF (d**2 < eps) EXIT
+                        IF (iter > maxit) EXIT
                         b(0) = b(0) + d
                         r = r - d
+                        iter = iter + 1
                     END DO ! END GRADIENT DESCENT
                     d = b(0) - oldb
                     IF (ABS(d) > 0.0D0) dif = MAX(dif, d**2)
